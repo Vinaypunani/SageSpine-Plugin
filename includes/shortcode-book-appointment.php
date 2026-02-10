@@ -28,7 +28,7 @@ function render_sage_book_appointment() {
 
         <!-- Steps Header -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-center text-emerald-600 mb-2">Enter Appointment Details</h1>
+            <h1 id="booking-main-title" class="text-3xl font-bold text-center text-emerald-600 mb-2">Enter Appointment Details</h1>
              <!-- Progress Steps can go here if needed -->
         </div>
 
@@ -54,7 +54,7 @@ function render_sage_book_appointment() {
                             <i data-lucide="calendar" class="w-5 h-5 text-gray-400"></i>
                             <span class="font-medium text-gray-600" id="summary-date-time">Date, Time & Consultant</span>
                         </div>
-                         <i data-lucide="check" class="hidden w-4 h-4 text-emerald-600"></i>
+                         <i data-lucide="chevron-right" class="w-4 h-4 text-emerald-600"></i>
                     </div>
                 </div>
 
@@ -65,6 +65,7 @@ function render_sage_book_appointment() {
                             <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
                             <span class="font-medium text-gray-600">Your Info</span>
                         </div>
+                         <i data-lucide="chevron-right" class="w-4 h-4 text-emerald-600 hidden"></i>
                     </div>
                 </div>
             </div>
@@ -205,11 +206,7 @@ function render_sage_book_appointment() {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Phone number *</label>
                             <div class="flex">
-                                <select class="border bg-gray-50 text-gray-500 rounded-l-md border-r-0 p-2 text-sm w-16" style="border-color: #d1d5db;">
-                                    <option>+1</option>
-                                    <option>+91</option>
-                                </select>
-                                <input type="tel" name="phone" required placeholder="Contact Number" class="w-full border rounded-r-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2" style="border-color: #d1d5db;">
+                                <input type="tel" name="phone" required placeholder="Contact Number" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2" style="border-color: #d1d5db;">
                             </div>
                         </div>
 
@@ -326,6 +323,10 @@ function render_sage_book_appointment() {
                 document.getElementById('appointment-sidebar').classList.add('hidden');
                 document.getElementById('appointment-main-content').classList.remove('md:w-2/3');
                 
+                // Hide Main Title on Success Page
+                const mainTitle = document.getElementById('booking-main-title');
+                if(mainTitle) mainTitle.classList.add('hidden');
+                
             } else {
                 const stepView = document.getElementById(`view-step-${step}`);
                 if (stepView) {
@@ -335,6 +336,10 @@ function render_sage_book_appointment() {
                 // Normal layout
                 document.getElementById('appointment-sidebar').classList.remove('hidden');
                 document.getElementById('appointment-main-content').classList.add('md:w-2/3');
+                
+                // Show Main Title on other pages
+                const mainTitle = document.getElementById('booking-main-title');
+                if(mainTitle) mainTitle.classList.remove('hidden');
             }
 
             updateSidebar();
@@ -344,7 +349,8 @@ function render_sage_book_appointment() {
             const steps = [1, 2, 3];
             steps.forEach(s => {
                 const el = document.getElementById(`step-${s}-trigger`);
-                const icon = el.querySelector('i');
+                // Select the chevron-right icon (it's the last child in our structure)
+                const icon = el.querySelector('i:last-child'); 
                 const text = el.querySelector('span');
                 
                 // Reset click handler
@@ -356,30 +362,37 @@ function render_sage_book_appointment() {
                 };
                 
                 if (s === state.step) {
+                    // Active Step
                     el.className = "p-4 border rounded-lg cursor-pointer transition-colors border-emerald-500 bg-emerald-50";
                     text.classList.remove('text-gray-600'); 
                     text.classList.add('text-emerald-700');
                     if(icon) {
-                        icon.classList.remove('text-gray-400', 'text-emerald-600');
+                        // Show active arrow (or keep hidden if design prefers no arrow on active)
+                        // Step 1 has arrow on active in screenshot? No, typically active doesn't point right.
+                        // But user said "like first step". In screenshot 1, first step has arrow.
+                        // Let's make sure it's visible and green.
+                        icon.classList.remove('hidden', 'text-gray-400');
                         icon.classList.add('text-emerald-600');
                     }
                 } else if (s < state.step) {
-                    // Completed
+                    // Completed Step
                     el.className = "p-4 border rounded-lg cursor-pointer transition-colors border-green-100 bg-white hover:bg-green-50";
                     text.classList.remove('text-gray-600', 'text-emerald-700');
                     text.classList.add('text-gray-800');
                     if(icon) {
-                        icon.classList.remove('text-gray-400', 'text-emerald-600');
+                        // Completed steps MUST show the arrow as per user request
+                        icon.classList.remove('hidden', 'text-gray-400');
                         icon.classList.add('text-emerald-600');
                     }
                 } else {
-                    // Future
+                    // Future Step
                      el.className = "p-4 border rounded-lg cursor-not-allowed transition-colors border-gray-100 bg-gray-50 opacity-60";
                      text.classList.remove('text-emerald-700', 'text-gray-800');
                      text.classList.add('text-gray-400');
                      if(icon) {
+                        // Future steps usually hide arrow or show gray
                         icon.classList.remove('text-emerald-600');
-                        icon.classList.add('text-gray-400');
+                        icon.classList.add('text-gray-400', 'hidden'); // Hide on future
                      }
                      el.onclick = null;
                 }
@@ -588,8 +601,11 @@ function render_sage_book_appointment() {
         }
 
         async function changeWeek(direction) {
+            const isMobile = window.innerWidth < 768;
+            const daysToScroll = isMobile ? 5 : 7;
+            
             const newDate = new Date(state.weekStartDate);
-            newDate.setDate(newDate.getDate() + (direction * 7));
+            newDate.setDate(newDate.getDate() + (direction * daysToScroll));
             
             state.weekStartDate = newDate;
             await loadWeekData();
@@ -603,7 +619,23 @@ function render_sage_book_appointment() {
             const slotsContainer = document.getElementById('slots-container');
             
             // Show loading
-            if(loadingEl) loadingEl.classList.remove('hidden');
+            if(loadingEl) {
+                loadingEl.classList.remove('hidden');
+                
+                // Responsive Skeleton
+                const isMobile = window.innerWidth < 768;
+                const daysToShow = isMobile ? 5 : 7;
+                const boxClass = isMobile ? "min-w-[46px] w-[46px] h-14" : "min-w-[64px] w-16 h-16 square";
+                const gapClass = isMobile ? "gap-2" : "gap-3";
+                
+                let skeletonHTML = `<div class="flex ${gapClass}">`;
+                for(let i=0; i<daysToShow; i++) {
+                     skeletonHTML += `<div class="${boxClass} rounded-lg bg-gray-100 animate-pulse" style="animation-delay: ${i * 0.1}s"></div>`;
+                }
+                skeletonHTML += `</div>`;
+                loadingEl.innerHTML = skeletonHTML;
+            }
+
             if(trackEl) trackEl.innerHTML = ''; // Clear the track completely
             
             // Hide slots until a date is selected
@@ -618,7 +650,7 @@ function render_sage_book_appointment() {
             }
             
             // Start both the data fetch and minimum display timer
-            const minDisplayTime = new Promise(resolve => setTimeout(resolve, 400));
+            const minDisplayTime = new Promise(resolve => setTimeout(resolve, 300));
             
             // Render calendar structure first (without data)
             renderCalendarDays();
