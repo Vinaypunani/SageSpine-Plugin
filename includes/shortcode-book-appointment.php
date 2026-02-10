@@ -693,7 +693,7 @@ function render_sage_book_appointment() {
             // Clear track classes and re-apply responsive gap/padding
             // Mobile: px-8 (less padding for arrows), gap-1 (tighter)
             // Desktop: px-16, gap-3
-            container.className = `flex ${isMobile ? 'gap-2 px-9' : 'gap-3 px-16'} overflow-x-auto justify-center pb-2 min-h-[64px] snap-x no-scrollbar`;
+            container.className = `flex ${isMobile ? 'gap-2 px-9' : 'gap-3 px-16'} justify-center pb-2 min-h-[64px] snap-x no-scrollbar leading-none shadow-none`;
 
             for (let i = 0; i < daysToShow; i++) {
                 const date = new Date(state.weekStartDate);
@@ -950,7 +950,7 @@ function render_sage_book_appointment() {
                 
                 periodSlots.forEach(time => {
                     const btn = document.createElement('button');
-                    btn.className = 'py-3 px-4 border border-black rounded text-sm text-gray-700 bg-white hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors';
+                    btn.className = 'py-3 px-4 border border-black rounded text-sm text-gray-700 bg-white hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors shadow-none';
                     btn.innerText = time;
                     btn.onclick = () => {
                         state.selectedSlot = time;
