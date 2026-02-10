@@ -1,0 +1,824 @@
+/* Sage Spine Appointment Widget Styles */
+
+/* 1. Flatpickr Override (Global - kept intentionally but scoped where possible later if needed) */
+.flatpickr-calendar {
+    z-index: 20000 !important;
+}
+
+/* 2. Plugin Isolation Root (Modal) */
+#sage-popup-root .sage-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#sage-popup-root .sage-modal-overlay.open {
+    display: flex;
+    opacity: 1;
+}
+
+#sage-popup-root .sage-modal {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    /* Ensure proper sizing */
+}
+
+#sage-popup-root .sage-modal-overlay.open .sage-modal {
+    transform: translateY(0);
+}
+
+#sage-popup-root .sage-modal.sage-modal-wide {
+    max-width: 800px;
+    height: 650px;
+    max-height: 90vh;
+    padding-bottom: 0 !important;
+    display: flex;
+    flex-direction: column;
+}
+
+#sage-popup-root .sage-results-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 30px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+#sage-popup-root .sage-results-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    overflow: hidden;
+}
+
+#sage-popup-root .sage-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s;
+    z-index: 10;
+}
+
+#sage-popup-root .sage-modal-close:hover {
+    color: #333;
+}
+
+#sage-popup-root .sage-modal h2 {
+    color: #2c3e50;
+    margin-bottom: 60px;
+    font-size: 1.8rem;
+    text-align: center;
+    border-bottom: 2px solid #0b0c2a;
+    padding-bottom: 10px;
+    display: inline-block;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+#sage-popup-root .sage-form-group {
+    position: relative !important;
+    margin-bottom: 25px !important;
+}
+
+/* #sage-popup-root .sage-form-group label {
+    display: none !important;
+} */
+
+#sage-popup-root .sage-form-input {
+    width: 100% !important;
+    padding: 12px 15px 12px 45px !important;
+    border: 1px solid #c8cdd4 !important;
+    border-radius: 50px !important;
+    font-size: 0.95rem !important;
+    color: #333 !important;
+    transition: all 0.3s !important;
+    background: #fff !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    line-height: normal !important;
+    height: auto !important;
+}
+
+#sage-popup-root .sage-form-input:focus {
+    outline: none !important;
+    border-color: #2c3e50 !important;
+    box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1) !important;
+}
+
+#sage-popup-root .sage-input-icon {
+    position: absolute !important;
+    left: 20px !important;
+    /* Fixed left position */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #95a5a6 !important;
+    font-size: 1rem !important;
+    pointer-events: none !important;
+    transition: color 0.3s !important;
+    z-index: 2;
+    /* Below label if label has white background? No, icon stays. Label moves. */
+}
+
+#sage-popup-root .sage-form-input:focus+.sage-input-icon {
+    color: #2c3e50 !important;
+}
+
+/* 9. Floating Labels */
+#sage-popup-root .sage-form-label {
+    position: absolute;
+    left: 48px;
+    /* Icon width + padding */
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    padding: 0 4px;
+    font-size: 0.95rem;
+    color: #6b7280;
+    /* Gray 500 */
+    transition: all 0.2s ease;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Float State: Input Focus OR Input Not Empty (using placeholder-shown trick OR JS class) */
+/* EXCLUDE DATE INPUT from the placeholder-shown logic because it causes false positives */
+#sage-popup-root .sage-form-input:not([type="date"]):focus~.sage-form-label,
+#sage-popup-root .sage-form-input:not([type="date"]):not(:placeholder-shown)~.sage-form-label,
+#sage-popup-root .sage-form-input.has-value~.sage-form-label {
+    top: 0;
+    font-size: 13px;
+    color: #2E8B57;
+    /* Sage Brand Color */
+    background: white;
+    z-index: 10;
+    left: 45px;
+    /* Slight adjustment if needed */
+}
+
+/* Date Input Specifics for Floating Label */
+/* Logic:
+   1. Unfocused + Empty (no .has-value): Label is inside. Native 'dd-mm-yyyy' hidden.
+   2. Focused: Label floats. Native 'dd-mm-yyyy' visible.
+   3. Filled (.has-value): Label floats. Date visible.
+*/
+
+/* 1. Trigger Float: Focus OR Has Value */
+/* Note: We removed :valid dependency because empty required fields can be valid/invalid inconsistently 
+   for UI purposes, so we rely on JS .has-value class */
+#sage-popup-root input[type="date"]:focus~.sage-form-label,
+#sage-popup-root input[type="date"].has-value~.sage-form-label {
+    top: 0;
+    font-size: 13px;
+    color: #2E8B57;
+    background: white;
+    z-index: 10;
+    left: 45px;
+}
+
+/* 2. Hide Native Mask (dd-mm-yyyy) when Unfocused & Empty */
+#sage-popup-root input[type="date"]:not(.has-value):not(:focus) {
+    color: transparent !important;
+}
+
+#sage-popup-root input[type="date"]:not(.has-value):not(:focus)::-webkit-datetime-edit {
+    color: transparent !important;
+    /* display: none !important; REMOVED to fix focus issue */
+}
+
+/* 3. Ensure visible when focused or has value */
+#sage-popup-root input[type="date"]:focus,
+#sage-popup-root input[type="date"].has-value {
+    color: #333 !important;
+}
+
+#sage-popup-root input[type="date"]:focus::-webkit-datetime-edit,
+#sage-popup-root input[type="date"].has-value::-webkit-datetime-edit {
+    color: #333 !important;
+    display: block !important;
+}
+
+#sage-popup-root .sage-btn-submit {
+    width: 100% !important;
+    background: #0b0c2a !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50px !important;
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: background 0.3s, transform 0.2s !important;
+    letter-spacing: 0.5px !important;
+    flex-shrink: 0 !important;
+    text-transform: none !important;
+    display: block !important;
+}
+
+#sage-popup-root .sage-btn-submit:hover {
+    background: #1a1b4b !important;
+    transform: translateY(-2px) !important;
+}
+
+#sage-popup-root .sage-btn-submit:active {
+    transform: translateY(0) !important;
+}
+
+#sage-popup-root .sage-results-container {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    flex: 1;
+    min-height: 0;
+    padding-right: 5px;
+}
+
+#sage-popup-root .sage-contact-header {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #2ecc71;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#sage-popup-root .sage-avatar {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+#sage-popup-root .sage-contact-info h3 {
+    margin: 0 0 5px 0;
+    color: #222;
+    font-size: 20px;
+}
+
+#sage-popup-root .sage-contact-dob {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 3px;
+}
+
+#sage-popup-root .sage-contact-email {
+    color: #888;
+    font-size: 13px;
+}
+
+#sage-popup-root .sage-events-title {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+#sage-popup-root .sage-event-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+#sage-popup-root .sage-event-info {
+    flex: 1;
+}
+
+#sage-popup-root .sage-event-date-row,
+#sage-popup-root .sage-event-doctor,
+#sage-popup-root .sage-event-status-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 14px;
+}
+
+#sage-popup-root .sage-event-date-row i,
+#sage-popup-root .sage-event-doctor i,
+#sage-popup-root .sage-event-status-row i {
+    margin-right: 10px;
+    width: 16px;
+    text-align: center;
+}
+
+#sage-popup-root .sage-btn-schedule-item {
+    margin-left: 15px;
+    background: #fff;
+    color: #4a5568;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    box-shadow: none;
+}
+
+#sage-popup-root .sage-btn-schedule-item i {
+    font-size: 16px;
+    margin-top: -2px;
+}
+
+#sage-popup-root .sage-btn-separator {
+    display: inline-block;
+    width: 1px;
+    height: 20px;
+    background: #cbd5e0;
+    margin: 0 12px;
+}
+
+#sage-popup-root .sage-btn-back {
+    background: #95a5a6;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+#sage-popup-root .sage-btn-back:hover {
+    background: #7f8c8d;
+}
+
+#sage-popup-root .sage-results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    flex-shrink: 0;
+}
+
+#sage-popup-root .sage-results-header h2 {
+    margin: 0 !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: 1.5rem;
+    width: auto !important;
+    flex: 1;
+    text-align: center;
+}
+
+#sage-popup-root .sage-back-icon {
+    font-size: 1.2rem;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+}
+
+#sage-popup-root .sage-back-icon:hover {
+    color: #2c3e50;
+}
+
+#sage-popup-root .sage-results-close {
+    position: static !important;
+    margin-left: 15px;
+    display: flex;
+    align-items: center;
+}
+
+#sage-popup-root .sage-event-actions {
+    /* width: 100% !important; */
+    /* margin-top: 15px !important; */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+}
+
+@media screen and (max-width: 768px) {
+    #sage-popup-root .sage-event-actions {
+        width: 100% !important;
+        margin-top: 15px !important;
+    }
+}
+
+#sage-popup-root .sage-btn-more {
+    margin-left: 10px;
+    background: #fff;
+    color: #4a5568;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#sage-popup-root .sage-btn-more:hover {
+    background: #f7fafc;
+    color: #2d3748;
+}
+
+#sage-popup-root .sage-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 5px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    min-width: 160px;
+    z-index: 50;
+    display: none;
+    overflow: hidden;
+}
+
+#sage-popup-root .sage-dropdown-menu.show {
+    display: block;
+    animation: fadeIn 0.15s ease-out;
+}
+
+#sage-popup-root .sage-dropdown-item {
+    padding: 10px 15px;
+    font-size: 14px;
+    color: #e53e3e;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-weight: 500;
+}
+
+#sage-popup-root .sage-dropdown-item:hover {
+    background: #fff5f5;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 3. Booking App (Shortcode) Styles - Migrated from Inline */
+#sage-booking-root .sage-booking-container {
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+    /* Reset for container */
+}
+
+#sage-booking-root .sage-booking-container * {
+    box-sizing: border-box;
+    /* Reset for internal elements */
+}
+
+#sage-booking-root .sage-slot-btn {
+    transition: all 0.2s;
+}
+
+#sage-booking-root .sage-slot-btn:hover {
+    border-color: #2E8B57;
+    color: #2E8B57;
+}
+
+#sage-booking-root .sage-slot-btn.sage-active {
+    background-color: #2E8B57 !important;
+    /* SeaGreen */
+    color: white !important;
+    border-color: #2E8B57 !important;
+}
+
+#sage-booking-root input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+}
+
+/* 4. Mobile Responsiveness (Scoped) */
+@media (max-width: 768px) {
+    #sage-popup-root .sage-modal {
+        width: 95% !important;
+        max-width: 380px !important;
+        max-height: 90vh !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    #sage-popup-root .sage-modal.sage-modal-wide {
+        width: 95% !important;
+        max-width: 380px !important;
+        height: 85vh !important;
+        max-height: 85vh !important;
+        margin: auto;
+    }
+
+    #sage-popup-root .sage-results-body {
+        padding: 20px !important;
+    }
+
+    #sage-popup-root .sage-responsive-split {
+        flex-direction: column !important;
+        height: auto !important;
+        overflow-y: visible !important;
+    }
+
+    #sage-popup-root .sage-split-left {
+        width: 100% !important;
+        padding: 30px 20px !important;
+        min-height: auto !important;
+        flex: 0 0 auto !important;
+    }
+
+    #sage-popup-root .sage-split-left h2 {
+        font-size: 22px !important;
+        margin-bottom: 10px !important;
+    }
+
+    #sage-popup-root .sage-split-right {
+        width: 100% !important;
+        padding: 30px 20px !important;
+        flex: 1 1 auto !important;
+    }
+
+    #sage-popup-root #sageInitialView h1 {
+        font-size: 22px !important;
+        margin-bottom: 12px !important;
+    }
+
+    #sage-popup-root #sageInitialView p {
+        font-size: 13px !important;
+        margin-bottom: 25px !important;
+    }
+
+    #sage-popup-root .sage-contact-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        text-align: center !important;
+    }
+
+    #sage-popup-root .sage-avatar {
+        margin: 0 auto 15px auto !important;
+    }
+
+    #sage-popup-root .sage-contact-info {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    #sage-popup-root .sage-event-card {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    #sage-popup-root .sage-btn-schedule-item {
+        margin-left: 0 !important;
+        margin-top: 0 !important;
+        width: auto !important;
+        flex: 1 !important;
+        justify-content: center !important;
+    }
+
+    #sage-popup-root .sage-btn-more {
+        margin-left: 0 !important;
+        flex-shrink: 0 !important;
+    }
+
+    #sage-popup-root .sage-modal-close {
+        top: 10px !important;
+        right: 15px !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    #sage-popup-root .sage-results-header {
+        padding: 15px !important;
+    }
+
+    #sage-popup-root .sage-results-header h2 {
+        font-size: 18px !important;
+    }
+}
+
+/* 5. Fix for Double Dropdown (Theme Conflict) */
+#sage-booking-root .nice-select {
+    display: none !important;
+}
+
+/* 6. Polished Button Actions */
+#sage-popup-root .sage-event-actions {
+    display: flex;
+    flex-direction: column;
+    /* Stack vertically for event actions */
+    gap: 8px;
+    /* margin-left: 15px; */
+    min-width: 150px;
+}
+
+/* 7. No Record Found Actions */
+#sage-popup-root .sage-no-record-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 550px;
+    margin: 0 auto;
+}
+
+#sage-popup-root .sage-no-record-actions .sage-btn-submit {
+    flex: 1;
+    min-width: 0;
+    width: 100% !important;
+    white-space: nowrap;
+    padding: 12px 20px !important;
+    height: auto !important;
+    line-height: normal !important;
+}
+
+/* Mobile Responsiveness for No Record Actions */
+@media screen and (max-width: 600px) {
+    #sage-popup-root .sage-no-record-actions {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    #sage-popup-root .sage-no-record-actions .sage-btn-submit {
+        width: 100% !important;
+        min-width: unset !important;
+    }
+
+    #sage-popup-root .sage-no-record-actions a {
+        width: 100% !important;
+    }
+}
+
+#sage-popup-root .sage-btn-direction,
+#sage-popup-root .sage-btn-reschedule,
+#sage-popup-root .sage-action-cancel {
+    width: 100%;
+    /* Full width of container */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none !important;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    height: 36px;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/* Directions Button (Secondary) */
+#sage-popup-root .sage-btn-direction {
+    background: #ffffff;
+    color: #2E8B57;
+    border: 1px solid #d1d5db;
+}
+
+#sage-popup-root .sage-btn-direction:hover {
+    background: #f9fafb;
+    border-color: #2E8B57;
+    color: #277c4d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Reschedule Button (Primary) */
+#sage-popup-root .sage-btn-reschedule {
+    background: #2E8B57;
+    color: white;
+    border: 1px solid #2E8B57;
+}
+
+#sage-popup-root .sage-btn-reschedule:hover {
+    background: #277c4d;
+    border-color: #277c4d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(46, 139, 87, 0.3);
+}
+
+/* Cancel Link Polish (Red Button) */
+#sage-popup-root .sage-action-cancel {
+    background: #ffffff;
+    color: #ef4444;
+    border: 1px solid #d1d5db;
+    /* margin-top: 8px; */
+    /* Spacing */
+}
+
+#sage-popup-root .sage-action-cancel:hover {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #b91c1c;
+    transform: translateY(-1px);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    text-decoration: none !important;
+}
+
+/* 8. Mobile Date Input Fixes */
+@media screen and (max-width: 768px) {
+
+    /* Hide the native calendar/arrow icon on mobile to avoid duplication with custom icon */
+    #sage-popup-root input[type="date"]::-webkit-calendar-picker-indicator {
+        background: transparent;
+        color: transparent;
+        cursor: pointer;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        z-index: 10;
+    }
+
+    /* Ensure the input acts as a container for the click */
+    #sage-popup-root input[type="date"] {
+        position: relative;
+        /* Ensure text is visible if supported, but usually it's empty initially */
+        min-height: 45px;
+    }
+
+    /* Simulate placeholder using ::before when the input value is empty (invalid) */
+    /* Update: Only show this when FOCUSED. When unfocused, we want the Floating Label "Date of Birth" to show */
+    #sage-popup-root input[type="date"]:invalid::-webkit-datetime-edit {
+        color: transparent;
+    }
+
+    #sage-popup-root input[type="date"]:invalid:focus::before {
+        content: attr(placeholder);
+        color: #333333;
+        position: absolute;
+        left: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        display: block;
+    }
+
+    /* When unfocused and invalid (empty), hide the pseudo placeholder so Label is visible */
+    #sage-popup-root input[type="date"]:invalid:not(:focus)::before {
+        display: none;
+    }
+
+    /* Only hide when valid (has value). removed :focus so it stays visible if empty+focused */
+    #sage-popup-root input[type="date"]:valid::before {
+        content: "" !important;
+        display: none;
+    }
+}
