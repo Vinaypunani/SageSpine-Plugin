@@ -29,6 +29,10 @@ function render_sage_book_appointment() {
             }
         }
     </script>
+    <script>
+        const WP_API_NONCE = "<?php echo $api_nonce; ?>";
+        const WP_MEDIA_ENDPOINT = "<?php echo esc_url_raw(rest_url('wp/v2/media')); ?>";
+    </script>
     <style>
         /* Scoped Reset to protect against Theme Styles */
         #sage-book-app {
@@ -268,6 +272,138 @@ function render_sage_book_appointment() {
                                     <i data-lucide="calendar" class="w-5 h-5 text-gray-400"></i>
                                 </div> -->
                                 <input type="date" name="dob" required class="pl-10 w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2" style="border-color: #d1d5db;">
+                            </div>
+                        </div>
+
+                        <!-- Optional Faster Scheduling Section -->
+                        <div class="pt-4 border-t border-gray-100 mt-4">
+                            <button type="button" id="toggle-optional-fields" class="w-full flex items-center justify-between text-left py-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 focus:outline-none">
+                                <span>For faster visit scheduling, please fill these additional fields</span>
+                                <i data-lucide="chevron-down" id="optional-fields-icon" class="w-4 h-4 transition-transform duration-200"></i>
+                            </button>
+                            
+                            <div id="optional-fields-container" class="hidden space-y-4 pt-4 animate-fade-in-down">
+                                
+                                <!-- Address Params -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                     <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+                                        <input type="text" name="address_street" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="123 Main St">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                        <input type="text" name="address_city" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="City">
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                     <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                                        <input type="text" name="address_state" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="State">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">ZIP Code</label>
+                                        <input type="text" name="address_zip" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="ZIP Code">
+                                    </div>
+                                </div>
+
+                                <!-- Insurance -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Insurance Info</label>
+                                    <select name="insurance_info" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
+                                        <option value="">Select Insurance</option>
+                                        <option value="Medicare">Medicare</option>
+                                        <option value="Medicare with Advantage Plan">Medicare with Advantage Plan</option>
+                                        <option value="Worker's Compensation">Worker's Compensation</option>
+                                        <option value="Auto/Motor Vehicle">Auto/Motor Vehicle</option>
+                                        <option value="Blue Cross">Blue Cross</option>
+                                        <option value="Ucare">Ucare</option>
+                                        <option value="HealthPartners">HealthPartners</option>
+                                        <option value="Medica">Medica</option>
+                                    </select>
+                                </div>
+
+                                <!-- File Upload -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Insurance Card Image</label>
+                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:bg-gray-50 transition-colors cursor-pointer relative" id="drop-zone">
+                                        <div class="space-y-1 text-center">
+                                            <i data-lucide="upload-cloud" class="mx-auto h-12 w-12 text-gray-400"></i>
+                                            <div class="flex text-sm text-gray-600 justify-center">
+                                                <label for="insurance-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-emerald-500">
+                                                    <span>Upload a file</span>
+                                                    <input id="insurance-upload" name="insurance_file" type="file" class="sr-only" accept="image/*,.pdf">
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
+                                        </div>
+                                        <!-- Hidden Input to store the URL after upload -->
+                                        <input type="hidden" name="insurance_card_url" id="insurance_card_url">
+                                        <!-- Loading/Success State -->
+                                        <div id="upload-status" class="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center hidden rounded-md">
+                                             <p class="text-sm font-medium text-gray-600">Uploading...</p>
+                                        </div>
+                                    </div>
+                                    <p id="file-name-display" class="mt-2 text-sm text-gray-500 hidden"></p>
+                                </div>
+
+                                <!-- Providers -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                     <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Pharmacy Phone</label>
+                                        <input type="tel" name="pharmacy_phone" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="Phone Number">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Referring Provider</label>
+                                        <input type="text" name="referring_provider" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="Provider Name">
+                                    </div>
+                                </div>
+
+                                <!-- Demographics -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Language</label>
+                                    <select name="language" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
+                                        <option value="">Select Language</option>
+                                        <option value="English">English</option>
+                                        <option value="Spanish">Spanish</option>
+                                        <option value="Other Indo-European">Other Indo-European Languages (e.g., German, French)</option>
+                                        <option value="Asian and Pacific Islander">Asian and Pacific Islander Languages</option>
+                                        <option value="Other">Other Languages (All other non-English, non-Spanish)</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Sex</label>
+                                    <select name="sex" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
+                                        <option value="">Select Sex</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Prefer not to answer">Prefer not to answer</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ethnicity</label>
+                                    <select name="ethnicity" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
+                                        <option value="">Select Ethnicity</option>
+                                        <option value="Not Hispanic or Latino (White)">Not Hispanic or Latino (White)</option>
+                                        <option value="Not Hispanic or Latino (Two or More Races)">Not Hispanic or Latino (Two or More Races)</option>
+                                        <option value="Not Hispanic or Latino (Asian)">Not Hispanic or Latino (Asian)</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Race</label>
+                                    <select name="race" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
+                                        <option value="">Select Race</option>
+                                        <option value="White">White</option>
+                                        <option value="Asian">Asian</option>
+                                        <option value="Black or African American">Black or African American</option>
+                                        <option value="American Indian/Alaska Native">American Indian/Alaska Native</option>
+                                    </select>
+                                </div>
+
                             </div>
                         </div>
 
@@ -1078,8 +1214,21 @@ function render_sage_book_appointment() {
                 formData.append('customer_details', JSON.stringify(customerDetails));
                 
                 // additional_fields as JSON string
+                // Map new optional fields + DOB
                 const additionalFields = {
-                    "Date Of Birth": formattedDOB
+                    "Date Of Birth": formattedDOB,
+                    "Street Address": data.address_street || "",
+                    "City": data.address_city || "",
+                    "State": data.address_state || "",
+                    "ZIP Code": data.address_zip || "",
+                    "Insurance Info": data.insurance_info || "",
+                    "Insurance Card": data.insurance_card_url || "",
+                    "What is your preferred pharmacy phone number?": data.pharmacy_phone || "",
+                    "Referring Provider": data.referring_provider || "",
+                    "Language": data.language || "",
+                    "Sex": data.sex || "",
+                    "Ethnicity": data.ethnicity || "",
+                    "Race": data.race || ""
                 };
                 formData.append('additional_fields', JSON.stringify(additionalFields));
                 
@@ -1132,6 +1281,131 @@ function render_sage_book_appointment() {
                 showLoading(false);
             }
         }
+
+
+        // --- Optional Fields Logic ---
+        function initOptionalFields() {
+             // Accordion Toggle
+            const toggleBtn = document.getElementById('toggle-optional-fields');
+            const container = document.getElementById('optional-fields-container');
+            const icon = document.getElementById('optional-fields-icon');
+
+            if (toggleBtn && container && icon) {
+                toggleBtn.addEventListener('click', () => {
+                    const isHidden = container.classList.contains('hidden');
+                    if (isHidden) {
+                        container.classList.remove('hidden');
+                        icon.style.transform = 'rotate(180deg)';
+                    } else {
+                        container.classList.add('hidden');
+                        icon.style.transform = 'rotate(0deg)';
+                    }
+                });
+            }
+
+            // File Upload Logic
+            const fileInput = document.getElementById('insurance-upload');
+            const fileNameDisplay = document.getElementById('file-name-display');
+            const hiddenUrlInput = document.getElementById('insurance_card_url');
+            const uploadStatus = document.getElementById('upload-status');
+            const dropZone = document.getElementById('drop-zone');
+
+            if (fileInput) {
+                fileInput.addEventListener('change', async (e) => {
+                    if (e.target.files.length > 0) {
+                        await handleFileUpload(e.target.files[0]);
+                    }
+                });
+            }
+            
+            // Drag and Drop
+            if (dropZone) {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, preventDefaults, false);
+                });
+
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => dropZone.classList.add('bg-gray-50', 'border-emerald-500'));
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => dropZone.classList.remove('bg-gray-50', 'border-emerald-500'));
+                });
+
+                dropZone.addEventListener('drop', async (e) => {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    if (files.length > 0) {
+                        fileInput.files = files; // Update input files
+                        await handleFileUpload(files[0]);
+                    }
+                });
+            }
+
+            async function handleFileUpload(file) {
+                // Validation (Max 1MB)
+                const MAX_SIZE = 1 * 1024 * 1024; // 1MB
+                if (file.size > MAX_SIZE) {
+                    alert("File is too large. Max size is 1MB.");
+                    fileInput.value = ''; // Reset input
+                    return;
+                }
+
+                // Show UI
+                fileNameDisplay.textContent = "Uploading...";
+                fileNameDisplay.classList.remove('hidden');
+                if(uploadStatus) uploadStatus.classList.remove('hidden');
+
+                try {
+                    // Generate Random Filename
+                    const timestamp = Date.now();
+                    const randomStr = Math.random().toString(36).substring(2, 8);
+                    const extension = file.name.split('.').pop();
+                    const newFileName = `insurance_${timestamp}_${randomStr}.${extension}`;
+
+                    // Upload to WP Media Library
+                    const formData = new FormData();
+                    // Pass the file with the new name
+                    formData.append('file', file, newFileName);
+
+                    // Note: WP REST API for Media usually requires Content-Disposition header if sending raw binary, 
+                    // but using FormData is often easier if supported or using 'file' param.
+                    // Let's try standard FormData upload which WP supports.
+                    
+                    const res = await axios.post(WP_MEDIA_ENDPOINT, formData, {
+                        headers: {
+                            'X-WP-Nonce': WP_API_NONCE,
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+
+                    if (res.status === 201 || res.status === 200) {
+                        const fileUrl = res.data.source_url;
+                        if(hiddenUrlInput) hiddenUrlInput.value = fileUrl;
+                         // Success UI
+                        fileNameDisplay.innerHTML = `<span class="text-emerald-600 font-medium">Uploaded: ${file.name}</span>`;
+                        fileNameDisplay.classList.remove('hidden');
+                    } else {
+                        throw new Error('Upload failed');
+                    }
+
+                } catch (e) {
+                    console.error("File Upload Error", e);
+                    alert("Failed to upload image. Please try again.");
+                    fileNameDisplay.textContent = "Upload failed.";
+                } finally {
+                    if(uploadStatus) uploadStatus.classList.add('hidden');
+                }
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', initOptionalFields);
 
     </script>
 
