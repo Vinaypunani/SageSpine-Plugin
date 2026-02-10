@@ -12,10 +12,61 @@ function render_sage_book_appointment() {
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            important: true,
-            corePlugins: { preflight: false }
+            important: '#sage-book-app',
+            corePlugins: { preflight: false },
+             theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    }
+                }
+            }
         }
     </script>
+    <style>
+        /* Scoped Reset to protect against Theme Styles */
+        #sage-book-app {
+            all: initial; /* Reset everything inheritance */
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            line-height: 1.5;
+            color: #1f2937; /* Gray-800 */
+        }
+        #sage-book-app * {
+            box-sizing: border-box;
+            border-width: 0;
+            border-style: solid;
+            border-color: #e5e7eb; /* Gray-200 */
+        }
+        /* Re-apply some basics that 'all: initial' wanes */
+        #sage-book-app h1, #sage-book-app h2, #sage-book-app h3, 
+        #sage-book-app h4, #sage-book-app h5, #sage-book-app h6 {
+            display: block;
+            font-weight: bold;
+            margin: 0;
+        }
+        #sage-book-app p { display: block; margin: 0; }
+        #sage-book-app button { cursor: pointer; line-height: 1; }
+        #sage-book-app input, #sage-book-app select, #sage-book-app textarea {
+            display: block;
+            font-family: inherit;
+        }
+        
+        /* Fix for conflicting hidden classes */
+        #sage-book-app .hidden { display: none !important; }
+        
+        /* Layout Fixes */
+        #sage-book-app .flex { display: flex; }
+        #sage-book-app .grid { display: grid; }
+    </style>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
@@ -147,7 +198,7 @@ function render_sage_book_appointment() {
                             
                             <!-- Timezone Selector -->
                             <div class="relative w-full md:w-auto">
-                                <select class="w-full appearance-none pl-3 pr-8 py-2 text-sm border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 rounded-md border text-gray-700 bg-white cursor-pointer">
+                                <select id="timezone-selector" class="w-full appearance-none pl-3 pr-8 py-2 text-sm border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 rounded-md border text-gray-700 bg-white cursor-pointer ignore-nice-select no-nice-select">
                                      <option>America/Chicago - CST (-06:00)</option>
                                      <option>Asia/Kolkata - IST (+05:30)</option>
                                 </select>
@@ -213,9 +264,9 @@ function render_sage_book_appointment() {
                          <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Date Of Birth *</label>
                             <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <!-- <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i data-lucide="calendar" class="w-5 h-5 text-gray-400"></i>
-                                </div>
+                                </div> -->
                                 <input type="date" name="dob" required class="pl-10 w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2" style="border-color: #d1d5db;">
                             </div>
                         </div>
@@ -693,7 +744,7 @@ function render_sage_book_appointment() {
             // Clear track classes and re-apply responsive gap/padding
             // Mobile: px-8 (less padding for arrows), gap-1 (tighter)
             // Desktop: px-16, gap-3
-            container.className = `flex ${isMobile ? 'gap-2 px-9' : 'gap-3 px-16'} justify-center pb-2 min-h-[64px] snap-x no-scrollbar leading-none shadow-none`;
+            container.className = `flex ${isMobile ? 'gap-2 px-9' : 'gap-3 px-16'} justify-center pb-2 min-h-[64px] snap-x no-scrollbar shadow-none`;
 
             for (let i = 0; i < daysToShow; i++) {
                 const date = new Date(state.weekStartDate);
@@ -709,7 +760,7 @@ function render_sage_book_appointment() {
                 // Base Classes
                 // Mobile: w-11 h-14 (smaller)
                 // Desktop: w-16 h-16 (square 64px)
-                let baseClass = "flex flex-col items-center justify-center rounded-lg transition-all relative ";
+                let baseClass = "flex flex-col items-center justify-center rounded-lg transition-all relative leading-none";
                 
                 if (isMobile) {
                     baseClass += "min-w-[46px] w-[46px] h-14 "; 
