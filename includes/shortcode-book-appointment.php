@@ -200,14 +200,7 @@ function render_sage_book_appointment() {
                                 <input type="month" id="month-selector" class="w-auto pl-3 pr-3 py-2 text-sm border-none focus:outline-none focus:ring-0 bg-transparent text-gray-700 cursor-pointer font-medium text-lg" value="2026-02">
                             </div>
                             
-                            <!-- Timezone Selector -->
-                            <div class="relative w-full md:w-auto">
-                                <select id="timezone-selector" class="w-full appearance-none pl-3 pr-8 py-2 text-sm border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 rounded-md border text-gray-700 bg-white cursor-pointer ignore-nice-select no-nice-select">
-                                     <option>America/Chicago - CST (-06:00)</option>
-                                     <option>Asia/Kolkata - IST (+05:30)</option>
-                                </select>
-                                <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none"></i>
-                            </div>
+                            <!-- Timezone Selector Removed -->
                         </div>
 
                         <!-- Days Scroller -->
