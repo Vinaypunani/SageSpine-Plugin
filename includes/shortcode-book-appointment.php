@@ -654,7 +654,16 @@ function render_sage_book_appointment() {
             
             const todayStr = getLocalDateString(new Date());
 
-            for (let i = 0; i < 7; i++) {
+            // Responsive Day Count: 5 for mobile, 7 for desktop
+            const isMobile = window.innerWidth < 768;
+            const daysToShow = isMobile ? 5 : 7;
+
+            // Clear track classes and re-apply responsive gap/padding
+            // Mobile: px-8 (less padding for arrows), gap-1 (tighter)
+            // Desktop: px-16, gap-3
+            container.className = `flex ${isMobile ? 'gap-2 px-9' : 'gap-3 px-16'} overflow-x-auto justify-center pb-2 min-h-[64px] snap-x no-scrollbar`;
+
+            for (let i = 0; i < daysToShow; i++) {
                 const date = new Date(state.weekStartDate);
                 date.setDate(date.getDate() + i);
                 
@@ -666,8 +675,15 @@ function render_sage_book_appointment() {
                 btn.id = `day-btn-${dateStr}`;
                 
                 // Base Classes
-                // Updated to match Image 2: Square (w-16 h-16), rounded corners, subtle shadow
-                let baseClass = "flex flex-col items-center justify-center min-w-[64px] w-16 h-16 rounded-lg transition-all relative ";
+                // Mobile: w-11 h-14 (smaller)
+                // Desktop: w-16 h-16 (square 64px)
+                let baseClass = "flex flex-col items-center justify-center rounded-lg transition-all relative ";
+                
+                if (isMobile) {
+                    baseClass += "min-w-[46px] w-[46px] h-14 "; 
+                } else {
+                    baseClass += "min-w-[64px] w-16 h-16 ";
+                }
                 
                 // Past Day Check
                 const isPast = dateStr < todayStr;
@@ -691,7 +707,6 @@ function render_sage_book_appointment() {
                     baseClass += "bg-emerald-500 text-white shadow-md transform scale-105";
                 } else {
                     // Unselected: White bg, dark text, subtle border/shadow only?
-                    // Image shows very clean white boxes. Let's start with white.
                     baseClass += "bg-white text-gray-800 hover:bg-gray-50 cursor-pointer shadow-sm hover:shadow-md";
                 }
                 
@@ -701,10 +716,15 @@ function render_sage_book_appointment() {
                 const dayNameClass = (state.selectedDateStr === dateStr && !isPast && !hasNoSlots) ? 'text-white/90' : 'text-gray-400';
                 const dayNumClass = (state.selectedDateStr === dateStr && !isPast && !hasNoSlots) ? 'text-white' : 'text-gray-800';
 
-                // Inner HTML: Number TOP, Name BOTTOM
+                // Responsive Font Sizes
+                // Mobile: text-lg number, text-[9px] name
+                // Desktop: text-2xl number, text-[10px] name
+                const numSize = isMobile ? 'text-lg' : 'text-2xl';
+                const nameSize = isMobile ? 'text-[9px]' : 'text-[10px]';
+
                 btn.innerHTML = `
-                    <span class="${dayNumClass} text-2xl font-bold leading-none mb-1">${dayNum}</span>
-                    <span class="${dayNameClass} text-[10px] uppercase font-medium tracking-wider">${dayName}</span>
+                    <span class="${dayNumClass} ${numSize} font-bold leading-none mb-1">${dayNum}</span>
+                    <span class="${dayNameClass} ${nameSize} uppercase font-medium tracking-wider">${dayName}</span>
                 `;
                 
                 if (!isPast && !hasNoSlots) {
