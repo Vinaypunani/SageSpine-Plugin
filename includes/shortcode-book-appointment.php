@@ -31,7 +31,7 @@ function render_sage_book_appointment() {
     </script>
     <script>
         const WP_API_NONCE = "<?php echo $api_nonce; ?>";
-        const WP_MEDIA_ENDPOINT = "<?php echo esc_url_raw(rest_url('wp/v2/media')); ?>";
+        const WP_MEDIA_ENDPOINT = "<?php echo esc_url_raw(rest_url('sagespine/v1/upload')); ?>";
     </script>
     <style>
         /* Scoped Reset to protect against Theme Styles */
@@ -58,6 +58,7 @@ function render_sage_book_appointment() {
             margin: 0;
         }
         #sage-book-app p { display: block; margin: 0; }
+
         #sage-book-app button { cursor: pointer; line-height: 1; }
         #sage-book-app input, #sage-book-app select, #sage-book-app textarea {
             display: block;
@@ -269,8 +270,8 @@ function render_sage_book_appointment() {
                         </div>
 
                         <!-- Optional Faster Scheduling Section -->
-                        <div class="pt-4 border-t border-gray-100 mt-4">
-                            <button type="button" id="toggle-optional-fields" class="w-full flex items-center justify-between text-left py-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 focus:outline-none">
+                        <div class="pt-4 mt-4">
+                            <button type="button" id="toggle-optional-fields" class="w-full flex items-center justify-between text-left px-4 py-3 text-sm font-medium text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer border-none">
                                 <span>For faster visit scheduling, please fill these additional fields</span>
                                 <i data-lucide="chevron-down" id="optional-fields-icon" class="w-4 h-4 transition-transform duration-200"></i>
                             </button>

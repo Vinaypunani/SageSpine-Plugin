@@ -316,6 +316,12 @@ class Sage_Appointment_Popup {
             'callback' => [$this, 'handle_search_request'],
             'permission_callback' => '__return_true' // Publicly accessible for now
         ]);
+
+        register_rest_route('sagespine/v1', '/upload', [
+            'methods' => 'POST',
+            'callback' => [$this, 'handle_file_upload'],
+            'permission_callback' => '__return_true'
+        ]);
         
         // Booking API Routes
         register_rest_route('sagespine/v1', '/appointment', [
@@ -392,6 +398,41 @@ class Sage_Appointment_Popup {
             'callback' => [$this, 'handle_verify_token_request'],
             'permission_callback' => '__return_true'
         ]);
+    }
+
+    public function handle_file_upload($request) {
+        $nonce = $request->get_header('x_wp_nonce');
+        if (!wp_verify_nonce($nonce, 'wp_rest')) {
+            return new WP_Error('invalid_nonce', 'Invalid Nonce', ['status' => 403]);
+        }
+
+        if (empty($_FILES['file'])) {
+            return new WP_Error('no_file', 'No file provided', ['status' => 400]);
+        }
+
+        $file = $_FILES['file'];
+        
+        // 1MB Limit
+        if ($file['size'] > 1 * 1024 * 1024) {
+            return new WP_Error('file_too_large', 'File too large. Max 1MB.', ['status' => 400]);
+        }
+        
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
+
+        $attachment_id = media_handle_upload('file', 0);
+
+        if (is_wp_error($attachment_id)) {
+            return $attachment_id;
+        }
+
+        $url = wp_get_attachment_url($attachment_id);
+        
+        return [
+            'id' => $attachment_id,
+            'source_url' => $url
+        ];
     }
 
     public function handle_search_request($request) {
