@@ -168,7 +168,7 @@ function render_sage_book_appointment() {
                                 </div>
                              </div>
                              <button id="prev-week-btn" class="absolute left-2 top-[50%] -translate-y-1/2 z-10 bg-transparent p-2 text-gray-600 hover:text-gray-800 border-none flex items-center"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
-                            <div class="flex gap-3 justify-center items-center pb-2 min-h-[64px]" id="calendar-days-track">
+                            <div class="flex gap-3 overflow-x-auto justify-start md:justify-center pb-2 min-h-[64px] px-12 sm:px-16 snap-x no-scrollbar" id="calendar-days-track">
                                 <!-- Days injected -->
                             </div>
                              <button id="next-week-btn" class="absolute right-2 top-[50%] -translate-y-1/2 z-10 bg-transparent p-2 text-gray-600 hover:text-gray-800 border-none flex items-center"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
@@ -666,7 +666,8 @@ function render_sage_book_appointment() {
                 btn.id = `day-btn-${dateStr}`;
                 
                 // Base Classes
-                let baseClass = "flex flex-col items-center justify-center w-16 h-16 py-3 rounded-lg border border-black transition-all text-sm relative ";
+                // Updated to match Image 2: Square (w-16 h-16), rounded corners, subtle shadow
+                let baseClass = "flex flex-col items-center justify-center min-w-[64px] w-16 h-16 rounded-lg transition-all relative ";
                 
                 // Past Day Check
                 const isPast = dateStr < todayStr;
@@ -678,27 +679,32 @@ function render_sage_book_appointment() {
                                    (!Array.isArray(cachedData.slots) || cachedData.slots.length === 0);
                 
                 if (isPast) {
-                    baseClass += "bg-gray-100 text-gray-400 cursor-not-allowed opacity-60";
+                    baseClass += "bg-gray-50 text-gray-300 cursor-not-allowed";
                     btn.disabled = true;
                 } else if (hasNoSlots) {
                     // Day has no available slots
-                    baseClass += "bg-white text-gray-400 cursor-not-allowed opacity-50";
+                    baseClass += "bg-white text-gray-300 cursor-not-allowed opacity-60";
                     btn.disabled = true;
                     btn.title = "No slots available";
                 } else if (state.selectedDateStr === dateStr) {
-                    baseClass += "bg-green-500 text-white";
+                    // Selected: Green bg, white text. No border needed if bg is strong.
+                    baseClass += "bg-emerald-500 text-white shadow-md transform scale-105";
                 } else {
-                    baseClass += "bg-white text-gray-700 hover:bg-gray-50 cursor-pointer";
+                    // Unselected: White bg, dark text, subtle border/shadow only?
+                    // Image shows very clean white boxes. Let's start with white.
+                    baseClass += "bg-white text-gray-800 hover:bg-gray-50 cursor-pointer shadow-sm hover:shadow-md";
                 }
                 
                 btn.className = baseClass;
                 
-                // Set innerHTML with conditional text color based on selection
-                const dayNameColor = (state.selectedDateStr === dateStr && !isPast && !hasNoSlots) ? 'text-white' : 'text-gray-500';
-                
+                // Text Colors
+                const dayNameClass = (state.selectedDateStr === dateStr && !isPast && !hasNoSlots) ? 'text-white/90' : 'text-gray-400';
+                const dayNumClass = (state.selectedDateStr === dateStr && !isPast && !hasNoSlots) ? 'text-white' : 'text-gray-800';
+
+                // Inner HTML: Number TOP, Name BOTTOM
                 btn.innerHTML = `
-                    <span class="text-xs font-normal uppercase ${dayNameColor}">${dayName}</span>
-                    <span class="text-xl font-semibold mt-1">${dayNum}</span>
+                    <span class="${dayNumClass} text-2xl font-bold leading-none mb-1">${dayNum}</span>
+                    <span class="${dayNameClass} text-[10px] uppercase font-medium tracking-wider">${dayName}</span>
                 `;
                 
                 if (!isPast && !hasNoSlots) {
