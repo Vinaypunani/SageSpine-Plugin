@@ -138,15 +138,15 @@ function render_sage_book_appointment() {
                         </div>
                         
                         <!-- Controls -->
-                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                         <div class="flex flex-col-reverse md:flex-row items-center justify-between gap-4 w-full">
                             <!-- Month Dropdown -->
-                            <div class="relative">
-                                <input type="month" id="month-selector" class="pl-3 pr-3 py-2 text-sm border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 rounded-md border text-gray-700 bg-white cursor-pointer" value="2026-02">
+                            <div class="relative w-full md:w-auto text-center md:text-left">
+                                <input type="month" id="month-selector" class="w-auto pl-3 pr-3 py-2 text-sm border-none focus:outline-none focus:ring-0 bg-transparent text-gray-700 cursor-pointer font-medium text-lg" value="2026-02">
                             </div>
                             
                             <!-- Timezone Selector -->
-                            <div class="relative">
-                                <select class="appearance-none pl-3 pr-8 py-2 text-sm border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 rounded-md border text-gray-700 bg-white cursor-pointer">
+                            <div class="relative w-full md:w-auto">
+                                <select class="w-full appearance-none pl-3 pr-8 py-2 text-sm border-gray-300 focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 rounded-md border text-gray-700 bg-white cursor-pointer">
                                      <option>America/Chicago - CST (-06:00)</option>
                                      <option>Asia/Kolkata - IST (+05:30)</option>
                                 </select>
@@ -886,7 +886,9 @@ function render_sage_book_appointment() {
                 
                 // Slots grid
                 const grid = document.createElement('div');
-                grid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3';
+                // Mobile: grid-cols-3 (Matches image)
+                // Desktop (md+): grid-cols-4
+                grid.className = 'grid grid-cols-3 md:grid-cols-4 gap-3';
                 
                 periodSlots.forEach(time => {
                     const btn = document.createElement('button');
