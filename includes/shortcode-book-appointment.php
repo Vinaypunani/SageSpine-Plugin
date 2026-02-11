@@ -71,6 +71,19 @@ function render_sage_book_appointment() {
         /* Layout Fixes */
         #sage-book-app .flex { display: flex; }
         #sage-book-app .grid { display: grid; }
+        
+        /* Custom Thin Scrollbar */
+        #sage-book-app .custom-scrollbar::-webkit-scrollbar {
+            height: 4px; /* Thin scrollbar for x-axis */
+            width: 4px;  /* For y-axis if ever needed */
+        }
+        #sage-book-app .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #sage-book-app .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #d1d5db; /* Gray-300 */
+            border-radius: 20px;
+        }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -131,6 +144,11 @@ function render_sage_book_appointment() {
                 
                 <!-- STEP 1: Select Service/Doctor -->
                 <div id="view-step-1" class="step-view">
+                    <div class="mb-8">
+                        <h2 class="text-xl font-bold text-gray-900 mb-1">Select Provider</h2>
+                        <p class="text-gray-500">Choose a healthcare professional for your visit.</p>
+                    </div>
+
                     <div id="services-list" class="space-y-4">
                         <!-- Services injected here -->
                         <div id="services-skeleton" class="space-y-0">
@@ -149,160 +167,163 @@ function render_sage_book_appointment() {
                                     <div class="h-3 w-3 bg-gray-200 rounded-full"></div>
                                 </div>
                             </div>
-                            
-                            <!-- Skeleton Card 2 -->
-                            <div class="group flex items-center p-4 bg-white border-b border-gray-100 animate-pulse" style="animation-delay: 0.1s">
-                                <div class="flex-shrink-0 mr-4">
-                                    <div class="h-12 w-12 bg-gray-200 rounded-sm"></div>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="h-5 bg-gray-200 rounded w-48 mb-2"></div>
-                                    <div class="h-3 bg-gray-200 rounded w-full mb-1"></div>
-                                    <div class="h-3 bg-gray-200 rounded w-3/4"></div>
-                                </div>
-                                <div class="ml-4 flex items-center gap-2">
-                                    <div class="h-4 bg-gray-200 rounded w-20"></div>
-                                    <div class="h-3 w-3 bg-gray-200 rounded-full"></div>
-                                </div>
-                            </div>
-                            
-                            <!-- Skeleton Card 3 -->
-                            <div class="group flex items-center p-4 bg-white border-b border-gray-100 animate-pulse" style="animation-delay: 0.2s">
-                                <div class="flex-shrink-0 mr-4">
-                                    <div class="h-12 w-12 bg-gray-200 rounded-sm"></div>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="h-5 bg-gray-200 rounded w-48 mb-2"></div>
-                                    <div class="h-3 bg-gray-200 rounded w-full mb-1"></div>
-                                    <div class="h-3 bg-gray-200 rounded w-3/4"></div>
-                                </div>
-                                <div class="ml-4 flex items-center gap-2">
-                                    <div class="h-4 bg-gray-200 rounded w-20"></div>
-                                    <div class="h-3 w-3 bg-gray-200 rounded-full"></div>
-                                </div>
-                            </div>
                         </div>
+                    </div>
+
+                    <div class="mt-12 flex justify-end items-center gap-4">
+                        <button id="btn-step1-continue" onclick="if(state.selectedService) setStep(2);" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-2.5 rounded-lg font-semibold shadow-lg shadow-emerald-600/20 transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" disabled>
+                            Continue to Step 2
+                        </button>
                     </div>
                 </div>
 
                 <!-- STEP 2: Date & Time -->
                 <div id="view-step-2" class="step-view hidden">
-                    <!-- Calendar & Slots Reuse -->
-                    <div class="flex flex-col gap-6">
-                        <!-- Booking Message -->
-                        <div class="text-gray-700 text-base mb-2">
-                            Your appointment will be booked with <span class="font-semibold" id="selected-doctor-name">Andrew Clary</span>
+                    <div class="mb-4">
+                        <h2 class="text-xl font-semibold mb-2 text-gray-900">Step 2: Choose Date and Time</h2>
+                        <p class="text-gray-500">Your appointment will be booked with <span class="font-bold text-gray-800" id="selected-doctor-name">Doctor</span></p>
+                    </div>
+
+                    <div class="flex items-center justify-between mb-4 relative z-20">
+                        <div class="relative">
+                            <button id="month-trigger-btn" class="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors group">
+                                <h3 class="text-lg font-bold text-gray-800 group-hover:text-emerald-600 transition-colors" id="current-month-label">September, 2024</h3>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 group-hover:text-emerald-500 transition-colors"></i>
+                            </button>
+
+                            <!-- Custom Month Picker Overlay (Moved inside relative container) -->
+                            <div id="custom-month-picker" class="absolute top-full left-0 mt-2 z-30 bg-white border border-gray-200 rounded-xl shadow-xl p-4 w-72 hidden">
+                                <!-- Year Navigation -->
+                                <div class="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
+                                    <button id="picker-prev-year" class="p-1 hover:bg-gray-100 rounded-full text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
+                                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                                    </button>
+                                    <span id="picker-year-label" class="font-bold text-gray-800 text-lg">2024</span>
+                                    <button id="picker-next-year" class="p-1 hover:bg-gray-100 rounded-full text-gray-500 hover:text-emerald-600 transition-colors">
+                                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                                <!-- Months Grid -->
+                                <div class="grid grid-cols-3 gap-2" id="month-picker-grid">
+                                    <!-- Months injected here -->
+                                </div>
+                            </div>
                         </div>
                         
-                        <!-- Controls -->
-                         <div class="flex flex-col-reverse md:flex-row items-center justify-between gap-4 w-full">
-                            <!-- Month Dropdown -->
-                            <div class="relative w-full md:w-auto text-center md:text-left">
-                                <input type="month" id="month-selector" class="w-auto pl-3 pr-3 py-2 text-sm border-none focus:outline-none focus:ring-0 bg-transparent text-gray-700 cursor-pointer font-medium text-lg" value="2026-02">
-                            </div>
-                            
-                            <!-- Timezone Selector Removed -->
+                        <div class="relative">
+                            <button id="btn-month-picker-icon" class="p-2 hover:bg-gray-100 rounded-full transition-colors border border-gray-100 shadow-sm">
+                                <i data-lucide="calendar" class="w-5 h-5 text-gray-600"></i>
+                            </button>
                         </div>
+                    </div>
 
-                        <!-- Days Scroller -->
-                        <div class="relative min-h-[90px]">
-                             <div id="calendar-loading" class="absolute inset-0 flex items-center justify-center bg-white z-20 hidden">
-                                <div class="flex gap-2">
-                                    <div class="min-w-[60px] h-[76px] rounded-lg bg-gray-200 animate-pulse"></div>
-                                    <div class="min-w-[60px] h-[76px] rounded-lg bg-gray-200 animate-pulse" style="animation-delay: 0.1s"></div>
-                                    <div class="min-w-[60px] h-[76px] rounded-lg bg-gray-200 animate-pulse" style="animation-delay: 0.2s"></div>
-                                    <div class="min-w-[60px] h-[76px] rounded-lg bg-gray-200 animate-pulse" style="animation-delay: 0.3s"></div>
-                                    <div class="min-w-[60px] h-[76px] rounded-lg bg-gray-200 animate-pulse" style="animation-delay: 0.4s"></div>
-                                    <div class="min-w-[60px] h-[76px] rounded-lg bg-gray-200 animate-pulse" style="animation-delay: 0.5s"></div>
-                                    <div class="min-w-[60px] h-[76px] rounded-lg bg-gray-200 animate-pulse" style="animation-delay: 0.6s"></div>
-                                </div>
-                             </div>
-                             <button id="prev-week-btn" class="absolute left-2 top-[50%] -translate-y-1/2 z-10 bg-transparent p-2 text-gray-600 hover:text-gray-800 border-none flex items-center"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
-                            <div class="flex gap-3 overflow-x-auto justify-start md:justify-center pb-2 min-h-[64px] px-12 sm:px-16 snap-x no-scrollbar" id="calendar-days-track">
+                    <!-- Days Scroller -->
+                    <div class="relative flex items-center gap-4 mb-8">
+                        <button id="prev-week-btn" class="w-10 h-10 flex-shrink-0 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
+                            <i data-lucide="chevron-left" class="w-5 h-5 text-gray-600"></i>
+                        </button>
+
+                        <div class="relative flex-grow overflow-hidden rounded-xl">
+                            <div class="flex gap-3 overflow-x-auto custom-scrollbar pb-2 pt-1 px-1 snap-x" id="calendar-days-track">
                                 <!-- Days injected -->
                             </div>
-                             <button id="next-week-btn" class="absolute right-2 top-[50%] -translate-y-1/2 z-10 bg-transparent p-2 text-gray-600 hover:text-gray-800 border-none flex items-center"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
+                            <!-- Loading Overlay -->
+                            <div id="calendar-loading" class="absolute inset-0 bg-white/80 flex items-center justify-center z-10 hidden backdrop-blur-[1px] transition-all duration-300">
+                                 <div class="flex flex-col items-center gap-2">
+                                     <i data-lucide="loader-2" class="w-6 h-6 text-emerald-600 animate-spin"></i>
+                                     <span class="text-xs font-medium text-emerald-600">Loading...</span>
+                                 </div>
+                            </div>
                         </div>
 
-                        <!-- Slots -->
-                        <div id="slots-container" class="min-h-[200px]">
-                            <div class="text-center text-gray-500 py-10">Select a date to view availability</div>
-                        </div>
+                        <button id="next-week-btn" class="w-10 h-10 flex-shrink-0 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
+                            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-600"></i>
+                        </button>
+                    </div>
+
+                    <!-- Slots -->
+                    <div id="slots-container" class="space-y-8 min-h-[200px]">
+                        <div class="text-center text-gray-500 py-10">Select a date to view availability</div>
+                    </div>
+
+                    <!-- Navigation Actions -->
+                    <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-between items-center pt-6 border-t border-gray-100">
+                        <button onclick="setStep(1)" class="w-full sm:w-auto px-8 py-3 rounded-xl border border-slate-300 font-semibold text-slate-600 hover:bg-slate-50 transition-all flex items-center justify-center">
+                            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                            Back
+                        </button>
+                        <button id="btn-step2-continue" onclick="if(state.selectedSlot) setStep(3);" class="w-full sm:w-auto px-10 py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" disabled>
+                            Continue to Personal Info
+                        </button>
                     </div>
                 </div>
 
                 <!-- STEP 3: User Details -->
                 <div id="view-step-3" class="step-view hidden">
-                    <h3 class="text-lg font-medium text-gray-900 mb-6">Please enter your details</h3>
                     
-                    <form id="booking-form" class="space-y-4 max-w-md">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-                                <input type="text" name="first_name" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2" style="border-color: #d1d5db;">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
-                                <input type="text" name="last_name" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2" style="border-color: #d1d5db;">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                            <input type="email" name="email" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2" style="border-color: #d1d5db;">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Mobile Phone number *</label>
-                            <div class="flex">
-                                <input type="tel" name="phone" required placeholder="Contact Number" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2" style="border-color: #d1d5db;">
-                            </div>
-                        </div>
-
-                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Of Birth *</label>
-                            <div class="relative">
-                                <!-- <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i data-lucide="calendar" class="w-5 h-5 text-gray-400"></i>
-                                </div> -->
-                                <input type="date" name="dob" required class="pl-10 w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2" style="border-color: #d1d5db;">
-                            </div>
-                        </div>
-
-                        <!-- Additional Fields Section (Now Always Visible) -->
-                        <div class="mt-6">
-                            <!-- Removed Toggle Button -->
-                            
-                            <div id="optional-fields-container" class="space-y-4">
-                                
-                                <!-- Address Params -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Street Address *</label>
-                                        <input type="text" name="address_street" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="123 Main St">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">City *</label>
-                                        <input type="text" name="address_city" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="City">
-                                    </div>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">State *</label>
-                                        <input type="text" name="address_state" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="State">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">ZIP Code *</label>
-                                        <input type="text" name="address_zip" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="ZIP Code">
-                                    </div>
-                                </div>
-
-                                <!-- Insurance -->
+                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
+                        <h2 class="text-xl font-bold mb-6 flex items-center text-gray-900">
+                            <i data-lucide="clipboard-list" class="w-6 h-6 mr-2 text-emerald-600"></i>
+                            Please enter your details
+                        </h2>
+                        
+                        <form id="booking-form" class="space-y-6">
+                            <!-- Personal Info -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Insurance Info *</label>
-                                    <select name="insurance_info" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
-                                        <option value="">Select Insurance</option>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="first_name">First Name *</label>
+                                    <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="first_name" name="first_name" placeholder="John" required type="text"/>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="last_name">Last Name *</label>
+                                    <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="last_name" name="last_name" placeholder="Doe" required type="text"/>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="email">Email Address *</label>
+                                    <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="email" name="email" placeholder="john.doe@example.com" required type="email"/>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="phone">Mobile Phone Number *</label>
+                                    <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="phone" name="phone" placeholder="(555) 000-0000" required type="tel"/>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1" for="dob">Date of Birth *</label>
+                                <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="dob" name="dob" required type="date"/>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="address_street">Street Address *</label>
+                                    <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="address_street" name="address_street" placeholder="123 Main St" required type="text"/>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1" for="address_city">City *</label>
+                                        <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="address_city" name="address_city" placeholder="City" required type="text"/>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1" for="address_state">State *</label>
+                                        <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="address_state" name="address_state" placeholder="State" required type="text"/>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1" for="address_zip">ZIP Code *</label>
+                                        <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="address_zip" name="address_zip" placeholder="ZIP Code" required type="text"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Insurance -->
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="insurance_info">Insurance Provider *</label>
+                                    <select class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="insurance_info" name="insurance_info" required>
+                                        <option disabled selected value="">Select Insurance</option>
                                         <option value="Medicare">Medicare</option>
                                         <option value="Medicare with Advantage Plan">Medicare with Advantage Plan</option>
                                         <option value="Worker's Compensation">Worker's Compensation</option>
@@ -311,143 +332,187 @@ function render_sage_book_appointment() {
                                         <option value="Ucare">Ucare</option>
                                         <option value="HealthPartners">HealthPartners</option>
                                         <option value="Medica">Medica</option>
+                                        <option value="Other">Other</option>
                                     </select>
                                 </div>
-
-                                <!-- File Upload -->
+                                
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Insurance Card Image *</label>
-                                    <label for="insurance-upload" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:bg-gray-50 transition-colors cursor-pointer relative" id="drop-zone">
-                                        <div class="space-y-1 text-center">
-                                            <i data-lucide="upload-cloud" class="mx-auto h-12 w-12 text-gray-400"></i>
-                                            <div class="flex text-sm text-gray-600 justify-center">
-                                                <span class="relative cursor-pointer bg-white rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-emerald-500">
-                                                    <span>Upload a file</span>
-                                                    <input id="insurance-upload" name="insurance_file" required type="file" class="sr-only" accept="image/*,.pdf">
-                                                </span>
-                                                <p class="pl-1">or drag and drop</p>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Insurance Card Image *</label>
+                                    <div class="relative border-2 border-dashed border-slate-300 rounded-xl p-8 transition-colors hover:border-emerald-500 group bg-slate-50" id="drop-zone">
+                                        <input accept="image/*,application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="insurance-upload" name="insurance_file" type="file" required/>
+                                        <div class="text-center">
+                                            <div class="bg-emerald-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
+                                                <i data-lucide="upload-cloud" class="text-emerald-600 w-6 h-6"></i>
                                             </div>
-                                            <p class="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
+                                            <p class="text-slate-900 font-medium">
+                                                <span class="text-emerald-600 hover:underline">Upload a file</span> or drag and drop
+                                            </p>
+                                            <p class="text-xs text-slate-500 mt-1">PNG, JPG, PDF up to 5MB</p>
                                         </div>
                                         <!-- Hidden Input to store the URL after upload -->
                                         <input type="hidden" name="insurance_card_url" id="insurance_card_url">
                                         <!-- Loading/Success State -->
-                                        <div id="upload-status" class="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center hidden rounded-md">
-                                             <p class="text-sm font-medium text-gray-600">Uploading...</p>
+                                        <div id="upload-status" class="absolute inset-0 bg-white/90 flex items-center justify-center hidden rounded-xl">
+                                             <p class="text-sm font-medium text-gray-600 flex items-center gap-2">
+                                                 <i data-lucide="loader" class="animate-spin w-4 h-4"></i> Uploading...
+                                             </p>
                                         </div>
-                                    </label>
-                                    <p id="file-name-display" class="mt-2 text-sm text-gray-500 hidden"></p>
+                                    </div>
+                                    <p id="file-name-display" class="mt-2 text-sm text-center text-emerald-600 font-medium hidden"></p>
                                 </div>
-
-                                <!-- Providers -->
+                            </div>
+                            
+                             <!-- Demographics (Restored from previous step requirements) -->
+                             <div class="space-y-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Pharmacy Phone *</label>
-                                        <input type="tel" name="pharmacy_phone" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="Phone Number">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Preferred Pharmacy Phone *</label>
+                                        <input type="tel" name="pharmacy_phone" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Phone Number">
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Referring Provider</label>
-                                        <input type="text" name="referring_provider" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="Provider Name">
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Referring Provider</label>
+                                        <input type="text" name="referring_provider" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Provider Name">
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Who is primary provider ?</label>
-                                    <input type="text" name="primary_provider" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="Primary Provider Name">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Who is primary provider ?</label>
+                                    <input type="text" name="primary_provider" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Primary Provider Name">
                                 </div>
-
-                                <!-- Demographics -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Language *</label>
-                                    <select name="language" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
-                                        <option value="">Select Language</option>
-                                        <option value="English">English</option>
-                                        <option value="Spanish">Spanish</option>
-                                        <option value="Other Indo-European">Other Indo-European Languages (e.g., German, French)</option>
-                                        <option value="Asian and Pacific Islander">Asian and Pacific Islander Languages</option>
-                                        <option value="Other">Other Languages (All other non-English, non-Spanish)</option>
-                                    </select>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                     <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Language *</label>
+                                        <select name="language" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
+                                            <option value="">Select Language</option>
+                                            <option value="English">English</option>
+                                            <option value="Spanish">Spanish</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Sex *</label>
+                                        <select name="sex" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
+                                            <option value="">Select Sex</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Prefer not to answer">Prefer not to answer</option>
+                                        </select>
+                                    </div>
                                 </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Sex *</label>
-                                    <select name="sex" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
-                                        <option value="">Select Sex</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Prefer not to answer">Prefer not to answer</option>
-                                    </select>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Ethnicity *</label>
+                                        <select name="ethnicity" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
+                                            <option value="">Select Ethnicity</option>
+                                            <option value="Not Hispanic or Latino">Not Hispanic or Latino</option>
+                                            <option value="Hispanic or Latino">Hispanic or Latino</option>
+                                            <option value="Unknown">Unknown</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Race *</label>
+                                        <select name="race" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
+                                            <option value="">Select Race</option>
+                                            <option value="White">White</option>
+                                            <option value="Black or African American">Black or African American</option>
+                                            <option value="Asian">Asian</option>
+                                            <option value="American Indian or Alaska Native">American Indian or Alaska Native</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
                                 </div>
+                             </div>
 
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ethnicity *</label>
-                                    <select name="ethnicity" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
-                                        <option value="">Select Ethnicity</option>
-                                        <option value="Not Hispanic or Latino (White)">Not Hispanic or Latino (White)</option>
-                                        <option value="Not Hispanic or Latino (Two or More Races)">Not Hispanic or Latino (Two or More Races)</option>
-                                        <option value="Not Hispanic or Latino (Asian)">Not Hispanic or Latino (Asian)</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Race *</label>
-                                    <select name="race" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
-                                        <option value="">Select Race</option>
-                                        <option value="White">White</option>
-                                        <option value="Asian">Asian</option>
-                                        <option value="Black or African American">Black or African American</option>
-                                        <option value="American Indian/Alaska Native">American Indian/Alaska Native</option>
-                                    </select>
-                                </div>
-
+                            <!-- Buttons -->
+                            <div class="pt-6 border-t border-slate-200 flex flex-col sm:flex-row gap-4 justify-between items-center">
+                                <button type="button" onclick="setStep(2)" class="w-full sm:w-auto px-8 py-3 rounded-xl border border-slate-300 font-semibold text-slate-600 hover:bg-slate-50 transition-all flex items-center justify-center">
+                                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                                    Previous Step
+                                </button>
+                                <button type="submit" id="btn-submit-booking" class="w-full sm:w-auto px-10 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center">
+                                    Confirm Appointment
+                                    <i data-lucide="check" class="w-5 h-5 ml-2"></i>
+                                </button>
                             </div>
-                        </div>
-
-                        <div class="pt-4">
-                             <button type="submit" id="btn-submit-booking" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors">
-                                Schedule Appointment
-                            </button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
+                    
+                    <p class="mt-8 text-center text-sm text-slate-500 flex items-center justify-center gap-1">
+                        <i data-lucide="lock" class="w-3 h-3"></i>
+                        Your data is protected by industry-standard encryption and HIPAA compliance.
+                    </p>
                 </div>
 
                 <!-- STEP 4: Success -->
-                <div id="view-step-success" class="step-view hidden text-center py-8">
-                    <h2 class="text-2xl font-semibold text-gray-900 mb-8">Appointment confirmed with <span id="confirm-doctor-name">Doctor</span>!</h2>
+                <div id="view-step-success" class="step-view hidden text-center py-12 px-4 celebration-bg min-h-[400px] flex flex-col items-center justify-center">
                     
-                    <!-- Appointment Card -->
-                    <div class="max-w-md mx-auto bg-white border border-gray-200 rounded-lg p-6 shadow-sm relative">
+                    <div class="mb-8 flex justify-center">
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping opacity-75"></div>
+                            <div class="relative w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                                <i data-lucide="check-circle" class="w-12 h-12 text-emerald-600"></i>
+                            </div>
+                        </div>
+                    </div>
 
+                    <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-slate-900">
+                        Appointment confirmed with <span id="confirm-doctor-name">Doctor</span>!
+                    </h1>
+                    
+                    <p class="text-slate-500 mb-10 text-lg">
+                        We've sent a confirmation email with all the details and a calendar invite.
+                    </p>
+
+                    <!-- Appointment Card -->
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-xl shadow-slate-200/50 p-8 mb-10 relative overflow-hidden w-full max-w-xl text-left">
+                        <div class="absolute top-0 left-0 w-full h-1.5 bg-emerald-500"></div>
                         
-                        <div class="flex items-start gap-6">
-                            <!-- Calendar Icon -->
-                            <div class="flex-shrink-0">
-                                <div class="w-20 h-20 border-2 border-gray-200 rounded-lg flex flex-col items-center justify-center relative">
-                                    <div class="absolute -top-1 left-3 right-3 h-2 bg-gray-200 rounded-t"></div>
-                                    <div class="absolute -top-2 left-5 right-5 h-1 bg-gray-300 rounded-t"></div>
-                                    <div class="mt-2">
-                                        <i data-lucide="check" class="w-8 h-8 text-emerald-500"></i>
-                                    </div>
+                        <div class="flex flex-col md:flex-row items-center gap-8">
+                            <!-- Date Box -->
+                            <div class="flex-shrink-0 w-20 h-24 bg-slate-50 border border-slate-200 rounded-lg flex flex-col items-center overflow-hidden">
+                                <div class="bg-slate-200 w-full py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center" id="confirm-month-abbr">
+                                    FEB
                                 </div>
-                                <div class="w-2 h-2 bg-yellow-400 rounded-full mt-2 ml-2"></div>
+                                <div class="flex-1 flex items-center justify-center text-3xl font-bold text-slate-800" id="confirm-day-number">
+                                    20
+                                </div>
                             </div>
                             
-                            <!-- Appointment Details -->
-                            <div class="flex-1 text-left">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-1" id="confirm-datetime">09 Feb 2026 | 07:30 pm</h3>
-                                <p class="text-sm text-gray-600 mb-1" id="confirm-doctor-detail">Andrew Clary, DO</p>
-                                <p class="text-xs text-gray-500" id="confirm-timezone">America/Chicago - CST (-06:00)</p>
-                                
-
+                            <!-- Details -->
+                            <div class="flex-1 text-center md:text-left space-y-2">
+                                <div class="flex items-center justify-center md:justify-start gap-2 text-slate-900 font-semibold text-xl">
+                                    <i data-lucide="calendar" class="w-5 h-5 text-slate-400"></i>
+                                    <span id="confirm-datetime">20 Feb 2026 | 07:30 AM</span>
+                                </div>
+                                <div class="flex items-center justify-center md:justify-start gap-2 text-slate-600">
+                                    <i data-lucide="user" class="w-5 h-5 text-slate-400"></i>
+                                    <span id="confirm-doctor-detail">Doctor Name</span>
+                                </div>
+                                <div class="flex items-center justify-center md:justify-start gap-2 text-slate-500 text-sm">
+                                    <i data-lucide="globe" class="w-5 h-5 text-slate-400"></i>
+                                    <span id="confirm-timezone">America/Chicago - CST (-06:00)</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Book Another Appointment Button -->
-                    <button onclick="location.reload()" class="mt-8 inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-all transform hover:-translate-y-0.5">
-                        Book another appointment
-                        <i data-lucide="arrow-right" class="ml-2 w-5 h-5"></i>
-                    </button>
+                    <!-- Actions -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-xl">
+                        <button onclick="location.reload()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-xl font-bold text-lg flex items-center justify-center transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-emerald-600/20">
+                            Book another appointment
+                            <i data-lucide="arrow-right" class="ml-2 w-5 h-5"></i>
+                        </button>
+                    </div>
+                    
+                    <p class="mt-12 text-slate-400 text-sm">
+                        Need help? <a class="text-emerald-600 hover:underline font-medium" href="/contact">Contact our support team</a>
+                    </p>
                 </div>
+                
+                <style>
+                    .celebration-bg {
+                        background-image: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+                    }
+                </style>
 
             </div>
         </div>
@@ -469,15 +534,153 @@ function render_sage_book_appointment() {
         
         let calendarDate = new Date(); // Current view month
 
-        // --- Init ---
+        // Initial Load
         document.addEventListener('DOMContentLoaded', () => {
+            // Assuming renderServices and updateContinueButton are defined elsewhere or will be added
+            // renderServices(); 
+            // updateContinueButton(); 
+            
             lucide.createIcons();
-            loadServices();
+            loadServices(); // Original loadServices
             setupCalendarListeners();
+            setupMonthPicker(); // New Custom Picker
             
             // Validation / Form Submit
             document.getElementById('booking-form').addEventListener('submit', handleBookingSubmit);
         });
+
+        // --- Custom Month Picker Logic (Year + Month) ---
+        function setupMonthPicker() {
+            const container = document.getElementById('custom-month-picker');
+            const grid = document.getElementById('month-picker-grid');
+            const triggerBtn = document.getElementById('month-trigger-btn');
+            const iconBtn = document.getElementById('btn-month-picker-icon');
+            
+            // Year Nav Elements
+            const prevYearBtn = document.getElementById('picker-prev-year');
+            const nextYearBtn = document.getElementById('picker-next-year');
+            const yearLabel = document.getElementById('picker-year-label');
+
+            if (!container || !grid) return;
+
+            let pickerYear = new Date().getFullYear();
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth(); // 0-11
+
+            // Render Function
+            function renderPicker() {
+                yearLabel.innerText = pickerYear;
+                
+                // Update navigation state
+                if (pickerYear <= currentYear) {
+                    prevYearBtn.disabled = true;
+                    prevYearBtn.classList.add('opacity-30', 'cursor-not-allowed');
+                } else {
+                    prevYearBtn.disabled = false;
+                    prevYearBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+                }
+
+                grid.innerHTML = '';
+                
+                for (let i = 0; i < 12; i++) {
+                    const date = new Date(pickerYear, i, 1);
+                    const mStr = date.toLocaleString('default', { month: 'short' });
+                    
+                    const btn = document.createElement('button');
+                    btn.className = "p-2 rounded-lg text-sm border font-medium transition-all ";
+                    
+                    // Logic to disable past months
+                    const isPast = (pickerYear === currentYear && i < currentMonth) || (pickerYear < currentYear);
+                    
+                    if (isPast) {
+                        btn.className += "border-transparent text-gray-300 cursor-not-allowed bg-gray-50";
+                        btn.disabled = true;
+                    } else {
+                        btn.className += "border-slate-100 text-gray-700 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-700 bg-white";
+                        btn.onclick = () => {
+                            changeMonth(date);
+                            container.classList.add('hidden');
+                        };
+                    }
+                    
+                    btn.innerText = mStr;
+                    grid.appendChild(btn);
+                }
+            }
+
+            // Events
+            prevYearBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (pickerYear > currentYear) {
+                    pickerYear--;
+                    renderPicker();
+                }
+            };
+
+            nextYearBtn.onclick = (e) => {
+                e.stopPropagation();
+                pickerYear++;
+                renderPicker();
+            };
+
+            // Toggle Logic
+            const togglePicker = (e) => {
+                e.stopPropagation();
+                
+                // Reset to current selection year or current year on open?
+                // Let's reset to current view year if available, else current year
+                if (state.weekStartDate) {
+                    pickerYear = state.weekStartDate.getFullYear();
+                } else {
+                     pickerYear = currentYear;
+                }
+                
+                // Don't allow going back past current
+                if(pickerYear < currentYear) pickerYear = currentYear;
+
+                renderPicker();
+                container.classList.toggle('hidden');
+            };
+
+            if(triggerBtn) triggerBtn.onclick = togglePicker;
+            if(iconBtn) iconBtn.onclick = togglePicker;
+
+            // Close on click outside
+            document.addEventListener('click', (e) => {
+                if (!container.contains(e.target) && e.target !== triggerBtn && !triggerBtn.contains(e.target) && e.target !== iconBtn && !iconBtn.contains(e.target)) {
+                    container.classList.add('hidden');
+                }
+            });
+            
+            // Initial render
+            lucide.createIcons(); 
+        }
+
+        async function changeMonth(date) {
+            // Update state to start of that week or month? 
+            // The existing logic relies on `state.weekStartDate`. 
+            // Let's set `weekStartDate` to the 1st of that month, or today if it's current month.
+            
+            const today = new Date();
+            let newStart = new Date(date.getFullYear(), date.getMonth(), 1);
+            
+            // If selecting current month, don't go back in time, start from today
+            if (newStart.getMonth() === today.getMonth() && newStart.getFullYear() === today.getFullYear()) {
+                newStart = new Date(today);
+            }
+            
+            state.weekStartDate = newStart;
+            
+            // Updated to use loadWeekData for consistent loading state
+            await loadWeekData();
+            
+            // Update Label
+             const monthLabel = document.getElementById('current-month-label');
+             if(monthLabel) {
+                 monthLabel.innerText = newStart.toLocaleString('default', { month: 'long', year: 'numeric' });
+             }
+        }
+        // ---------------------------------
 
         function showLoading(show) {
              const el = document.getElementById('loading-overlay');
@@ -601,6 +804,45 @@ function render_sage_book_appointment() {
             }
         }
 
+        function formatTimeDisplay(time) {
+            // Ensure nice formatting "09:00 AM"
+            if (time.match(/[AP]M/i)) return time;
+            
+            const [h, m] = time.split(':');
+            const date = new Date();
+            date.setHours(parseInt(h));
+            date.setMinutes(parseInt(m));
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function selectSlot(time) {
+            state.selectedSlot = time;
+            
+            // Update Summary
+            if (state.selectedDateStr) {
+                const d = new Date(state.selectedDateStr);
+                const day = d.getDate().toString().padStart(2, '0');
+                const m = d.toLocaleString('default', { month: 'short' });
+                const y = d.getFullYear();
+                
+                const summary = `${day} ${m} ${y} ${time}`;
+                const summaryEl = document.getElementById('summary-date-time');
+                if(summaryEl) summaryEl.innerText = summary;
+            }
+            
+            // Re-render only slots to update selection (using cached data)
+            if(state.selectedDateStr && state.slotsCache[state.selectedDateStr]) {
+                 renderSlots(state.slotsCache[state.selectedDateStr].slots);
+            }
+            
+            // Enable Continue Button
+            const btn = document.getElementById('btn-step2-continue');
+            if(btn) {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
         // --- API: Staffs (for images) ---
         async function loadStaffs() {
             try {
@@ -666,7 +908,9 @@ function render_sage_book_appointment() {
                     }
                     return { ...svc, photo: photoUrl };
                 });
-
+                
+                state.services = services; // Store in state for re-rendering
+                
                 renderServices(services);
             } catch (e) {
                 console.error("Failed to load services", e);
@@ -691,37 +935,76 @@ function render_sage_book_appointment() {
             list.forEach(svc => {
                 const name = svc.name || "Doctor";
                 const avatarUrl = svc.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff`;
+                const isSelected = state.selectedService && state.selectedService.id === svc.id;
                 
+                // Classes for Selected vs Unselected
+                const containerClasses = isSelected 
+                    ? "rounded-xl border-2 border-emerald-600 bg-emerald-50/50" 
+                    : "rounded-xl border border-gray-200 hover:border-emerald-600/50 bg-white hover:bg-gray-50";
+
+                const imageClasses = isSelected
+                    ? "border-2 border-emerald-600"
+                    : "grayscale group-hover:grayscale-0 transition-all";
+
+                const radioHtml = isSelected
+                    ? `<div class="w-6 h-6 rounded-full border-2 border-emerald-600 flex items-center justify-center"><div class="w-2.5 h-2.5 bg-emerald-600 rounded-full"></div></div>`
+                    : `<div class="w-6 h-6 rounded-full border-2 border-gray-300 group-hover:border-emerald-600 transition-all"></div>`;
+
                 const el = document.createElement('div');
-                el.className = "group flex items-center p-4 bg-white hover:bg-gray-50 cursor-pointer transition-all border-b border-gray-100 last:border-0";
+                // Removed 'border-b' logic, added full card styling
+                el.className = `relative flex flex-col md:flex-row items-center md:items-start gap-5 p-6 transition-all cursor-pointer group ${containerClasses}`;
+                el.id = `service-card-${svc.id}`;
                 el.onclick = () => selectService(svc);
                 
                 el.innerHTML = `
-                    <div class="flex-shrink-0 mr-4">
-                        <img class="h-12 w-12 rounded-sm object-cover" src="${avatarUrl}" alt="${name}">
+                    <div class="relative">
+                         <img class="w-20 h-20 rounded-full object-cover ${imageClasses}" src="${avatarUrl}" alt="${name}">
                     </div>
-                    <div class="flex-1 min-w-0">
-                         <h4 class="text-base font-semibold text-gray-800 truncate">${name}</h4>
-                         <p class="text-xs text-gray-500 italic mt-0.5">${svc.description ? svc.description.split('Log in')[0] : 'Interventional Pain Medicine'}</p> 
-                         <p class="text-xs text-gray-400 mt-1">Sage Spine Pain and Nerve Center</p>
-                    </div>
-                    <div class="ml-4 flex-shrink-0 flex items-center gap-4">
-                         <span class="text-xs text-gray-500">${svc.duration || '15 mins'}</span>
-                         <div class="h-6 w-6 rounded-full border border-gray-300 flex items-center justify-center group-hover:bg-green-500 group-hover:border-green-500 transition-colors">
-                            <i data-lucide="check" class="w-4 h-4 text-white opacity-0 group-hover:opacity-100"></i>
+                    
+                    <div class="flex-1 text-center md:text-left">
+                         <h3 class="text-lg font-bold text-gray-900">${name}</h3>
+                         <p class="text-emerald-600 font-medium text-sm mb-2">${svc.description ? svc.description.split('Log in')[0] : 'Interventional Pain Medicine'}</p> 
+                         
+                         <div class="flex flex-col gap-1 text-sm text-gray-600">
+                             <!-- Address removed -->
                          </div>
+                    </div>
+                    
+                    <div class="flex flex-row md:flex-col items-center justify-between gap-4 w-full md:w-auto md:h-full">
+                         <div class="text-sm font-semibold text-gray-700 bg-white px-3 py-1 rounded-full border border-gray-200">
+                             ${svc.duration || '15 mins'}
+                         </div>
+                         ${radioHtml}
                     </div>
                 `;
                 container.appendChild(el);
             });
             lucide.createIcons();
+            
+            // Update Continue Button State
+            updateContinueButton();
+        }
+        
+        function updateContinueButton() {
+            const btn = document.getElementById('btn-step1-continue');
+            if(btn) {
+                if(state.selectedService) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }
         }
 
         async function selectService(svc) {
             state.selectedService = svc;
-            state.selectedDate = null;
-            state.selectedDateStr = null;
-            state.selectedSlot = null;
+            
+            // Re-render to show selection state
+            if (state.services) {
+                renderServices(state.services);
+            }
             
             // Update booking message with doctor name
             const doctorNameEl = document.getElementById('selected-doctor-name');
@@ -732,11 +1015,11 @@ function render_sage_book_appointment() {
             // Update summary
             document.getElementById('summary-service-name').textContent = svc.name || 'Service';
             
-            // Move to Step 2 and load calendar
-            setStep(2);
+            // Enable Continue Button
+            updateContinueButton();
             
-            // Initialize calendar for current month with this service
-            let calendarDate = new Date(); // Declared with 'let' to avoid global scope if not intended
+            // Pre-load calendar data for smooth transition
+            let calendarDate = new Date(); 
             await loadWeekData();
         }
 
@@ -801,38 +1084,28 @@ function render_sage_book_appointment() {
             const slotsContainer = document.getElementById('slots-container');
             
             // Show loading
-            if(loadingEl) {
-                loadingEl.classList.remove('hidden');
-                
-                // Responsive Skeleton
-                const isMobile = window.innerWidth < 768;
-                const daysToShow = isMobile ? 5 : 7;
-                const boxClass = isMobile ? "min-w-[46px] w-[46px] h-14" : "min-w-[64px] w-16 h-16 square";
-                const gapClass = isMobile ? "gap-2" : "gap-3";
-                
-                let skeletonHTML = `<div class="flex ${gapClass}">`;
-                for(let i=0; i<daysToShow; i++) {
-                     skeletonHTML += `<div class="${boxClass} rounded-lg bg-gray-100 animate-pulse" style="animation-delay: ${i * 0.1}s"></div>`;
-                }
-                skeletonHTML += `</div>`;
-                loadingEl.innerHTML = skeletonHTML;
-            }
+            if(loadingEl) loadingEl.classList.remove('hidden');
 
             if(trackEl) trackEl.innerHTML = ''; // Clear the track completely
             
             // Hide slots until a date is selected
-            if (slotsContainer) slotsContainer.classList.add('hidden');
+            if (slotsContainer) slotsContainer.innerHTML = '<div class="text-center text-gray-500 py-10">Select a date to view availability</div>';
             
             // Update month selector to reflect current week's month
             const monthSelector = document.getElementById('month-selector');
-            if (monthSelector && state.weekStartDate) {
+            const monthLabel = document.getElementById('current-month-label');
+            
+            if (state.weekStartDate) {
                 const year = state.weekStartDate.getFullYear();
                 const month = String(state.weekStartDate.getMonth() + 1).padStart(2, '0');
-                monthSelector.value = `${year}-${month}`;
+                const monthName = state.weekStartDate.toLocaleString('default', { month: 'long' });
+                
+                if(monthSelector) monthSelector.value = `${year}-${month}`;
+                if(monthLabel) monthLabel.textContent = `${monthName}, ${year}`;
             }
             
             // Start both the data fetch and minimum display timer
-            const minDisplayTime = new Promise(resolve => setTimeout(resolve, 300));
+            const minDisplayTime = new Promise(resolve => setTimeout(resolve, 500)); // Increased to 500ms for visibility
             
             // Render calendar structure first (without data)
             renderCalendarDays();
@@ -859,7 +1132,6 @@ function render_sage_book_appointment() {
         function renderCalendarDays() {
             const container = document.getElementById('calendar-days-track');
             
-            // No need to update month label - it's in the dropdown now
             const start = new Date(state.weekStartDate);
             const end = new Date(state.weekStartDate);
             end.setDate(end.getDate() + 6);
@@ -868,36 +1140,27 @@ function render_sage_book_appointment() {
             
             const todayStr = getLocalDateString(new Date());
 
-            // Responsive Day Count: 5 for mobile, 7 for desktop
+            // Responsive Day Count
             const isMobile = window.innerWidth < 768;
             const daysToShow = isMobile ? 5 : 7;
 
-            // Clear track classes and re-apply responsive gap/padding
-            // Mobile: px-8 (less padding for arrows), gap-1 (tighter)
-            // Desktop: px-16, gap-3
-            container.className = `flex ${isMobile ? 'gap-2 px-9' : 'gap-3 px-16'} justify-center pb-2 min-h-[64px] snap-x no-scrollbar shadow-none`;
+            // Updated Container Classes for new design - Added padding to prevent shadow clipping
+            container.className = `flex gap-3 overflow-x-auto custom-scrollbar flex-grow pb-2 pt-1 px-1 snap-x`;
 
             for (let i = 0; i < daysToShow; i++) {
                 const date = new Date(state.weekStartDate);
                 date.setDate(date.getDate() + i);
                 
                 const dateStr = getLocalDateString(date);
-                const dayName = date.toLocaleString('default', { weekday: 'short' }).toUpperCase();
+                const dayName = date.toLocaleString('default', { weekday: 'short' }).toUpperCase(); // MON, TUE
                 const dayNum = date.getDate();
                 
-                const btn = document.createElement('button');
+                const btn = document.createElement('div'); // Div now, clickable
                 btn.id = `day-btn-${dateStr}`;
                 
                 // Base Classes
-                // Mobile: w-11 h-14 (smaller)
-                // Desktop: w-16 h-16 (square 64px)
-                let baseClass = "flex flex-col items-center justify-center rounded-lg transition-all relative leading-none";
-                
-                if (isMobile) {
-                    baseClass += "min-w-[46px] w-[46px] h-14 "; 
-                } else {
-                    baseClass += "min-w-[64px] w-16 h-16 ";
-                }
+                // Default: flex-1 min-w-[70px] p-3 rounded-xl border text-center transition-all cursor-pointer select-none 
+                let baseClass = "flex-1 min-w-[70px] p-3 rounded-xl border text-center transition-all cursor-pointer select-none box-border ";
                 
                 // Past Day Check
                 const isPast = dateStr < todayStr;
@@ -909,36 +1172,29 @@ function render_sage_book_appointment() {
                                    (!Array.isArray(cachedData.slots) || cachedData.slots.length === 0);
                 
                 if (isPast) {
-                    baseClass += "bg-gray-50 text-gray-300 cursor-not-allowed";
-                    btn.disabled = true;
+                    baseClass += "border-gray-100 bg-gray-50 opacity-40 cursor-not-allowed";
                 } else if (hasNoSlots) {
                     // Day has no available slots
-                    baseClass += "bg-white text-gray-300 cursor-not-allowed opacity-60";
-                    btn.disabled = true;
+                    baseClass += "border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed";
                     btn.title = "No slots available";
                 } else if (state.selectedDateStr === dateStr) {
-                    // Selected: Green bg, white text. No border needed if bg is strong.
-                    baseClass += "bg-emerald-500 text-white shadow-md transform scale-105";
+                    // Selected: border-emerald-500 bg-emerald-50 text-emerald-700
+                    // Added ring and adjusted shadow to account for "cutting" issue, ensure space
+                    baseClass += "border-emerald-600 bg-emerald-50 shadow-md ring-1 ring-emerald-600/20 transform scale-100"; // Removed scale-105 to reduce overflow risk
                 } else {
-                    // Unselected: White bg, dark text, subtle border/shadow only?
-                    baseClass += "bg-white text-gray-800 hover:bg-gray-50 cursor-pointer shadow-sm hover:shadow-md";
+                    // Unselected
+                    baseClass += "border-gray-200 bg-white hover:border-emerald-500/50 hover:bg-gray-50";
                 }
                 
                 btn.className = baseClass;
                 
                 // Text Colors
-                const dayNameClass = (state.selectedDateStr === dateStr && !isPast && !hasNoSlots) ? 'text-white/90' : 'text-gray-400';
-                const dayNumClass = (state.selectedDateStr === dateStr && !isPast && !hasNoSlots) ? 'text-white' : 'text-gray-800';
-
-                // Responsive Font Sizes
-                // Mobile: text-lg number, text-[9px] name
-                // Desktop: text-2xl number, text-[10px] name
-                const numSize = isMobile ? 'text-lg' : 'text-2xl';
-                const nameSize = isMobile ? 'text-[9px]' : 'text-[10px]';
+                const dayNumClass = (state.selectedDateStr === dateStr && !isPast && !hasNoSlots) ? 'text-emerald-700' : 'text-gray-900';
+                const dayNameClass = (state.selectedDateStr === dateStr && !isPast && !hasNoSlots) ? 'text-emerald-600' : 'text-gray-500';
 
                 btn.innerHTML = `
-                    <span class="${dayNumClass} ${numSize} font-bold leading-none mb-1">${dayNum}</span>
-                    <span class="${dayNameClass} ${nameSize} uppercase font-medium tracking-wider">${dayName}</span>
+                    <p class="text-2xl font-bold ${dayNumClass}">${dayNum}</p>
+                    <p class="text-xs font-semibold ${dayNameClass} uppercase">${dayName}</p>
                 `;
                 
                 if (!isPast && !hasNoSlots) {
@@ -1071,78 +1327,106 @@ function render_sage_book_appointment() {
             const container = document.getElementById('slots-container');
             container.innerHTML = '';
             
-            if (!slots || slots.length === 0) {
-                 container.innerHTML = `<div class="text-center text-gray-500 py-6">No availability for this date.</div>`;
+            // Handle different slot formats (array of strings or object keys)
+            let slotList = [];
+            if (Array.isArray(slots)) {
+                 slotList = slots;
+            } else if (typeof slots === 'object') {
+                 // Sort keys if object
+                 slotList = Object.keys(slots).sort();
+            }
+
+            if (slotList.length === 0) {
+                 container.innerHTML = `<div class="text-center text-gray-500 py-10">No availability for this date.</div>`;
                  return;
             }
-            
-            // Normalize slots to array of time strings
-            let slotList = [];
-            if (Array.isArray(slots)) slotList = slots;
-            else if (typeof slots === 'object') slotList = Object.keys(slots);
 
-            // Group slots by time period
-            const periods = { Morning: [], Afternoon: [], Evening: [], Night: [] };
-            
+            // Split into Morning / Afternoon
+            const morningSlots = [];
+            const afternoonSlots = [];
+
             slotList.forEach(time => {
-                // Parse time to determine period
-                let hour = 0;
+                // Parse "09:00" or "09:00 AM"
+                let hours = 0;
+                let isPM = false;
+
+                if (time.match(/PM/i)) isPM = true;
+                if (time.match(/AM/i)) isPM = false;
                 
-                // Handle different time formats
-                if (time.includes(':')) {
-                    const timeParts = time.split(':');
-                    hour = parseInt(timeParts[0]);
-                    
-                    // If PM/AM format
-                    if (time.toLowerCase().includes('pm') && hour !== 12) {
-                        hour += 12;
-                    } else if (time.toLowerCase().includes('am') && hour === 12) {
-                        hour = 0;
-                    }
+                const timeParts = time.replace(/[AP]M/i, '').trim().split(':');
+                if(timeParts.length >= 1) {
+                    hours = parseInt(timeParts[0]);
                 }
                 
-                // Categorize by time period
-                if (hour >= 5 && hour < 12) {
-                    periods.Morning.push(time);
-                } else if (hour >= 12 && hour < 17) {
-                    periods.Afternoon.push(time);
-                } else if (hour >= 17 && hour < 21) {
-                    periods.Evening.push(time);
+                // Convert to 24h for comparison
+                let hour24 = hours;
+                if (isPM && hours < 12) hour24 += 12;
+                if (!isPM && hours === 12) hour24 = 0;
+
+                // Logic: Morning < 12:00, Afternoon >= 12:00
+                const isMorning = hour24 < 12;
+                
+                if (isMorning) morningSlots.push(time);
+                else afternoonSlots.push(time);
+            });
+
+            // Helper to create slot button
+            const createSlotBtn = (time) => {
+                const isSelected = state.selectedSlot === time;
+                const btn = document.createElement('button');
+                // Base classes
+                let classes = "py-3 px-4 rounded-xl border text-sm font-medium transition-all w-full ";
+                
+                if (isSelected) {
+                    classes += "border-2 border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-200";
                 } else {
-                    periods.Night.push(time);
+                    classes += "border-slate-200 bg-white hover:border-emerald-600 hover:text-emerald-600 text-gray-700";
                 }
-            });
+                
+                btn.className = classes;
+                btn.innerText = formatTimeDisplay(time);
+                btn.onclick = () => selectSlot(time);
+                return btn;
+            };
+
+            // Render Morning Section
+            if (morningSlots.length > 0) {
+                 const section = document.createElement('section');
+                 section.className = "mb-6";
+                 section.innerHTML = `
+                    <h4 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i> Morning
+                    </h4>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
+                 `;
+                 const list = section.querySelector('.grid');
+                 morningSlots.forEach(t => list.appendChild(createSlotBtn(t)));
+                 container.appendChild(section);
+            }
+
+            // Render Afternoon Section
+            if (afternoonSlots.length > 0) {
+                 const section = document.createElement('section');
+                 section.innerHTML = `
+                    <h4 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i data-lucide="sunset" class="w-4 h-4 text-indigo-500"></i> Afternoon
+                    </h4>
+                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
+                 `;
+                 const list = section.querySelector('.grid');
+                 afternoonSlots.forEach(t => list.appendChild(createSlotBtn(t)));
+                 container.appendChild(section);
+            }
             
-            // Render each period with slots
-            Object.keys(periods).forEach(periodName => {
-                const periodSlots = periods[periodName];
-                if (periodSlots.length === 0) return; // Skip empty periods
-                
-                // Period header
-                const header = document.createElement('div');
-                header.className = 'text-center text-gray-700 font-medium text-sm mb-4 mt-6 first:mt-0';
-                header.textContent = periodName;
-                container.appendChild(header);
-                
-                // Slots grid
-                const grid = document.createElement('div');
-                // Mobile: grid-cols-3 (Matches image)
-                // Desktop (md+): grid-cols-4
-                grid.className = 'grid grid-cols-3 md:grid-cols-4 gap-3';
-                
-                periodSlots.forEach(time => {
-                    const btn = document.createElement('button');
-                    btn.className = 'py-3 px-4 border border-black rounded text-sm text-gray-700 bg-white hover:border-gray-400 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors shadow-none';
-                    btn.innerText = time;
-                    btn.onclick = () => {
-                        state.selectedSlot = time;
-                        setStep(3);
-                    };
-                    grid.appendChild(btn);
-                });
-                
-                container.appendChild(grid);
-            });
+            // If no valid parsed slots but we had raw data? (Edge case fallback)
+            if (container.children.length === 0 && slotList.length > 0) {
+                 const section = document.createElement('div');
+                 section.className = "grid grid-cols-2 sm:grid-cols-4 gap-3";
+                 slotList.forEach(t => section.appendChild(createSlotBtn(t)));
+                 container.appendChild(section);
+            }
+
+            lucide.createIcons();
         }
 
         // --- Step 3: Booking ---
@@ -1260,6 +1544,15 @@ function render_sage_book_appointment() {
                     const formattedTime = state.selectedSlot;
                     document.getElementById('confirm-datetime').textContent = `${formattedDate} | ${formattedTime}`;
                     
+                    // New: Populate Split Date Box (Month Abbr and Day Number)
+                    const monthAbbr = bookingDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+                    const dayNum = bookingDate.getDate();
+                    
+                    const monthEl = document.getElementById('confirm-month-abbr');
+                    const dayEl = document.getElementById('confirm-day-number');
+                    if(monthEl) monthEl.textContent = monthAbbr;
+                    if(dayEl) dayEl.textContent = dayNum;
+
                     // Update timezone (hardcoded as per request)
                     document.getElementById('confirm-timezone').textContent = "America/Chicago - CST (-06:00)";
                     
