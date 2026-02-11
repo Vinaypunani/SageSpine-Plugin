@@ -269,42 +269,39 @@ function render_sage_book_appointment() {
                             </div>
                         </div>
 
-                        <!-- Optional Faster Scheduling Section -->
-                        <div class="pt-4 mt-4">
-                            <button type="button" id="toggle-optional-fields" class="w-full flex items-center justify-between text-left px-4 py-3 text-sm font-medium text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer border-none">
-                                <span>For faster visit scheduling, please fill these additional fields</span>
-                                <i data-lucide="chevron-down" id="optional-fields-icon" class="w-4 h-4 transition-transform duration-200"></i>
-                            </button>
+                        <!-- Additional Fields Section (Now Always Visible) -->
+                        <div class="mt-6">
+                            <!-- Removed Toggle Button -->
                             
-                            <div id="optional-fields-container" class="hidden space-y-4 pt-4 animate-fade-in-down">
+                            <div id="optional-fields-container" class="space-y-4">
                                 
                                 <!-- Address Params -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                      <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
-                                        <input type="text" name="address_street" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="123 Main St">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Street Address *</label>
+                                        <input type="text" name="address_street" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="123 Main St">
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
-                                        <input type="text" name="address_city" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="City">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                                        <input type="text" name="address_city" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="City">
                                     </div>
                                 </div>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                      <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
-                                        <input type="text" name="address_state" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="State">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">State *</label>
+                                        <input type="text" name="address_state" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="State">
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">ZIP Code</label>
-                                        <input type="text" name="address_zip" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="ZIP Code">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">ZIP Code *</label>
+                                        <input type="text" name="address_zip" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="ZIP Code">
                                     </div>
                                 </div>
 
                                 <!-- Insurance -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Insurance Info</label>
-                                    <select name="insurance_info" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Insurance Info *</label>
+                                    <select name="insurance_info" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
                                         <option value="">Select Insurance</option>
                                         <option value="Medicare">Medicare</option>
                                         <option value="Medicare with Advantage Plan">Medicare with Advantage Plan</option>
@@ -319,15 +316,15 @@ function render_sage_book_appointment() {
 
                                 <!-- File Upload -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Insurance Card Image</label>
-                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:bg-gray-50 transition-colors cursor-pointer relative" id="drop-zone">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Insurance Card Image *</label>
+                                    <label for="insurance-upload" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:bg-gray-50 transition-colors cursor-pointer relative" id="drop-zone">
                                         <div class="space-y-1 text-center">
                                             <i data-lucide="upload-cloud" class="mx-auto h-12 w-12 text-gray-400"></i>
                                             <div class="flex text-sm text-gray-600 justify-center">
-                                                <label for="insurance-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-emerald-500">
+                                                <span class="relative cursor-pointer bg-white rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-emerald-500">
                                                     <span>Upload a file</span>
-                                                    <input id="insurance-upload" name="insurance_file" type="file" class="sr-only" accept="image/*,.pdf">
-                                                </label>
+                                                    <input id="insurance-upload" name="insurance_file" required type="file" class="sr-only" accept="image/*,.pdf">
+                                                </span>
                                                 <p class="pl-1">or drag and drop</p>
                                             </div>
                                             <p class="text-xs text-gray-500">PNG, JPG, PDF up to 5MB</p>
@@ -338,15 +335,15 @@ function render_sage_book_appointment() {
                                         <div id="upload-status" class="absolute inset-0 bg-white bg-opacity-90 flex items-center justify-center hidden rounded-md">
                                              <p class="text-sm font-medium text-gray-600">Uploading...</p>
                                         </div>
-                                    </div>
+                                    </label>
                                     <p id="file-name-display" class="mt-2 text-sm text-gray-500 hidden"></p>
                                 </div>
 
                                 <!-- Providers -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                      <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Pharmacy Phone</label>
-                                        <input type="tel" name="pharmacy_phone" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="Phone Number">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Pharmacy Phone *</label>
+                                        <input type="tel" name="pharmacy_phone" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="Phone Number">
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Referring Provider</label>
@@ -356,8 +353,8 @@ function render_sage_book_appointment() {
 
                                 <!-- Demographics -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Language</label>
-                                    <select name="language" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Language *</label>
+                                    <select name="language" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
                                         <option value="">Select Language</option>
                                         <option value="English">English</option>
                                         <option value="Spanish">Spanish</option>
@@ -368,8 +365,8 @@ function render_sage_book_appointment() {
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Sex</label>
-                                    <select name="sex" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Sex *</label>
+                                    <select name="sex" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
                                         <option value="">Select Sex</option>
                                         <option value="Female">Female</option>
                                         <option value="Male">Male</option>
@@ -378,8 +375,8 @@ function render_sage_book_appointment() {
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ethnicity</label>
-                                    <select name="ethnicity" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ethnicity *</label>
+                                    <select name="ethnicity" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
                                         <option value="">Select Ethnicity</option>
                                         <option value="Not Hispanic or Latino (White)">Not Hispanic or Latino (White)</option>
                                         <option value="Not Hispanic or Latino (Two or More Races)">Not Hispanic or Latino (Two or More Races)</option>
@@ -388,8 +385,8 @@ function render_sage_book_appointment() {
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Race</label>
-                                    <select name="race" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Race *</label>
+                                    <select name="race" required class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm bg-white">
                                         <option value="">Select Race</option>
                                         <option value="White">White</option>
                                         <option value="Asian">Asian</option>
@@ -1279,23 +1276,7 @@ function render_sage_book_appointment() {
 
         // --- Optional Fields Logic ---
         function initOptionalFields() {
-             // Accordion Toggle
-            const toggleBtn = document.getElementById('toggle-optional-fields');
-            const container = document.getElementById('optional-fields-container');
-            const icon = document.getElementById('optional-fields-icon');
-
-            if (toggleBtn && container && icon) {
-                toggleBtn.addEventListener('click', () => {
-                    const isHidden = container.classList.contains('hidden');
-                    if (isHidden) {
-                        container.classList.remove('hidden');
-                        icon.style.transform = 'rotate(180deg)';
-                    } else {
-                        container.classList.add('hidden');
-                        icon.style.transform = 'rotate(0deg)';
-                    }
-                });
-            }
+             // Accordion Toggle Removed
 
             // File Upload Logic
             const fileInput = document.getElementById('insurance-upload');
