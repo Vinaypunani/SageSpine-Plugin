@@ -350,6 +350,10 @@ function render_sage_book_appointment() {
                                         <input type="text" name="referring_provider" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="Provider Name">
                                     </div>
                                 </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Who is primary provider ?</label>
+                                    <input type="text" name="primary_provider" class="w-full border rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm" placeholder="Primary Provider Name">
+                                </div>
 
                                 <!-- Demographics -->
                                 <div>
@@ -1216,6 +1220,7 @@ function render_sage_book_appointment() {
                     "Insurance Card": data.insurance_card_url || "",
                     "What is your preferred pharmacy phone number?": data.pharmacy_phone || "",
                     "Referring Provider": data.referring_provider || "",
+                    "Who is primary provider ?": data.primary_provider || "",
                     "Language": data.language || "",
                     "Sex": data.sex || "",
                     "Ethnicity": data.ethnicity || "",
