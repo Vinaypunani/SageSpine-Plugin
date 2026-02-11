@@ -8,27 +8,6 @@ function render_sage_book_appointment() {
     $api_nonce = wp_create_nonce('wp_rest');
     $api_base = rest_url('sagespine/v1');
     ?>
-    <!-- Reuse Tailwind and Scripts from Design -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            important: '#sage-book-app',
-            corePlugins: { preflight: false },
-             theme: {
-                extend: {
-                    colors: {
-                        emerald: {
-                            50: '#ecfdf5',
-                            100: '#d1fae5',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <script>
         const WP_API_NONCE = "<?php echo $api_nonce; ?>";
         const WP_MEDIA_ENDPOINT = "<?php echo esc_url_raw(rest_url('sagespine/v1/upload')); ?>";
@@ -36,21 +15,20 @@ function render_sage_book_appointment() {
     <style>
         /* Scoped Reset to protect against Theme Styles */
         #sage-book-app {
-            all: initial; /* Reset everything inheritance */
+            all: initial;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             display: block;
             width: 100%;
             box-sizing: border-box;
             line-height: 1.5;
-            color: #1f2937; /* Gray-800 */
+            color: #1f2937;
         }
         #sage-book-app * {
             box-sizing: border-box;
             border-width: 0;
             border-style: solid;
-            border-color: #e5e7eb; /* Gray-200 */
+            border-color: #e5e7eb;
         }
-        /* Re-apply some basics that 'all: initial' wanes */
         #sage-book-app h1, #sage-book-app h2, #sage-book-app h3, 
         #sage-book-app h4, #sage-book-app h5, #sage-book-app h6 {
             display: block;
@@ -58,120 +36,1650 @@ function render_sage_book_appointment() {
             margin: 0;
         }
         #sage-book-app p { display: block; margin: 0; }
-
         #sage-book-app button { cursor: pointer; line-height: 1; }
         #sage-book-app input, #sage-book-app select, #sage-book-app textarea {
             display: block;
             font-family: inherit;
         }
         
-        /* Fix for conflicting hidden classes */
+        /* Utility Classes */
         #sage-book-app .hidden { display: none !important; }
-        
-        /* Layout Fixes */
         #sage-book-app .flex { display: flex; }
         #sage-book-app .grid { display: grid; }
         
-        /* Custom Thin Scrollbar */
+        /* Scrollbar Styling */
         #sage-book-app .custom-scrollbar::-webkit-scrollbar {
-            height: 4px; /* Thin scrollbar for x-axis */
-            width: 4px;  /* For y-axis if ever needed */
+            height: 4px;
+            width: 4px;
         }
         #sage-book-app .custom-scrollbar::-webkit-scrollbar-track {
             background: transparent;
         }
         #sage-book-app .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #d1d5db; /* Gray-300 */
+            background-color: #d1d5db;
             border-radius: 20px;
         }
+        
+        /* Layout Container */
+        #sage-book-app .sage-booking-container {
+            width: 100%;
+            max-width: 80rem;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+            position: relative;
+            padding: 1rem;
+        }
+        
+        /* Loading Overlay */
+        #sage-book-app #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: white;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #sage-book-app #loading-overlay > div {
+            animation: spin 1s linear infinite;
+            border-radius: 9999px;
+            height: 4rem;
+            width: 4rem;
+            border-width: 4px;
+            border-color: #e5e7eb;
+            border-top-color: #10b981;
+        }
+        
+        /* Headers */
+        #sage-book-app .booking-header {
+            margin-bottom: 2rem;
+        }
+        #sage-book-app #booking-main-title {
+            font-size: 1.875rem;
+            font-weight: bold;
+            text-align: center;
+            color: #059669;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Main Layout */
+        #sage-book-app .main-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        /* Sidebar */
+        #sage-book-app #appointment-sidebar {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        #sage-book-app .sidebar-step {
+            padding: 1rem;
+            border: 1px solid;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #sage-book-app .sidebar-step-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #sage-book-app .sidebar-step-inner {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        #sage-book-app .sidebar-step i[data-lucide] {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        #sage-book-app .sidebar-step i.chevron {
+            width: 1rem;
+            height: 1rem;
+        }
+        #sage-book-app .sidebar-step span {
+            font-weight: 500;
+        }
+        #sage-book-app .sidebar-step.active {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+        #sage-book-app .sidebar-step.active span {
+            color: #047857;
+        }
+        #sage-book-app .sidebar-step.active i[data-lucide] {
+            color: #059669;
+        }
+        #sage-book-app .sidebar-step.inactive {
+            border-color: #f3f4f6;
+            background-color: white;
+        }
+        #sage-book-app .sidebar-step.inactive:hover {
+            background-color: #f9fafb;
+        }
+        #sage-book-app .sidebar-step.inactive span {
+            color: #4b5563;
+        }
+        #sage-book-app .sidebar-step.inactive i[data-lucide] {
+            color: #9ca3af;
+        }
+        #sage-book-app .sidebar-step.completed {
+            border-color: #d1fae5;
+            background-color: white;
+        }
+        #sage-book-app .sidebar-step.completed:hover {
+            background-color: #d1fae5;
+        }
+        #sage-book-app .sidebar-step.completed span {
+            color: #1f2937;
+        }
+        #sage-book-app .sidebar-step.completed i[data-lucide] {
+            color: #059669;
+        }
+        #sage-book-app .sidebar-step.future {
+            border-color: #f3f4f6;
+            background-color: #f9fafb;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #sage-book-app .sidebar-step.future span {
+            color: #9ca3af;
+        }
+        #sage-book-app .sidebar-step.future i[data-lucide] {
+            color: #9ca3af;
+        }
+        
+        /* Main Content */
+        #sage-book-app #appointment-main-content {
+            width: 100%;
+            min-height: 400px;
+        }
+        
+        /* Step Views */
+        #sage-book-app .step-view {}
+        
+        /* Step Headers */
+        #sage-book-app .step-header {
+            margin-bottom: 2rem;
+        }
+        #sage-book-app .step-header h2 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }
+        #sage-book-app .step-header p {
+            color: #6b7280;
+        }
+        
+        /* Services List */
+        #sage-book-app #services-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        #sage-book-app .service-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        #sage-book-app .service-card.selected {
+            border-radius: 0.75rem;
+            border: 2px solid #059669;
+            background-color: rgba(236, 253, 245, 0.5);
+        }
+        #sage-book-app .service-card.unselected {
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+        }
+        #sage-book-app .service-card.unselected:hover {
+            border-color: rgba(5, 150, 105, 0.5);
+            background-color: #f9fafb;
+        }
+        #sage-book-app .service-avatar {
+            position: relative;
+        }
+        #sage-book-app .service-avatar img {
+            width: 5rem;
+            height: 5rem;
+            border-radius: 9999px;
+            object-fit: cover;
+        }
+        #sage-book-app .service-card.selected .service-avatar img {
+            border: 2px solid #059669;
+        }
+        #sage-book-app .service-card.unselected .service-avatar img {
+            filter: grayscale(100%);
+            transition: all 0.2s;
+        }
+        #sage-book-app .service-card.unselected:hover .service-avatar img {
+            filter: grayscale(0%);
+        }
+        #sage-book-app .service-info {
+            flex: 1;
+            text-align: center;
+        }
+        #sage-book-app .service-info h3 {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #111827;
+        }
+        #sage-book-app .service-info .specialty {
+            color: #059669;
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        #sage-book-app .service-meta {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            width: 100%;
+        }
+        #sage-book-app .service-duration {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            background-color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid #e5e7eb;
+        }
+        #sage-book-app .service-radio {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #sage-book-app .service-card.selected .service-radio {
+            border-color: #059669;
+        }
+        #sage-book-app .service-card.unselected .service-radio {
+            border-color: #d1d5db;
+            transition: all 0.2s;
+        }
+        #sage-book-app .service-card.unselected:hover .service-radio {
+            border-color: #059669;
+        }
+        #sage-book-app .service-radio-dot {
+            width: 0.625rem;
+            height: 0.625rem;
+            background-color: #059669;
+            border-radius: 9999px;
+        }
+        
+        /* Skeleton */
+        #sage-book-app #services-skeleton {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        #sage-book-app .skeleton-card {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: white;
+            border-bottom: 1px solid #f3f4f6;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        #sage-book-app .skeleton-avatar {
+            flex-shrink: 0;
+            margin-right: 1rem;
+        }
+        #sage-book-app .skeleton-avatar-img {
+            height: 3rem;
+            width: 3rem;
+            background-color: #e5e7eb;
+            border-radius: 0.125rem;
+        }
+        #sage-book-app .skeleton-content {
+            flex: 1;
+            min-width: 0;
+        }
+        #sage-book-app .skeleton-title {
+            height: 1.25rem;
+            background-color: #e5e7eb;
+            border-radius: 0.25rem;
+            width: 12rem;
+            margin-bottom: 0.5rem;
+        }
+        #sage-book-app .skeleton-text-full {
+            height: 0.75rem;
+            background-color: #e5e7eb;
+            border-radius: 0.25rem;
+            width: 100%;
+            margin-bottom: 0.25rem;
+        }
+        #sage-book-app .skeleton-text-3q {
+            height: 0.75rem;
+            background-color: #e5e7eb;
+            border-radius: 0.25rem;
+            width: 75%;
+        }
+        #sage-book-app .skeleton-meta {
+            margin-left: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #sage-book-app .skeleton-duration {
+            height: 1rem;
+            background-color: #e5e7eb;
+            border-radius: 0.25rem;
+            width: 5rem;
+        }
+        #sage-book-app .skeleton-radio {
+            height: 0.75rem;
+            width: 0.75rem;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+        }
+        
+        /* Service Cards - JavaScript Generated */
+        #sage-book-app .service-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+        }
+        #sage-book-app .service-card:hover {
+            border-color: rgba(16, 185, 129, 0.5);
+            background-color: #f9fafb;
+        }
+        #sage-book-app .service-card.selected {
+            border: 2px solid #10b981;
+            background-color: rgba(236, 253, 245, 0.5);
+        }
+        #sage-book-app .service-card.selected:hover {
+            border-color: #10b981;
+            background-color: rgba(236, 253, 245, 0.5);
+        }
+        #sage-book-app .service-avatar {
+            position: relative;
+            flex-shrink: 0;
+        }
+        #sage-book-app .service-avatar img {
+            width: 5rem;
+            height: 5rem;
+            border-radius: 9999px;
+            object-fit: cover;
+            filter: grayscale(100%);
+            transition: all 0.3s;
+        }
+        #sage-book-app .service-card:hover .service-avatar img {
+            filter: grayscale(0%);
+        }
+        #sage-book-app .service-card.selected .service-avatar img {
+            filter: grayscale(0%);
+            border: 2px solid #10b981;
+        }
+        #sage-book-app .service-info {
+            flex: 1;
+            text-align: center;
+            min-width: 0;
+        }
+        #sage-book-app .service-info h3 {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+        #sage-book-app .service-description {
+            color: #10b981;
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        #sage-book-app .service-meta {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            width: 100%;
+        }
+        #sage-book-app .service-duration {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            background-color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid #e5e7eb;
+        }
+        #sage-book-app .service-radio {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            border: 2px solid #d1d5db;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        #sage-book-app .service-card:hover .service-radio {
+            border-color: #10b981;
+        }
+        #sage-book-app .service-radio.selected {
+            border-color: #10b981;
+        }
+        #sage-book-app .service-radio-dot {
+            width: 0.625rem;
+            height: 0.625rem;
+            background-color: #10b981;
+            border-radius: 9999px;
+        }
+        
+        /* Responsive Service Card Layout */
+        @media (min-width: 768px) {
+            #sage-book-app .service-card {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            #sage-book-app .service-info {
+                text-align: left;
+            }
+            #sage-book-app .service-meta {
+                flex-direction: column;
+                width: auto;
+                height: 100%;
+            }
+        }
+        
+        /* Buttons */
+        #sage-book-app .btn-primary {
+            background-color: #059669;
+            color: white;
+            padding: 0.625rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
+            transition: all 0.2s;
+            transform-origin: center;
+        }
+        #sage-book-app .btn-primary:hover {
+            background-color: #047857;
+        }
+        #sage-book-app .btn-primary:active {
+            transform: scale(0.95);
+        }
+        #sage-book-app .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #sage-book-app .btn-secondary:hover {
+            background-color: #f1f5f9;
+            border-color: #94a3b8;
+        }
+        
+        /* Step Navigation */
+        #sage-book-app .step-nav {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: row;
+            gap: 0.75rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #sage-book-app .step-nav-with-border {
+            padding-top: 1.5rem;
+            border-top: 1px solid #f3f4f6;
+        }
+        #sage-book-app .btn-continue {
+            flex: 2;
+            padding: 0.75rem 1rem;
+            background-color: #059669;
+            color: white;
+            font-weight: bold;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
+            transition: all 0.2s;
+            transform-origin: center;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        #sage-book-app .btn-secondary {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #cbd5e1;
+            font-weight: 600;
+            color: #64748b;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8fafc;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        /* Calendar Section */
+        #sage-book-app .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 20;
+        }
+        #sage-book-app .month-selector {
+            position: relative;
+        }
+        #sage-book-app .month-trigger-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+            cursor: pointer;
+        }
+        #sage-book-app .month-trigger-btn:hover {
+            background-color: #f9fafb;
+            border-color: #10b981;
+        }
+        #sage-book-app .month-trigger-btn h3 {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #1f2937;
+            transition: all 0.2s;
+            margin: 0;
+        }
+        #sage-book-app .month-trigger-btn:hover h3 {
+            color: #10b981;
+        }
+        #sage-book-app .month-trigger-btn i {
+            width: 1rem;
+            height: 1rem;
+            color: #9ca3af;
+            transition: all 0.2s;
+        }
+        #sage-book-app .month-trigger-btn:hover i {
+            color: #10b981;
+            transform: rotate(180deg);
+        }
+        
+        /* Month Picker */
+        #sage-book-app #custom-month-picker {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 0.75rem;
+            z-index: 30;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            padding: 1.25rem;
+            width: 20rem;
+            max-width: calc(100vw - 2rem);
+        }
+        #sage-book-app .month-picker-year-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        #sage-book-app .month-picker-year-nav button {
+            padding: 0.5rem;
+            border-radius: 9999px;
+            color: #6b7280;
+            transition: all 0.2s;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #sage-book-app .month-picker-year-nav button:hover:not(:disabled) {
+            background-color: #ecfdf5;
+            border-color: #10b981;
+            color: #10b981;
+            transform: scale(1.05);
+        }
+        #sage-book-app .month-picker-year-nav button i {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        #sage-book-app .month-picker-year-nav button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        #sage-book-app .month-picker-year-label {
+            font-weight: bold;
+            color: #1f2937;
+            font-size: 1.25rem;
+            letter-spacing: -0.025em;
+        }
+        #sage-book-app #month-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.625rem;
+        }
+        #sage-book-app .month-picker-btn {
+            padding: 0.75rem 0.5rem;
+            border-radius: 0.625rem;
+            font-size: 0.875rem;
+            border: 1px solid;
+            font-weight: 600;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-align: center;
+        }
+        #sage-book-app .month-picker-btn.disabled {
+            border-color: transparent;
+            color: #d1d5db;
+            cursor: not-allowed;
+            background-color: #f9fafb;
+            opacity: 0.5;
+        }
+        #sage-book-app .month-picker-btn.enabled {
+            border-color: #e5e7eb;
+            color: #4b5563;
+            background-color: white;
+        }
+        #sage-book-app .month-picker-btn.enabled:hover {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+            color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        #sage-book-app .month-picker-btn.enabled:active {
+            transform: translateY(0);
+        }
+        /* Selected Month State */
+        #sage-book-app .month-picker-btn.selected {
+            border-color: #10b981;
+            background-color: #10b981;
+            color: white;
+            font-weight: bold;
+        }
+        #sage-book-app .month-picker-btn.selected:hover {
+            border-color: #059669;
+            background-color: #059669;
+            color: white;
+        }
+        /* Current Month Indicator */
+        #sage-book-app .month-picker-btn.current {
+            position: relative;
+        }
+        #sage-book-app .month-picker-btn.current::after {
+            content: '';
+            position: absolute;
+            bottom: 0.25rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0.25rem;
+            height: 0.25rem;
+            background-color: #10b981;
+            border-radius: 9999px;
+        }
+        #sage-book-app .month-picker-btn.selected.current::after {
+            background-color: white;
+        }
+        
+        /* Calendar Icon Button */
+        #sage-book-app #btn-month-picker-icon {
+            padding: 0.5rem;
+            border-radius: 9999px;
+            transition: all 0.2s;
+            border: 1px solid #f3f4f6;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        #sage-book-app #btn-month-picker-icon:hover {
+            background-color: #f3f4f6;
+        }
+        #sage-book-app #btn-month-picker-icon i {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: #4b5563;
+        }
+        
+        /* Days Scroller */
+        #sage-book-app .days-scroller {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        #sage-book-app .week-nav-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            flex-shrink: 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        #sage-book-app .week-nav-btn:hover {
+            background-color: #f9fafb;
+        }
+        #sage-book-app .week-nav-btn i {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: #4b5563;
+        }
+        #sage-book-app .days-track-wrapper {
+            position: relative;
+            flex-grow: 1;
+            overflow: hidden;
+            border-radius: 0.75rem;
+        }
+        #sage-book-app #calendar-days-track {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            padding-top: 0.25rem;
+            padding-left: 0.25rem;
+            padding-right: 0.25rem;
+            scroll-snap-type: x;
+        }
+        #sage-book-app .day-btn {
+            flex: 1;
+            min-width: 70px;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            user-select: none;
+        }
+        #sage-book-app .day-btn.past {
+            border-color: #f3f4f6;
+            background-color: #f9fafb;
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        #sage-book-app .day-btn.no-slots {
+            border-color: #f3f4f6;
+            background-color: #f9fafb;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #sage-book-app .day-btn.selected {
+            border-color: #059669;
+            background-color: #ecfdf5;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2);
+            transform: scale(1);
+        }
+        #sage-book-app .day-btn.unselected {
+            border-color: #e5e7eb;
+            background-color: white;
+        }
+        #sage-book-app .day-btn.unselected:hover {
+            border-color: rgba(16, 185, 129, 0.5);
+            background-color: #f9fafb;
+        }
+        #sage-book-app .day-num {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        #sage-book-app .day-btn.selected .day-num {
+            color: #047857;
+        }
+        #sage-book-app .day-btn.unselected .day-num,
+        #sage-book-app .day-btn.past .day-num,
+        #sage-book-app .day-btn.no-slots .day-num {
+            color: #111827;
+        }
+        #sage-book-app .day-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        #sage-book-app .day-btn.selected .day-name {
+            color: #059669;
+        }
+        #sage-book-app .day-btn.unselected .day-name,
+        #sage-book-app .day-btn.past .day-name,
+        #sage-book-app .day-btn.no-slots .day-name {
+            color: #6b7280;
+        }
+        
+        /* Calendar Day - JavaScript Generated Elements */
+        #sage-book-app .calendar-day {
+            flex: 1;
+            min-width: 70px;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+            user-select: none;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+        #sage-book-app .calendar-day:hover {
+            border-color: rgba(16, 185, 129, 0.5);
+            background-color: #f9fafb;
+        }
+        #sage-book-app .calendar-day.selected {
+            border-color: #10b981;
+            border-width: 2px;
+            background-color: #ecfdf5;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(16, 185, 129, 0.2);
+            transform: scale(1);
+        }
+        #sage-book-app .calendar-day.selected:hover {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+        #sage-book-app .calendar-day.past {
+            border-color: #f3f4f6;
+            background-color: #f9fafb;
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        #sage-book-app .calendar-day.past:hover {
+            border-color: #f3f4f6;
+            background-color: #f9fafb;
+        }
+        #sage-book-app .calendar-day.no-slots {
+            border-color: #f3f4f6;
+            background-color: #f9fafb;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #sage-book-app .calendar-day.no-slots:hover {
+            border-color: #f3f4f6;
+            background-color: #f9fafb;
+        }
+        #sage-book-app .calendar-day .day-number {
+            font-size: 1.5rem;
+            line-height: 2rem;
+            font-weight: bold;
+            color: #111827;
+        }
+        #sage-book-app .calendar-day.selected .day-number {
+            color: #047857;
+        }
+        #sage-book-app .calendar-day .day-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+        #sage-book-app .calendar-day.selected .day-name {
+            color: #059669;
+        }
+        
+        /* Calendar Loading */
+        #sage-book-app #calendar-loading {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            backdrop-filter: blur(1px);
+            transition: all 0.3s;
+        }
+        #sage-book-app #calendar-loading > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        /* Custom CSS Spinner */
+        #sage-book-app .spinner {
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 3px solid #e5e7eb;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        #sage-book-app #calendar-loading span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #059669;
+        }
+        
+        /* Slots Container */
+        #sage-book-app #slots-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            min-height: 200px;
+        }
+        #sage-book-app #slots-container section {
+            margin-bottom: 1.5rem;
+        }
+        #sage-book-app #slots-container h4 {
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #sage-book-app #slots-container h4 i {
+            width: 1rem;
+            height: 1rem;
+        }
+        #sage-book-app #slots-container .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+        #sage-book-app .slot-btn {
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            width: 100%;
+            background-color: white;
+            color: #374151;
+            cursor: pointer;
+        }
+        #sage-book-app .slot-btn:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+        #sage-book-app .slot-btn.selected {
+            border: 2px solid #10b981;
+            background-color: #10b981;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+        }
+        #sage-book-app .slot-btn.selected:hover {
+            border-color: #10b981;
+            background-color: #10b981;
+            color: white;
+        }
+        #sage-book-app .slot-btn.unselected {
+            border-color: #e2e8f0;
+            background-color: white;
+            color: #374151;
+        }
+        #sage-book-app .slot-btn.unselected:hover {
+            border-color: #059669;
+            color: #059669;
+        }
+        
+        /* Slots Section & Grid - JavaScript Generated */
+        #sage-book-app .slots-section {
+            margin-bottom: 1.5rem;
+        }
+        #sage-book-app .slots-section-title {
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #sage-book-app .slots-section-title i {
+            width: 1rem;
+            height: 1rem;
+        }
+        #sage-book-app .slots-section-title i[data-lucide="sun"] {
+            color: #f59e0b;
+        }
+        #sage-book-app .slots-section-title i[data-lucide="sunset"] {
+            color: #6366f1;
+        }
+        #sage-book-app .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+        @media (min-width: 640px) {
+            #sage-book-app .slots-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* Form Section */
+        #sage-book-app .form-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+        #sage-book-app .form-container h2 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            color: #111827;
+        }
+        #sage-book-app .form-container h2 i {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-right: 0.5rem;
+            color: #059669;
+        }
+        #sage-book-app .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+        #sage-book-app .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+        #sage-book-app .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+        }
+        #sage-book-app .form-group {
+            margin-bottom: 0;
+        }
+        #sage-book-app .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+        }
+        #sage-book-app .form-group input,
+        #sage-book-app .form-group select {
+            width: 100%;
+            padding: 0.625rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #cbd5e1;
+            background-color: white;
+            color: #0f172a;
+            outline: none;
+            transition: all 0.2s;
+        }
+        #sage-book-app .form-group input:focus,
+        #sage-book-app .form-group select:focus {
+            box-shadow: 0 0 0 2px #10b981;
+            border-color: #10b981;
+        }
+        
+        /* File Upload - Reference Match */
+        #sage-book-app #drop-zone {
+            position: relative;
+            border: 1px dashed #cbd5e1;
+            border-radius: 1rem;
+            padding: 2.5rem 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        #sage-book-app #drop-zone:hover {
+            border-color: #059669;
+            background-color: rgba(16, 185, 129, 0.02);
+        }
+        #sage-book-app #drop-zone input {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+        #sage-book-app #drop-zone .upload-icon-outer {
+            background-color: #ecfdf5;
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+            transition: all 0.3s;
+        }
+        #sage-book-app #drop-zone .upload-icon-inner {
+            background-color: #10b981;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+        }
+        #sage-book-app #drop-zone:hover .upload-icon-outer {
+            transform: scale(1.05);
+        }
+        #sage-book-app #drop-zone .upload-icon-inner i {
+            color: white;
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+        #sage-book-app #drop-zone p {
+            font-size: 1.125rem;
+            color: #1e293b;
+            font-weight: 500;
+            margin: 0;
+        }
+        #sage-book-app #drop-zone p .upload-link {
+            color: #10b981;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        #sage-book-app #drop-zone .file-info {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            font-weight: 400;
+            margin-top: 0.5rem;
+            letter-spacing: 0.025em;
+        }
+        #sage-book-app #upload-status {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.75rem;
+        }
+        #sage-book-app #upload-status p {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #sage-book-app #upload-status i {
+            animation: spin 1s linear infinite;
+            width: 1rem;
+            height: 1rem;
+        }
+        #sage-book-app #file-name-display {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            text-align: center;
+            color: #059669;
+            font-weight: 500;
+        }
+        
+        /* Form Actions */
+        #sage-book-app .form-actions {
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: row;
+            gap: 0.75rem;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #sage-book-app .btn-submit {
+            flex: 2;
+            padding: 0.75rem 1rem;
+            background-color: #059669;
+            color: white;
+            font-weight: bold;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        #sage-book-app .btn-submit:hover {
+            background-color: #047857;
+            transform: translateY(-2px);
+        }
+        #sage-book-app .btn-submit:active {
+            transform: translateY(0);
+        }
+        #sage-book-app .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #sage-book-app .form-footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+        #sage-book-app .form-footer i {
+            width: 0.75rem;
+            height: 0.75rem;
+        }
+        
+        /* Success Screen - Reference Match & Refinement */
+        #sage-book-app #view-success {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 450px;
+            background-image: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+        }
+        #sage-book-app .success-container {
+            width: 100%;
+            max-width: 42rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #sage-book-app .success-icon-wrapper {
+            margin-bottom: 2rem;
+        }
+        #sage-book-app .success-check-icon circle {
+            stroke-dasharray: 230;
+            stroke-dashoffset: 230;
+            animation: circle-draw 0.6s ease-out forwards;
+        }
+        #sage-book-app .success-check-icon polyline {
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: checkmark-draw 0.4s 0.5s ease-out forwards;
+        }
+        @keyframes circle-draw { to { stroke-dashoffset: 0; } }
+        @keyframes checkmark-draw { to { stroke-dashoffset: 0; } }
+
+        #sage-book-app .success-content h1 {
+            font-size: 1.875rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+        #sage-book-app .success-content p {
+            color: #64748b;
+            font-size: 1.125rem;
+            margin-bottom: 2.5rem;
+        }
+        #sage-book-app .appointment-card {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(226, 232, 240, 0.5);
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 36rem;
+            text-align: left;
+        }
+        #sage-book-app .appointment-card-accent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0.375rem;
+            background-color: #10b981;
+        }
+        #sage-book-app .appointment-card-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+        #sage-book-app .appointment-date-box {
+            flex-shrink: 0;
+            width: 5rem;
+            height: 6rem;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+        #sage-book-app .appointment-date-month {
+            background-color: #e2e8f0;
+            width: 100%;
+            padding: 0.25rem 0;
+            font-size: 0.625rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            text-align: center;
+        }
+        #sage-book-app .appointment-date-day {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.875rem;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        #sage-book-app .appointment-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            text-align: left;
+        }
+        #sage-book-app .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #475569;
+            font-size: 0.9375rem;
+        }
+        #sage-book-app .detail-item i {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+
+        #sage-book-app .success-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        #sage-book-app .btn-calendar,
+        #sage-book-app .btn-new-appt {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+        #sage-book-app .btn-calendar {
+            background-color: white;
+            border-color: #e2e8f0;
+            color: #1e293b;
+        }
+        #sage-book-app .btn-calendar:hover {
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+        }
+        #sage-book-app .btn-new-appt {
+            background-color: #10b981;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+        }
+        #sage-book-app .btn-new-appt:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+        }
+
+        #sage-book-app .success-footer {
+            margin-top: 2rem;
+            color: #94a3b8;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #sage-book-app .success-footer i {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            #sage-book-app .appointment-card-body {
+                flex-direction: row;
+                align-items: center;
+                gap: 2.5rem;
+            }
+            #sage-book-app .date-box {
+                margin: 0;
+            }
+            #sage-book-app .success-content h1 {
+                font-size: 2.25rem;
+            }
+        }
+        
+        /* Animations */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        
+        /* Responsive Breakpoints */
+        @media (min-width: 640px) {
+            #sage-book-app .step-nav {
+                flex-direction: row;
+                gap: 1.5rem;
+            }
+            #sage-book-app .btn-continue {
+                flex: none;
+                width: auto;
+                padding-left: 3rem;
+                padding-right: 3rem;
+            }
+            #sage-book-app .btn-secondary {
+                flex: none;
+                width: auto;
+                padding-left: 2.5rem;
+                padding-right: 2.5rem;
+            }
+            #sage-book-app .form-actions {
+                flex-direction: row;
+                gap: 1.5rem;
+            }
+            #sage-book-app .btn-submit {
+                flex: none;
+                width: auto;
+                padding-left: 3rem;
+                padding-right: 3rem;
+            }
+            #sage-book-app #slots-container .slot-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            #sage-book-app .success-actions {
+                flex-direction: row;
+            }
+            #sage-book-app .btn-book-another {
+                width: auto;
+            }
+            #sage-book-app .success-title {
+                font-size: 2.25rem;
+            }
+        }
+        @media (min-width: 768px) {
+            #sage-book-app .main-layout {
+                flex-direction: row;
+            }
+            #sage-book-app #appointment-sidebar {
+                width: 33.333333%;
+            }
+            #sage-book-app #appointment-main-content.with-sidebar {
+                width: 66.666667%;
+            }
+            #sage-book-app .service-card {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            #sage-book-app .service-info {
+                text-align: left;
+            }
+            #sage-book-app .service-meta {
+                flex-direction: column;
+                width: auto;
+            }
+            #sage-book-app .form-container {
+                padding: 2rem;
+            }
+            #sage-book-app .form-grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            #sage-book-app .form-grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            #sage-book-app .appointment-card-content {
+                flex-direction: row;
+            }
+            #sage-book-app .appointment-details {
+                text-align: left;
+            }
+            #sage-book-app .appointment-detail-row {
+                justify-content: flex-start;
+            }
+        }
+        @media (min-width: 1024px) {}
+        @media (min-width: 1280px) {}
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <div id="sage-book-app" class="sage-booking-container w-full max-w-5xl mx-auto bg-white min-h-screen relative p-4">
+    <div id="sage-book-app" class="sage-booking-container">
         
         <!-- Loading Overlay -->
-        <div id="loading-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center hidden">
-            <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-emerald-500"></div>
+        <div id="loading-overlay" class="hidden">
+            <div></div>
         </div>
 
         <!-- Steps Header -->
-        <div class="mb-8">
-            <h1 id="booking-main-title" class="text-3xl font-bold text-center text-emerald-600 mb-2">Enter Appointment Details</h1>
-             <!-- Progress Steps can go here if needed -->
+        <div class="booking-header">
+            <h1 id="booking-main-title">Enter Appointment Details</h1>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-8">
+        <div class="main-layout">
             
             <!-- Left Sidebar: Steps/Summary -->
-            <div id="appointment-sidebar" class="w-full md:w-1/3 space-y-4">
+            <div id="appointment-sidebar">
                  <!-- Step 1 Trigger -->
-                <div id="step-1-trigger" class="p-4 border rounded-lg cursor-pointer transition-colors border-emerald-500 bg-emerald-50">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="user-plus" class="w-5 h-5 text-emerald-600"></i>
-                            <span class="font-medium text-emerald-700" id="summary-service-name">Consultation</span>
+                <div id="step-1-trigger" class="sidebar-step active">
+                    <div class="sidebar-step-content">
+                        <div class="sidebar-step-inner">
+                            <i data-lucide="user-plus"></i>
+                            <span id="summary-service-name">Consultation</span>
                         </div>
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-emerald-600"></i>
+                        <i data-lucide="chevron-right" class="chevron"></i>
                     </div>
                 </div>
 
                 <!-- Step 2 Trigger -->
-                 <div id="step-2-trigger" class="p-4 border rounded-lg cursor-pointer transition-colors border-gray-100 hover:bg-gray-50">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="calendar" class="w-5 h-5 text-gray-400"></i>
-                            <span class="font-medium text-gray-600" id="summary-date-time">Date, Time & Consultant</span>
+                 <div id="step-2-trigger" class="sidebar-step inactive">
+                    <div class="sidebar-step-content">
+                        <div class="sidebar-step-inner">
+                            <i data-lucide="calendar"></i>
+                            <span id="summary-date-time">Date, Time & Consultant</span>
                         </div>
-                         <i data-lucide="chevron-right" class="w-4 h-4 text-emerald-600"></i>
+                         <i data-lucide="chevron-right" class="chevron"></i>
                     </div>
                 </div>
 
                 <!-- Step 3 Trigger -->
-                <div id="step-3-trigger" class="p-4 border rounded-lg cursor-pointer transition-colors border-gray-100 hover:bg-gray-50">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
-                            <span class="font-medium text-gray-600">Your Info</span>
+                <div id="step-3-trigger" class="sidebar-step inactive">
+                    <div class="sidebar-step-content">
+                        <div class="sidebar-step-inner">
+                            <i data-lucide="user"></i>
+                            <span>Your Info</span>
                         </div>
-                         <i data-lucide="chevron-right" class="w-4 h-4 text-emerald-600 hidden"></i>
+                         <i data-lucide="chevron-right" class="chevron hidden"></i>
                     </div>
                 </div>
             </div>
 
             <!-- Right Content Area -->
-            <div id="appointment-main-content" class="w-full md:w-2/3 min-h-[400px]">
+            <div id="appointment-main-content" class="with-sidebar">
                 
                 <!-- STEP 1: Select Service/Doctor -->
                 <div id="view-step-1" class="step-view">
-                    <div class="mb-8">
-                        <h2 class="text-xl font-bold text-gray-900 mb-1">Select Provider</h2>
-                        <p class="text-gray-500">Choose a healthcare professional for your visit.</p>
+                    <div class="step-header">
+                        <h2>Select Provider</h2>
+                        <p>Choose a healthcare professional for your visit.</p>
                     </div>
 
-                    <div id="services-list" class="space-y-4">
+                    <div id="services-list">
                         <!-- Services injected here -->
-                        <div id="services-skeleton" class="space-y-0">
+                        <div id="services-skeleton">
                             <!-- Skeleton Card 1 -->
-                            <div class="group flex items-center p-4 bg-white border-b border-gray-100 animate-pulse">
-                                <div class="flex-shrink-0 mr-4">
-                                    <div class="h-12 w-12 bg-gray-200 rounded-sm"></div>
+                            <div class="skeleton-card">
+                                <div class="skeleton-avatar">
+                                    <div class="skeleton-avatar-img"></div>
                                 </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="h-5 bg-gray-200 rounded w-48 mb-2"></div>
-                                    <div class="h-3 bg-gray-200 rounded w-full mb-1"></div>
-                                    <div class="h-3 bg-gray-200 rounded w-3/4"></div>
+                                <div class="skeleton-content">
+                                    <div class="skeleton-title"></div>
+                                    <div class="skeleton-text-full"></div>
+                                    <div class="skeleton-text-3q"></div>
                                 </div>
-                                <div class="ml-4 flex items-center gap-2">
-                                    <div class="h-4 bg-gray-200 rounded w-20"></div>
-                                    <div class="h-3 w-3 bg-gray-200 rounded-full"></div>
+                                <div class="skeleton-meta">
+                                    <div class="skeleton-duration"></div>
+                                    <div class="skeleton-radio"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-12 flex justify-end items-center gap-4">
-                        <button id="btn-step1-continue" onclick="if(state.selectedService) setStep(2);" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-2.5 rounded-lg font-semibold shadow-lg shadow-emerald-600/20 transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" disabled>
+                    <div class="step-nav">
+                        <button id="btn-step1-continue" onclick="if(state.selectedService) setStep(2);" class="btn-continue" disabled>
                             Continue to Step 2
                         </button>
                     </div>
@@ -179,80 +1687,80 @@ function render_sage_book_appointment() {
 
                 <!-- STEP 2: Date & Time -->
                 <div id="view-step-2" class="step-view hidden">
-                    <div class="mb-4">
-                        <h2 class="text-xl font-semibold mb-2 text-gray-900">Step 2: Choose Date and Time</h2>
-                        <p class="text-gray-500">Your appointment will be booked with <span class="font-bold text-gray-800" id="selected-doctor-name">Doctor</span></p>
+                    <div class="step-header">
+                        <h2>Step 2: Choose Date and Time</h2>
+                        <p>Your appointment will be booked with <span id="selected-doctor-name">Doctor</span></p>
                     </div>
 
-                    <div class="flex items-center justify-between mb-4 relative z-20">
-                        <div class="relative">
-                            <button id="month-trigger-btn" class="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors group">
-                                <h3 class="text-lg font-bold text-gray-800 group-hover:text-emerald-600 transition-colors" id="current-month-label">September, 2024</h3>
-                                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400 group-hover:text-emerald-500 transition-colors"></i>
+                    <div class="calendar-header">
+                        <div class="month-selector">
+                            <button id="month-trigger-btn" class="month-trigger-btn">
+                                <h3 id="current-month-label">September, 2024</h3>
+                                <i data-lucide="chevron-down"></i>
                             </button>
 
-                            <!-- Custom Month Picker Overlay (Moved inside relative container) -->
-                            <div id="custom-month-picker" class="absolute top-full left-0 mt-2 z-30 bg-white border border-gray-200 rounded-xl shadow-xl p-4 w-72 hidden">
+                            <!-- Custom Month Picker Overlay -->
+                            <div id="custom-month-picker" class="hidden">
                                 <!-- Year Navigation -->
-                                <div class="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
-                                    <button id="picker-prev-year" class="p-1 hover:bg-gray-100 rounded-full text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-                                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                                <div class="month-picker-year-nav">
+                                    <button id="picker-prev-year">
+                                        <i data-lucide="chevron-left"></i>
                                     </button>
-                                    <span id="picker-year-label" class="font-bold text-gray-800 text-lg">2024</span>
-                                    <button id="picker-next-year" class="p-1 hover:bg-gray-100 rounded-full text-gray-500 hover:text-emerald-600 transition-colors">
-                                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                                    <span id="picker-year-label" class="month-picker-year-label">2024</span>
+                                    <button id="picker-next-year">
+                                        <i data-lucide="chevron-right"></i>
                                     </button>
                                 </div>
                                 <!-- Months Grid -->
-                                <div class="grid grid-cols-3 gap-2" id="month-picker-grid">
+                                <div id="month-picker-grid">
                                     <!-- Months injected here -->
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="relative">
-                            <button id="btn-month-picker-icon" class="p-2 hover:bg-gray-100 rounded-full transition-colors border border-gray-100 shadow-sm">
-                                <i data-lucide="calendar" class="w-5 h-5 text-gray-600"></i>
+                        <div>
+                            <button id="btn-month-picker-icon">
+                                <i data-lucide="calendar"></i>
                             </button>
                         </div>
                     </div>
 
                     <!-- Days Scroller -->
-                    <div class="relative flex items-center gap-4 mb-8">
-                        <button id="prev-week-btn" class="w-10 h-10 flex-shrink-0 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
-                            <i data-lucide="chevron-left" class="w-5 h-5 text-gray-600"></i>
+                    <div class="days-scroller">
+                        <button id="prev-week-btn" class="week-nav-btn">
+                            <i data-lucide="chevron-left"></i>
                         </button>
 
-                        <div class="relative flex-grow overflow-hidden rounded-xl">
-                            <div class="flex gap-3 overflow-x-auto custom-scrollbar pb-2 pt-1 px-1 snap-x" id="calendar-days-track">
+                        <div class="days-track-wrapper">
+                            <div id="calendar-days-track" class="custom-scrollbar">
                                 <!-- Days injected -->
                             </div>
                             <!-- Loading Overlay -->
-                            <div id="calendar-loading" class="absolute inset-0 bg-white/80 flex items-center justify-center z-10 hidden backdrop-blur-[1px] transition-all duration-300">
-                                 <div class="flex flex-col items-center gap-2">
-                                     <i data-lucide="loader-2" class="w-6 h-6 text-emerald-600 animate-spin"></i>
-                                     <span class="text-xs font-medium text-emerald-600">Loading...</span>
+                            <div id="calendar-loading" class="hidden">
+                                 <div>
+                                     <div class="spinner"></div>
+                                     <span>Loading...</span>
                                  </div>
                             </div>
                         </div>
 
-                        <button id="next-week-btn" class="w-10 h-10 flex-shrink-0 border border-gray-200 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
-                            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-600"></i>
+                        <button id="next-week-btn" class="week-nav-btn">
+                            <i data-lucide="chevron-right"></i>
                         </button>
                     </div>
 
                     <!-- Slots -->
-                    <div id="slots-container" class="space-y-8 min-h-[200px]">
-                        <div class="text-center text-gray-500 py-10">Select a date to view availability</div>
+                    <div id="slots-container">
+                        <div>Select a date to view availability</div>
                     </div>
 
                     <!-- Navigation Actions -->
-                    <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-between items-center pt-6 border-t border-gray-100">
-                        <button onclick="setStep(1)" class="w-full sm:w-auto px-8 py-3 rounded-xl border border-slate-300 font-semibold text-slate-600 hover:bg-slate-50 transition-all flex items-center justify-center">
-                            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                    <div class="step-nav step-nav-with-border">
+                        <button onclick="setStep(1)" class="btn-secondary">
+                            <!-- <i data-lucide="arrow-left"></i> -->
                             Back
                         </button>
-                        <button id="btn-step2-continue" onclick="if(state.selectedSlot) setStep(3);" class="w-full sm:w-auto px-10 py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer" disabled>
+                        <button id="btn-step2-continue" onclick="if(state.selectedSlot) setStep(3);" class="btn-continue" disabled>
                             Continue to Personal Info
                         </button>
                     </div>
@@ -261,68 +1769,70 @@ function render_sage_book_appointment() {
                 <!-- STEP 3: User Details -->
                 <div id="view-step-3" class="step-view hidden">
                     
-                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200">
-                        <h2 class="text-xl font-bold mb-6 flex items-center text-gray-900">
-                            <i data-lucide="clipboard-list" class="w-6 h-6 mr-2 text-emerald-600"></i>
+                    <div class="form-container">
+                        <h2>
+                            <i data-lucide="clipboard-list"></i>
                             Please enter your details
                         </h2>
                         
-                        <form id="booking-form" class="space-y-6">
+                        <form id="booking-form" style="display: flex;
+    flex-direction: column;
+    gap: 1.25rem;">
                             <!-- Personal Info -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="first_name">First Name *</label>
-                                    <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="first_name" name="first_name" placeholder="John" required type="text"/>
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="first_name">First Name *</label>
+                                    <input id="first_name" name="first_name" placeholder="John" required type="text"/>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="last_name">Last Name *</label>
-                                    <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="last_name" name="last_name" placeholder="Doe" required type="text"/>
-                                </div>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="email">Email Address *</label>
-                                    <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="email" name="email" placeholder="john.doe@example.com" required type="email"/>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="phone">Mobile Phone Number *</label>
-                                    <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="phone" name="phone" placeholder="(555) 000-0000" required type="tel"/>
+                                <div class="form-group">
+                                    <label for="last_name">Last Name *</label>
+                                    <input id="last_name" name="last_name" placeholder="Doe" required type="text"/>
                                 </div>
                             </div>
                             
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1" for="dob">Date of Birth *</label>
-                                <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="dob" name="dob" required type="date"/>
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="email">Email Address *</label>
+                                    <input id="email" name="email" placeholder="john.doe@example.com" required type="email"/>
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Mobile Phone Number *</label>
+                                    <input id="phone" name="phone" placeholder="(555) 000-0000" required type="tel"/>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="dob">Date of Birth *</label>
+                                <input id="dob" name="dob" required type="date"/>
                             </div>
 
                             <!-- Address -->
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="address_street">Street Address *</label>
-                                    <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="address_street" name="address_street" placeholder="123 Main St" required type="text"/>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="address_street">Street Address *</label>
+                                    <input id="address_street" name="address_street" placeholder="123 Main St" required type="text"/>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-slate-700 mb-1" for="address_city">City *</label>
-                                        <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="address_city" name="address_city" placeholder="City" required type="text"/>
+                                <div class="form-grid-3">
+                                    <div class="form-group">
+                                        <label for="address_city">City *</label>
+                                        <input id="address_city" name="address_city" placeholder="City" required type="text"/>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-slate-700 mb-1" for="address_state">State *</label>
-                                        <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="address_state" name="address_state" placeholder="State" required type="text"/>
+                                    <div class="form-group">
+                                        <label for="address_state">State *</label>
+                                        <input id="address_state" name="address_state" placeholder="State" required type="text"/>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-slate-700 mb-1" for="address_zip">ZIP Code *</label>
-                                        <input class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="address_zip" name="address_zip" placeholder="ZIP Code" required type="text"/>
+                                    <div class="form-group">
+                                        <label for="address_zip">ZIP Code *</label>
+                                        <input id="address_zip" name="address_zip" placeholder="ZIP Code" required type="text"/>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Insurance -->
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1" for="insurance_info">Insurance Provider *</label>
-                                    <select class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" id="insurance_info" name="insurance_info" required>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="insurance_info">Insurance Provider *</label>
+                                    <select id="insurance_info" name="insurance_info" required>
                                         <option disabled selected value="">Select Insurance</option>
                                         <option value="Medicare">Medicare</option>
                                         <option value="Medicare with Advantage Plan">Medicare with Advantage Plan</option>
@@ -332,180 +1842,185 @@ function render_sage_book_appointment() {
                                         <option value="Ucare">Ucare</option>
                                         <option value="HealthPartners">HealthPartners</option>
                                         <option value="Medica">Medica</option>
-                                        <option value="Other">Other</option>
                                     </select>
                                 </div>
                                 
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Insurance Card Image *</label>
-                                    <div class="relative border-2 border-dashed border-slate-300 rounded-xl p-8 transition-colors hover:border-emerald-500 group bg-slate-50" id="drop-zone">
-                                        <input accept="image/*,application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="insurance-upload" name="insurance_file" type="file" required/>
-                                        <div class="text-center">
-                                            <div class="bg-emerald-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-emerald-200 transition-colors">
-                                                <i data-lucide="upload-cloud" class="text-emerald-600 w-6 h-6"></i>
+                                <div class="form-group">
+                                    <label>Insurance Card Image *</label>
+                                    <div id="drop-zone">
+                                        <input accept="image/*,application/pdf" id="insurance-upload" name="insurance_file" type="file" required/>
+                                        <div style="display: flex;
+    flex-direction: column;
+    align-items: center;">
+                                            <div class="upload-icon-outer">
+                                                <div class="upload-icon-inner">
+                                                    <i data-lucide="upload-cloud"></i>
+                                                </div>
                                             </div>
-                                            <p class="text-slate-900 font-medium">
-                                                <span class="text-emerald-600 hover:underline">Upload a file</span> or drag and drop
+                                            <p>
+                                                <span class="upload-link">Upload a file</span> or drag and drop
                                             </p>
-                                            <p class="text-xs text-slate-500 mt-1">PNG, JPG, PDF up to 5MB</p>
+                                            <p class="file-info">PNG, JPG, PDF up to 1MB</p>
                                         </div>
-                                        <!-- Hidden Input to store the URL after upload -->
                                         <input type="hidden" name="insurance_card_url" id="insurance_card_url">
-                                        <!-- Loading/Success State -->
-                                        <div id="upload-status" class="absolute inset-0 bg-white/90 flex items-center justify-center hidden rounded-xl">
-                                             <p class="text-sm font-medium text-gray-600 flex items-center gap-2">
-                                                 <i data-lucide="loader" class="animate-spin w-4 h-4"></i> Uploading...
+                                        <div id="upload-status" class="hidden">
+                                             <p>
+                                                 <i data-lucide="loader"></i> Uploading...
                                              </p>
                                         </div>
                                     </div>
-                                    <p id="file-name-display" class="mt-2 text-sm text-center text-emerald-600 font-medium hidden"></p>
+                                    <p id="file-name-display" class="hidden"></p>
                                 </div>
                             </div>
                             
-                             <!-- Demographics (Restored from previous step requirements) -->
-                             <div class="space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Preferred Pharmacy Phone *</label>
-                                        <input type="tel" name="pharmacy_phone" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Phone Number">
+                            <!-- Optional Demographics -->
+                            <div class="demographics-section" style="margin-top: 1.25rem;">
+
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="pharmacy_phone">What is your preferred pharmacy phone number?</label>
+                                        <input id="pharmacy_phone" name="pharmacy_phone" placeholder="(555) 000-0000" type="text"/>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Referring Provider</label>
-                                        <input type="text" name="referring_provider" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Provider Name">
+                                    <div class="form-group">
+                                        <label for="referring_provider">Referring Provider</label>
+                                        <input id="referring_provider" name="referring_provider" placeholder="Enter provider name" type="text"/>
                                     </div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1">Who is primary provider ?</label>
-                                    <input type="text" name="primary_provider" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all" placeholder="Primary Provider Name">
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                     <div>
-                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Language *</label>
-                                        <select name="language" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
+                                    <div class="form-group">
+                                        <label for="primary_provider">Who is primary provider ?</label>
+                                        <input id="primary_provider" name="primary_provider" placeholder="Enter primary provider" type="text"/>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="language">Language</label>
+                                        <select id="language" name="language">
                                             <option value="">Select Language</option>
                                             <option value="English">English</option>
                                             <option value="Spanish">Spanish</option>
-                                            <option value="Other">Other</option>
+                                            <option value="Other Indo-European Languages (e.g., German, French)">Other Indo-European Languages (e.g., German, French)</option>
+                                            <option value="Asian and Pacific Islander Languages">Asian and Pacific Islander Languages</option>
+                                            <option value="Other Languages (All other non-English, non-Spanish)">Other Languages (All other non-English, non-Spanish)</option>
                                         </select>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Sex *</label>
-                                        <select name="sex" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
-                                            <option value="">Select Sex</option>
-                                            <option value="Female">Female</option>
-                                            <option value="Male">Male</option>
-                                            <option value="Prefer not to answer">Prefer not to answer</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Ethnicity *</label>
-                                        <select name="ethnicity" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
-                                            <option value="">Select Ethnicity</option>
-                                            <option value="Not Hispanic or Latino">Not Hispanic or Latino</option>
-                                            <option value="Hispanic or Latino">Hispanic or Latino</option>
-                                            <option value="Unknown">Unknown</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-semibold text-slate-700 mb-1">Race *</label>
-                                        <select name="race" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
-                                            <option value="">Select Race</option>
-                                            <option value="White">White</option>
-                                            <option value="Black or African American">Black or African American</option>
-                                            <option value="Asian">Asian</option>
-                                            <option value="American Indian or Alaska Native">American Indian or Alaska Native</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                </div>
-                             </div>
 
-                            <!-- Buttons -->
-                            <div class="pt-6 border-t border-slate-200 flex flex-col sm:flex-row gap-4 justify-between items-center">
-                                <button type="button" onclick="setStep(2)" class="w-full sm:w-auto px-8 py-3 rounded-xl border border-slate-300 font-semibold text-slate-600 hover:bg-slate-50 transition-all flex items-center justify-center">
-                                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-                                    Previous Step
+                                    <div class="form-grid-3">
+                                        <div class="form-group">
+                                            <label for="sex">Sex</label>
+                                            <select id="sex" name="sex">
+                                                <option value="">Select</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Prefer not to answer">Prefer not to answer</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="ethnicity">Ethnicity</label>
+                                            <select id="ethnicity" name="ethnicity">
+                                                <option value="">Select</option>
+                                                <option value="Not Hispanic or Latino (White)">Not Hispanic or Latino (White)</option>
+                                                <option value="Not Hispanic or Latino (Two or More Races)">Not Hispanic or Latino (Two or More Races)</option>
+                                                <option value="Not Hispanic or Latino (Asian)">Not Hispanic or Latino (Asian)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="race">Race</label>
+                                            <select id="race" name="race">
+                                                <option value="">Select</option>
+                                                <option value="White">White</option>
+                                                <option value="Asian">Asian</option>
+                                                <option value="Black or African American">Black or African American</option>
+                                                <option value="American Indian/Alaska Native">American Indian/Alaska Native</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="step-nav step-nav-with-border">
+                                <button onclick="setStep(2)" class="btn-secondary" type="button">
+                                    <!-- <i data-lucide="arrow-left"></i> -->
+                                    Back
                                 </button>
-                                <button type="submit" id="btn-submit-booking" class="w-full sm:w-auto px-10 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center">
-                                    Confirm Appointment
-                                    <i data-lucide="check" class="w-5 h-5 ml-2"></i>
+                                <button class="btn-submit" type="submit">
+                                    <!-- <i data-lucide="calendar-check"></i> -->
+                                    Book Appointment
                                 </button>
                             </div>
                         </form>
                     </div>
                     
-                    <p class="mt-8 text-center text-sm text-slate-500 flex items-center justify-center gap-1">
+                    <!-- <p class="mt-8 text-center text-sm text-slate-500 flex items-center justify-center gap-1">
                         <i data-lucide="lock" class="w-3 h-3"></i>
                         Your data is protected by industry-standard encryption and HIPAA compliance.
-                    </p>
+                    </p> -->
                 </div>
 
-                <!-- STEP 4: Success -->
-                <div id="view-step-success" class="step-view hidden text-center py-12 px-4 celebration-bg min-h-[400px] flex flex-col items-center justify-center">
-                    
-                    <div class="mb-8 flex justify-center">
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping opacity-75"></div>
-                            <div class="relative w-24 h-24 bg-emerald-500/10 rounded-full flex items-center justify-center">
-                                <i data-lucide="check-circle" class="w-12 h-12 text-emerald-600"></i>
+                <!-- SUCCESS VIEW -->
+                <div id="view-success" class="step-view hidden">
+                    <div class="success-container">
+                        <div class="success-icon-wrapper">
+                            <div class="success-check-icon">
+                                <svg fill="none" height="80" viewBox="0 0 80 80" width="80">
+                                    <circle class="circle" cx="40" cy="40" r="36" stroke="#10b981" stroke-width="4"/>
+                                    <polyline class="checkmark" points="25,40 35,50 55,30" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+                                </svg>
                             </div>
                         </div>
-                    </div>
 
-                    <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-slate-900">
-                        Appointment confirmed with <span id="confirm-doctor-name">Doctor</span>!
-                    </h1>
-                    
-                    <p class="text-slate-500 mb-10 text-lg">
-                        We've sent a confirmation email with all the details and a calendar invite.
-                    </p>
+                        <div class="success-content">
+                            <h1>Appointment Confirmed with <span id="confirm-doctor-name">Doctor</span>!</h1>
+                            <p>Your appointment has been successfully scheduled.</p>
+                        </div>
 
-                    <!-- Appointment Card -->
-                    <div class="bg-white border border-slate-200 rounded-2xl shadow-xl shadow-slate-200/50 p-8 mb-10 relative overflow-hidden w-full max-w-xl text-left">
-                        <div class="absolute top-0 left-0 w-full h-1.5 bg-emerald-500"></div>
-                        
-                        <div class="flex flex-col md:flex-row items-center gap-8">
-                            <!-- Date Box -->
-                            <div class="flex-shrink-0 w-20 h-24 bg-slate-50 border border-slate-200 rounded-lg flex flex-col items-center overflow-hidden">
-                                <div class="bg-slate-200 w-full py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center" id="confirm-month-abbr">
-                                    FEB
-                                </div>
-                                <div class="flex-1 flex items-center justify-center text-3xl font-bold text-slate-800" id="confirm-day-number">
-                                    20
-                                </div>
-                            </div>
+                        <!-- Appointment Card -->
+                        <div class="appointment-card">
+                            <div class="appointment-card-header"></div>
                             
-                            <!-- Details -->
-                            <div class="flex-1 text-center md:text-left space-y-2">
-                                <div class="flex items-center justify-center md:justify-start gap-2 text-slate-900 font-semibold text-xl">
-                                    <i data-lucide="calendar" class="w-5 h-5 text-slate-400"></i>
-                                    <span id="confirm-datetime">20 Feb 2026 | 07:30 AM</span>
-                                </div>
-                                <div class="flex items-center justify-center md:justify-start gap-2 text-slate-600">
-                                    <i data-lucide="user" class="w-5 h-5 text-slate-400"></i>
-                                    <span id="confirm-doctor-detail">Doctor Name</span>
-                                </div>
-                                <div class="flex items-center justify-center md:justify-start gap-2 text-slate-500 text-sm">
-                                    <i data-lucide="globe" class="w-5 h-5 text-slate-400"></i>
-                                    <span id="confirm-timezone">America/Chicago - CST (-06:00)</span>
+                            <div class="appointment-card-body">
+                                <!-- Date Box -->
+                                <!-- <div class="date-box">
+                                    <div class="date-box-month" id="confirm-month-abbr">
+                                        FEB
+                                    </div>
+                                    <div class="date-box-day" id="confirm-day-number">
+                                        20
+                                    </div>
+                                </div> -->
+                                
+                                <!-- Details -->
+                                <div class="appointment-details">
+                                    <div class="detail-item">
+                                        <i data-lucide="calendar"></i>
+                                        <span id="confirm-datetime">20 Feb 2026 | 07:30 AM</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i data-lucide="user"></i>
+                                        <span id="confirm-doctor-detail">Doctor Name</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i data-lucide="globe"></i>
+                                        <span id="confirm-timezone">America/Chicago - CST (-06:00)</span>
+                                    </div>
+
+                                    <div class="success-actions">
+                                        <!-- <button class="btn-calendar" onclick="addToGoogleCalendar()">
+                                            <i data-lucide="calendar-plus"></i>
+                                            Add to Calendar
+                                        </button> -->
+                                        <button class="btn-new-appt" onclick="location.reload()">
+                                            <i data-lucide="rotate-ccw"></i>
+                                            Book Another
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="success-footer">
+                            <i data-lucide="mail"></i>
+                            A confirmation email has been sent to your registered email address.
+                        </div>
                     </div>
-                    
-                    <!-- Actions -->
-                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-xl">
-                        <button onclick="location.reload()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-xl font-bold text-lg flex items-center justify-center transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-emerald-600/20">
-                            Book another appointment
-                            <i data-lucide="arrow-right" class="ml-2 w-5 h-5"></i>
-                        </button>
-                    </div>
-                    
-                    <p class="mt-12 text-slate-400 text-sm">
-                        Need help? <a class="text-emerald-600 hover:underline font-medium" href="/contact">Contact our support team</a>
-                    </p>
                 </div>
                 
                 <style>
@@ -582,25 +2097,45 @@ function render_sage_book_appointment() {
 
                 grid.innerHTML = '';
                 
+                // Get current selected month/year from calendarDate
+                const selectedMonth = calendarDate.getMonth();
+                const selectedYear = calendarDate.getFullYear();
+                
                 for (let i = 0; i < 12; i++) {
                     const date = new Date(pickerYear, i, 1);
                     const mStr = date.toLocaleString('default', { month: 'short' });
                     
                     const btn = document.createElement('button');
-                    btn.className = "p-2 rounded-lg text-sm border font-medium transition-all ";
+                    btn.className = "month-picker-btn";
                     
                     // Logic to disable past months
                     const isPast = (pickerYear === currentYear && i < currentMonth) || (pickerYear < currentYear);
                     
+                    // Check if this is the currently selected month
+                    const isSelected = (pickerYear === selectedYear && i === selectedMonth);
+                    
+                    // Check if this is the current month (today)
+                    const isCurrent = (pickerYear === currentYear && i === currentMonth);
+                    
                     if (isPast) {
-                        btn.className += "border-transparent text-gray-300 cursor-not-allowed bg-gray-50";
+                        btn.classList.add('disabled');
                         btn.disabled = true;
                     } else {
-                        btn.className += "border-slate-100 text-gray-700 hover:border-emerald-500 hover:bg-emerald-50 hover:text-emerald-700 bg-white";
+                        btn.classList.add('enabled');
                         btn.onclick = () => {
                             changeMonth(date);
                             container.classList.add('hidden');
                         };
+                    }
+                    
+                    // Add selected state
+                    if (isSelected) {
+                        btn.classList.add('selected');
+                    }
+                    
+                    // Add current month indicator
+                    if (isCurrent) {
+                        btn.classList.add('current');
                     }
                     
                     btn.innerText = mStr;
@@ -699,14 +2234,14 @@ function render_sage_book_appointment() {
             document.querySelectorAll('.step-view').forEach(el => el.classList.add('hidden'));
             
             if (step === 4) {
-                const successView = document.getElementById('view-step-success');
+                const successView = document.getElementById('view-success');
                 if (successView) {
                     successView.classList.remove('hidden');
                 }
                 
                 // Full screen layout for success
                 document.getElementById('appointment-sidebar').classList.add('hidden');
-                document.getElementById('appointment-main-content').classList.remove('md:w-2/3');
+                document.getElementById('appointment-main-content').classList.remove('with-sidebar');
                 
                 // Hide Main Title on Success Page
                 const mainTitle = document.getElementById('booking-main-title');
@@ -720,7 +2255,7 @@ function render_sage_book_appointment() {
                 
                 // Normal layout
                 document.getElementById('appointment-sidebar').classList.remove('hidden');
-                document.getElementById('appointment-main-content').classList.add('md:w-2/3');
+                document.getElementById('appointment-main-content').classList.add('with-sidebar');
                 
                 // Show Main Title on other pages
                 const mainTitle = document.getElementById('booking-main-title');
@@ -734,13 +2269,11 @@ function render_sage_book_appointment() {
             const steps = [1, 2, 3];
             steps.forEach(s => {
                 const el = document.getElementById(`step-${s}-trigger`);
-                // Select the chevron-right icon (it's the last child in our structure)
                 const icon = el.querySelector('i:last-child'); 
                 const text = el.querySelector('span');
                 
                 // Reset click handler
                 el.onclick = () => {
-                     // Allow going back, or forward if already visited
                      if (s < state.step || s <= state.maxStep) {
                          setStep(s);
                      }
@@ -748,36 +2281,21 @@ function render_sage_book_appointment() {
                 
                 if (s === state.step) {
                     // Active Step
-                    el.className = "p-4 border rounded-lg cursor-pointer transition-colors border-emerald-500 bg-emerald-50";
-                    text.classList.remove('text-gray-600'); 
-                    text.classList.add('text-emerald-700');
+                    el.className = "sidebar-step active";
                     if(icon) {
-                        // Show active arrow (or keep hidden if design prefers no arrow on active)
-                        // Step 1 has arrow on active in screenshot? No, typically active doesn't point right.
-                        // But user said "like first step". In screenshot 1, first step has arrow.
-                        // Let's make sure it's visible and green.
-                        icon.classList.remove('hidden', 'text-gray-400');
-                        icon.classList.add('text-emerald-600');
+                        icon.classList.remove('hidden');
                     }
                 } else if (s < state.step) {
                     // Completed Step
-                    el.className = "p-4 border rounded-lg cursor-pointer transition-colors border-green-100 bg-white hover:bg-green-50";
-                    text.classList.remove('text-gray-600', 'text-emerald-700');
-                    text.classList.add('text-gray-800');
+                    el.className = "sidebar-step completed";
                     if(icon) {
-                        // Completed steps MUST show the arrow as per user request
-                        icon.classList.remove('hidden', 'text-gray-400');
-                        icon.classList.add('text-emerald-600');
+                        icon.classList.remove('hidden');
                     }
                 } else {
                     // Future Step
-                     el.className = "p-4 border rounded-lg cursor-not-allowed transition-colors border-gray-100 bg-gray-50 opacity-60";
-                     text.classList.remove('text-emerald-700', 'text-gray-800');
-                     text.classList.add('text-gray-400');
+                     el.className = "sidebar-step inactive";
                      if(icon) {
-                        // Future steps usually hide arrow or show gray
-                        icon.classList.remove('text-emerald-600');
-                        icon.classList.add('text-gray-400', 'hidden'); // Hide on future
+                        icon.classList.add('hidden');
                      }
                      el.onclick = null;
                 }
@@ -914,7 +2432,7 @@ function render_sage_book_appointment() {
                 renderServices(services);
             } catch (e) {
                 console.error("Failed to load services", e);
-                document.getElementById('services-list').innerHTML = `<div class="text-red-500">Failed to load services. Please refresh.</div>`;
+                document.getElementById('services-list').innerHTML = `<div style="color: #ef4444; padding: 1rem;">Failed to load services. Please refresh.</div>`;
             }
         }
 
@@ -928,7 +2446,7 @@ function render_sage_book_appointment() {
             container.innerHTML = '';
 
             if (list.length === 0) {
-                 container.innerHTML = `<div class="text-gray-500">No services found.</div>`;
+                 container.innerHTML = `<div style="color: #6b7280; padding: 1rem;">No services found.</div>`;
                  return;
             }
 
@@ -937,41 +2455,27 @@ function render_sage_book_appointment() {
                 const avatarUrl = svc.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff`;
                 const isSelected = state.selectedService && state.selectedService.id === svc.id;
                 
-                // Classes for Selected vs Unselected
-                const containerClasses = isSelected 
-                    ? "rounded-xl border-2 border-emerald-600 bg-emerald-50/50" 
-                    : "rounded-xl border border-gray-200 hover:border-emerald-600/50 bg-white hover:bg-gray-50";
-
-                const imageClasses = isSelected
-                    ? "border-2 border-emerald-600"
-                    : "grayscale group-hover:grayscale-0 transition-all";
-
-                const radioHtml = isSelected
-                    ? `<div class="w-6 h-6 rounded-full border-2 border-emerald-600 flex items-center justify-center"><div class="w-2.5 h-2.5 bg-emerald-600 rounded-full"></div></div>`
-                    : `<div class="w-6 h-6 rounded-full border-2 border-gray-300 group-hover:border-emerald-600 transition-all"></div>`;
-
                 const el = document.createElement('div');
-                // Removed 'border-b' logic, added full card styling
-                el.className = `relative flex flex-col md:flex-row items-center md:items-start gap-5 p-6 transition-all cursor-pointer group ${containerClasses}`;
+                el.className = isSelected ? 'service-card selected' : 'service-card';
                 el.id = `service-card-${svc.id}`;
                 el.onclick = () => selectService(svc);
                 
+                const radioHtml = isSelected
+                    ? `<div class="service-radio selected"><div class="service-radio-dot"></div></div>`
+                    : `<div class="service-radio"></div>`;
+                
                 el.innerHTML = `
-                    <div class="relative">
-                         <img class="w-20 h-20 rounded-full object-cover ${imageClasses}" src="${avatarUrl}" alt="${name}">
+                    <div class="service-avatar">
+                         <img src="${avatarUrl}" alt="${name}">
                     </div>
                     
-                    <div class="flex-1 text-center md:text-left">
-                         <h3 class="text-lg font-bold text-gray-900">${name}</h3>
-                         <p class="text-emerald-600 font-medium text-sm mb-2">${svc.description ? svc.description.split('Log in')[0] : 'Interventional Pain Medicine'}</p> 
-                         
-                         <div class="flex flex-col gap-1 text-sm text-gray-600">
-                             <!-- Address removed -->
-                         </div>
+                    <div class="service-info">
+                         <h3>${name}</h3>
+                         <p class="service-description">${svc.description ? svc.description.split('Log in')[0] : 'Interventional Pain Medicine'}</p>
                     </div>
                     
-                    <div class="flex flex-row md:flex-col items-center justify-between gap-4 w-full md:w-auto md:h-full">
-                         <div class="text-sm font-semibold text-gray-700 bg-white px-3 py-1 rounded-full border border-gray-200">
+                    <div class="service-meta">
+                         <div class="service-duration">
                              ${svc.duration || '15 mins'}
                          </div>
                          ${radioHtml}
@@ -1089,7 +2593,7 @@ function render_sage_book_appointment() {
             if(trackEl) trackEl.innerHTML = ''; // Clear the track completely
             
             // Hide slots until a date is selected
-            if (slotsContainer) slotsContainer.innerHTML = '<div class="text-center text-gray-500 py-10">Select a date to view availability</div>';
+            if (slotsContainer) slotsContainer.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2.5rem;">Select a date to view availability</div>';
             
             // Update month selector to reflect current week's month
             const monthSelector = document.getElementById('month-selector');
@@ -1105,7 +2609,7 @@ function render_sage_book_appointment() {
             }
             
             // Start both the data fetch and minimum display timer
-            const minDisplayTime = new Promise(resolve => setTimeout(resolve, 500)); // Increased to 500ms for visibility
+            const minDisplayTime = new Promise(resolve => setTimeout(resolve, 500)); 
             
             // Render calendar structure first (without data)
             renderCalendarDays();
@@ -1144,23 +2648,16 @@ function render_sage_book_appointment() {
             const isMobile = window.innerWidth < 768;
             const daysToShow = isMobile ? 5 : 7;
 
-            // Updated Container Classes for new design - Added padding to prevent shadow clipping
-            container.className = `flex gap-3 overflow-x-auto custom-scrollbar flex-grow pb-2 pt-1 px-1 snap-x`;
-
             for (let i = 0; i < daysToShow; i++) {
                 const date = new Date(state.weekStartDate);
                 date.setDate(date.getDate() + i);
                 
                 const dateStr = getLocalDateString(date);
-                const dayName = date.toLocaleString('default', { weekday: 'short' }).toUpperCase(); // MON, TUE
+                const dayName = date.toLocaleString('default', { weekday: 'short' }).toUpperCase();
                 const dayNum = date.getDate();
                 
-                const btn = document.createElement('div'); // Div now, clickable
+                const btn = document.createElement('div');
                 btn.id = `day-btn-${dateStr}`;
-                
-                // Base Classes
-                // Default: flex-1 min-w-[70px] p-3 rounded-xl border text-center transition-all cursor-pointer select-none 
-                let baseClass = "flex-1 min-w-[70px] p-3 rounded-xl border text-center transition-all cursor-pointer select-none box-border ";
                 
                 // Past Day Check
                 const isPast = dateStr < todayStr;
@@ -1172,29 +2669,19 @@ function render_sage_book_appointment() {
                                    (!Array.isArray(cachedData.slots) || cachedData.slots.length === 0);
                 
                 if (isPast) {
-                    baseClass += "border-gray-100 bg-gray-50 opacity-40 cursor-not-allowed";
+                    btn.className = "calendar-day past";
                 } else if (hasNoSlots) {
-                    // Day has no available slots
-                    baseClass += "border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed";
+                    btn.className = "calendar-day no-slots";
                     btn.title = "No slots available";
                 } else if (state.selectedDateStr === dateStr) {
-                    // Selected: border-emerald-500 bg-emerald-50 text-emerald-700
-                    // Added ring and adjusted shadow to account for "cutting" issue, ensure space
-                    baseClass += "border-emerald-600 bg-emerald-50 shadow-md ring-1 ring-emerald-600/20 transform scale-100"; // Removed scale-105 to reduce overflow risk
+                    btn.className = "calendar-day selected";
                 } else {
-                    // Unselected
-                    baseClass += "border-gray-200 bg-white hover:border-emerald-500/50 hover:bg-gray-50";
+                    btn.className = "calendar-day";
                 }
                 
-                btn.className = baseClass;
-                
-                // Text Colors
-                const dayNumClass = (state.selectedDateStr === dateStr && !isPast && !hasNoSlots) ? 'text-emerald-700' : 'text-gray-900';
-                const dayNameClass = (state.selectedDateStr === dateStr && !isPast && !hasNoSlots) ? 'text-emerald-600' : 'text-gray-500';
-
                 btn.innerHTML = `
-                    <p class="text-2xl font-bold ${dayNumClass}">${dayNum}</p>
-                    <p class="text-xs font-semibold ${dayNameClass} uppercase">${dayName}</p>
+                    <div class="day-number">${dayNum}</div>
+                    <div class="day-name">${dayName}</div>
                 `;
                 
                 if (!isPast && !hasNoSlots) {
@@ -1292,12 +2779,17 @@ function render_sage_book_appointment() {
             if (!btn) return;
             
             if (!Array.isArray(slots) || slots.length === 0) {
-                // Disable if no slots
+                // Mark day as having no slots - update the class
                 if(state.selectedDateStr !== dateStr) {
-                    btn.classList.add('opacity-50', 'bg-gray-50', 'cursor-not-allowed', 'line-through-decoration');
-                    btn.classList.remove('hover:border-emerald-400', 'hover:text-emerald-600', 'cursor-pointer', 'bg-white');
+                    btn.className = "calendar-day no-slots";
                     btn.onclick = null;
                     btn.title = "No slots available";
+                }
+            } else {
+                // Day has slots - ensure it's clickable
+                if(state.selectedDateStr !== dateStr) {
+                    btn.className = "calendar-day";
+                    btn.onclick = () => selectDate(new Date(dateStr));
                 }
             }
             
@@ -1314,10 +2806,25 @@ function render_sage_book_appointment() {
             
             renderCalendarDays(); 
             
+            // Show/hide loader based on cache
+            const loader = document.getElementById('calendar-loading');
+            
             if(state.slotsCache[dateStr] && state.slotsCache[dateStr].serviceId === state.selectedService.id) {
+                // Slots already cached - render immediately
+                if (loader) loader.classList.add('hidden');
                 renderSlots(state.slotsCache[dateStr].slots);
             } else {
-                fetchSlotsForDate(dateStr); 
+                // Need to fetch - show loader
+                if (loader) loader.classList.remove('hidden');
+                
+                // Clear slots container to show loader properly
+                const slotsContainer = document.getElementById('slots-container');
+                if (slotsContainer) slotsContainer.innerHTML = '';
+                
+                fetchSlotsForDate(dateStr).then(() => {
+                    // Hide loader after fetch completes
+                    if (loader) loader.classList.add('hidden');
+                });
             }
         }
 
@@ -1337,7 +2844,7 @@ function render_sage_book_appointment() {
             }
 
             if (slotList.length === 0) {
-                 container.innerHTML = `<div class="text-center text-gray-500 py-10">No availability for this date.</div>`;
+                 container.innerHTML = `<div style="text-align: center; color: #6b7280; padding: 2.5rem;">No availability for this date.</div>`;
                  return;
             }
 
@@ -1374,16 +2881,7 @@ function render_sage_book_appointment() {
             const createSlotBtn = (time) => {
                 const isSelected = state.selectedSlot === time;
                 const btn = document.createElement('button');
-                // Base classes
-                let classes = "py-3 px-4 rounded-xl border text-sm font-medium transition-all w-full ";
-                
-                if (isSelected) {
-                    classes += "border-2 border-emerald-600 bg-emerald-600 text-white shadow-lg shadow-emerald-200";
-                } else {
-                    classes += "border-slate-200 bg-white hover:border-emerald-600 hover:text-emerald-600 text-gray-700";
-                }
-                
-                btn.className = classes;
+                btn.className = isSelected ? 'slot-btn selected' : 'slot-btn';
                 btn.innerText = formatTimeDisplay(time);
                 btn.onclick = () => selectSlot(time);
                 return btn;
@@ -1392,14 +2890,14 @@ function render_sage_book_appointment() {
             // Render Morning Section
             if (morningSlots.length > 0) {
                  const section = document.createElement('section');
-                 section.className = "mb-6";
+                 section.className = "slots-section";
                  section.innerHTML = `
-                    <h4 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <i data-lucide="sun" class="w-4 h-4 text-amber-500"></i> Morning
+                    <h4 class="slots-section-title">
+                        <i data-lucide="sun"></i> Morning
                     </h4>
-                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
+                    <div class="slots-grid"></div>
                  `;
-                 const list = section.querySelector('.grid');
+                 const list = section.querySelector('.slots-grid');
                  morningSlots.forEach(t => list.appendChild(createSlotBtn(t)));
                  container.appendChild(section);
             }
@@ -1407,13 +2905,14 @@ function render_sage_book_appointment() {
             // Render Afternoon Section
             if (afternoonSlots.length > 0) {
                  const section = document.createElement('section');
+                 section.className = "slots-section";
                  section.innerHTML = `
-                    <h4 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <i data-lucide="sunset" class="w-4 h-4 text-indigo-500"></i> Afternoon
+                    <h4 class="slots-section-title">
+                        <i data-lucide="sunset"></i> Afternoon
                     </h4>
-                    <div class="grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
+                    <div class="slots-grid"></div>
                  `;
-                 const list = section.querySelector('.grid');
+                 const list = section.querySelector('.slots-grid');
                  afternoonSlots.forEach(t => list.appendChild(createSlotBtn(t)));
                  container.appendChild(section);
             }
