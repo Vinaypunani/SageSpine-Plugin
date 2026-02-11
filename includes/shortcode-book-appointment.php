@@ -576,6 +576,7 @@ function render_sage_book_appointment() {
             background-color: #f8fafc;
             cursor: pointer;
             white-space: nowrap;
+            box-shadow: none;
         }
         
         /* Calendar Section */
@@ -600,6 +601,7 @@ function render_sage_book_appointment() {
             border: 1px solid #e5e7eb;
             background-color: white;
             cursor: pointer;
+            box-shadow: none;
         }
         #sage-book-app .month-trigger-btn:hover {
             background-color: #f9fafb;
@@ -607,7 +609,7 @@ function render_sage_book_appointment() {
         }
         #sage-book-app .month-trigger-btn h3 {
             font-size: 1.125rem;
-            font-weight: bold;
+            font-weight: 500;
             color: #1f2937;
             transition: all 0.2s;
             margin: 0;
@@ -707,6 +709,7 @@ function render_sage_book_appointment() {
             border-color: #e5e7eb;
             color: #4b5563;
             background-color: white;
+            box-shadow: none !important;
         }
         #sage-book-app .month-picker-btn.enabled:hover {
             border-color: #10b981;
@@ -751,11 +754,13 @@ function render_sage_book_appointment() {
         
         /* Calendar Icon Button */
         #sage-book-app #btn-month-picker-icon {
-            padding: 0.5rem;
-            border-radius: 9999px;
-            transition: all 0.2s;
-            border: 1px solid #f3f4f6;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+padding: 0.5rem;
+    border-radius: 9999px;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    background: #f9fafb;
+    color: black;
+    border: 1px solid #e5e7eb;
         }
         #sage-book-app #btn-month-picker-icon:hover {
             background-color: #f3f4f6;
@@ -784,6 +789,10 @@ function render_sage_book_appointment() {
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+                background: #f9fafb;
+    padding: 0px;
+    color: black;
+    box-shadow: none;
         }
         #sage-book-app .week-nav-btn:hover {
             background-color: #f9fafb;
@@ -909,18 +918,21 @@ function render_sage_book_appointment() {
         #sage-book-app .calendar-day.past {
             border-color: #f3f4f6;
             background-color: #f9fafb;
-            opacity: 0.4;
+            opacity: 0.6;
             cursor: not-allowed;
+            border-color: #FFF;
+            background-color: #ffffff;
         }
         #sage-book-app .calendar-day.past:hover {
             border-color: #f3f4f6;
             background-color: #f9fafb;
         }
         #sage-book-app .calendar-day.no-slots {
-            border-color: #f3f4f6;
-            background-color: #f9fafb;
             opacity: 0.6;
             cursor: not-allowed;
+            color: #2A2A2A;
+            border-color: #FFF;
+            background-color: #ffffff;
         }
         #sage-book-app .calendar-day.no-slots:hover {
             border-color: #f3f4f6;
@@ -930,7 +942,7 @@ function render_sage_book_appointment() {
             font-size: 1.5rem;
             line-height: 2rem;
             font-weight: bold;
-            color: #111827;
+            color: #2A2A2A;
         }
         #sage-book-app .calendar-day.selected .day-number {
             color: #047857;
@@ -939,7 +951,7 @@ function render_sage_book_appointment() {
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
-            color: #6b7280;
+            color: #2A2A2A;
         }
         #sage-book-app .calendar-day.selected .day-name {
             color: #059669;
@@ -1019,6 +1031,7 @@ function render_sage_book_appointment() {
             background-color: white;
             color: #374151;
             cursor: pointer;
+            box-shadow: none;
         }
         #sage-book-app .slot-btn:hover {
             border-color: #10b981;
@@ -1138,6 +1151,17 @@ function render_sage_book_appointment() {
             color: #0f172a;
             outline: none;
             transition: all 0.2s;
+            height: auto;
+        }
+        /* for onyly placehoder color */
+        input::placeholder{
+            color: "#9b9b9b" !important;
+        }
+        .nice-select{
+            display: none !important;
+        }
+        select{
+            display: block !important;
         }
         #sage-book-app .form-group input:focus,
         #sage-book-app .form-group select:focus {
@@ -1274,6 +1298,7 @@ function render_sage_book_appointment() {
             border: none;
             cursor: pointer;
             white-space: nowrap;
+            box-shadow: none !important;
         }
         #sage-book-app .btn-submit:hover {
             background-color: #047857;
@@ -1479,6 +1504,16 @@ function render_sage_book_appointment() {
             width: 1rem;
             height: 1rem;
         }
+
+        #sage-book-app input::placeholder {
+    color: #94a3b8 !important;
+}
+
+#sage-book-app textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+
 
         @media (min-width: 640px) {
             #sage-book-app .appointment-card-body {
@@ -1696,7 +1731,7 @@ function render_sage_book_appointment() {
                         <div class="month-selector">
                             <button id="month-trigger-btn" class="month-trigger-btn">
                                 <h3 id="current-month-label">September, 2024</h3>
-                                <i data-lucide="chevron-down"></i>
+                                <i data-lucide="chevron-down" style="color: black;"></i>
                             </button>
 
                             <!-- Custom Month Picker Overlay -->
