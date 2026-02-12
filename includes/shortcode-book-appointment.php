@@ -1753,11 +1753,11 @@ padding: 0.5rem;
                             </div>
                         </div>
                         
-                        <div>
+                        <!-- <div>
                             <button id="btn-month-picker-icon">
                                 <i data-lucide="calendar"></i>
                             </button>
-                        </div>
+                        </div> -->
                     </div>
 
                     <!-- Days Scroller -->
@@ -2280,7 +2280,8 @@ padding: 0.5rem;
             state.weekStartDate = newStart;
             
             // Updated to use loadWeekData for consistent loading state
-            await loadWeekData();
+            state.weekStartDate = newStart;
+            await loadWeekData(false, 0, false); // No auto-select on manual month change
             
             // Update Label
              const monthLabel = document.getElementById('current-month-label');
@@ -2597,7 +2598,14 @@ padding: 0.5rem;
             
             // Pre-load calendar data for smooth transition
             let calendarDate = new Date(); 
-            await loadWeekData();
+            // Reset to current week/month? Or just trigger load
+            
+            // FIX: Reset weekStartDate to today on service selection
+            // This ensures if user went far ahead then comes back to step 1 and picks another service,
+            // we start searching from today again.
+            state.weekStartDate = getStartOfWeek(new Date()); 
+            
+            await loadWeekData(true, 0, true); // Auto-Advance AND Auto-Select on service select
         }
 
         // --- Calendar Logic (Weekly Strip) ---
@@ -2623,7 +2631,7 @@ padding: 0.5rem;
                     const monday = new Date(year, month - 1, diff);
                     
                     state.weekStartDate = monday;
-                    await loadWeekData();
+                    await loadWeekData(false, 0, false); // Manual nav: no auto-select
                 });
             }
             
@@ -2650,20 +2658,22 @@ padding: 0.5rem;
             newDate.setDate(newDate.getDate() + (direction * daysToScroll));
             
             state.weekStartDate = newDate;
-            await loadWeekData();
+            // Only auto-advance if going forward (direction > 0) -> CHANGED: No auto-advance on manual, BUT auto-select first day
+            await loadWeekData(false, 0, true);
         }
         
         
         
-        async function loadWeekData() {
+        async function loadWeekData(searchNext = false, depth = 0, autoSelect = false) {
             const loadingEl = document.getElementById('calendar-loading');
             const trackEl = document.getElementById('calendar-days-track');
             const slotsContainer = document.getElementById('slots-container');
+            const MAX_DEPTH = 12; // Approx 3 months search limit
             
             // Show loading
             if(loadingEl) loadingEl.classList.remove('hidden');
 
-            if(trackEl) trackEl.innerHTML = ''; // Clear the track completely
+            if(trackEl && depth === 0) trackEl.innerHTML = ''; // Clear only on initial call to avoid flicker during recursing? Actually maybe always clear
             
             // Hide slots until a date is selected
             if (slotsContainer) slotsContainer.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2.5rem;">Select a date to view availability</div>';
@@ -2693,9 +2703,73 @@ padding: 0.5rem;
             // Wait for both to complete
             await Promise.all([dataFetch, minDisplayTime]);
             
-            // Hide loading state and show slots
-            if(loadingEl) loadingEl.classList.add('hidden');
-            if(slotsContainer) slotsContainer.classList.remove('hidden');
+            // Check for availability to auto-select
+            const firstDayWithSlots = findFirstDayWithSlots();
+            
+            // ONLY Auto-select if requested (initial load)
+            if (firstDayWithSlots && autoSelect) {
+                // Found slots! Select the day
+                selectDate(firstDayWithSlots);
+                
+                // Hide loading state and show slots
+                if(loadingEl) loadingEl.classList.add('hidden');
+                if(slotsContainer) slotsContainer.classList.remove('hidden');
+                
+            } else {
+                // No slots in this week
+                if (searchNext && depth < MAX_DEPTH) {
+                    // Auto-advance to next week
+                    const nextDate = new Date(state.weekStartDate);
+                    nextDate.setDate(nextDate.getDate() + 7);
+                    state.weekStartDate = nextDate;
+                    
+                    // Recursive call
+                    await loadWeekData(true, depth + 1, true); // Keep autoSelect=true if we are auto-advancing
+                } else {
+                    // Stop searching
+                    if(loadingEl) loadingEl.classList.add('hidden');
+                    if(slotsContainer) {
+                        slotsContainer.classList.remove('hidden');
+                        if (searchNext && depth >= MAX_DEPTH) {
+                             slotsContainer.innerHTML = '<div style="text-align: center; color: #ef4444; padding: 2.5rem;">No availability found for the next 3 months.</div>';
+                        }
+                    }
+                }
+            }
+        }
+
+        function findFirstDayWithSlots() {
+            if (!state.selectedService) return null;
+            
+            const daysToCheck = 7;
+            const todayStr = getLocalDateString(new Date());
+
+            for (let i = 0; i < daysToCheck; i++) {
+                const d = new Date(state.weekStartDate);
+                d.setDate(d.getDate() + i);
+                const dateStr = getLocalDateString(d);
+                
+                // Skip past
+                if (dateStr < todayStr) continue;
+
+                const cached = state.slotsCache[dateStr];
+                // Check if we have valid slots
+                if (cached && 
+                    cached.serviceId === state.selectedService.id && 
+                    ((Array.isArray(cached.slots) && cached.slots.length > 0) || (typeof cached.slots === 'object' && Object.keys(cached.slots).length > 0))
+                   ) {
+                    return d;
+                }
+            }
+            return null;
+        }
+
+        // --- Helper: Get Start of Week (Monday) ---
+        function getStartOfWeek(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+            return new Date(d.setDate(diff));
         }
 
         // --- Helper: Local Date String (YYYY-MM-DD) ---
