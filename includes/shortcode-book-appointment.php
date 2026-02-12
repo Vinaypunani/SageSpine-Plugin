@@ -1823,6 +1823,16 @@ padding: 0.5rem;
                         <form id="booking-form" style="display: flex;
     flex-direction: column;
     gap: 1.25rem;">
+                            <!-- Appointment Type -->
+                            <div class="form-group">
+                                <label for="appointment_type">Appointment Type *</label>
+                                <select id="appointment_type" name="appointment_type" required>
+                                    <option value="" disabled>Select Appointment Type</option>
+                                    <option value="New Appointment" selected>New Appointment</option>
+                                    <option value="Follow-up Appointment">Follow-up Appointment</option>
+                                </select>
+                            </div>
+
                             <!-- Personal Info -->
                             <div class="form-grid-2">
                                 <div class="form-group">
@@ -3188,14 +3198,10 @@ padding: 0.5rem;
                 
                 // additional_fields as JSON string
                 // Map new optional fields + DOB
+                // additional_fields as JSON string
+                // Map new optional fields + DOB
                 const additionalFields = {
-                    "Date Of Birth": formattedDOB,
-                    "Street Address": data.address_street || "",
-                    "City": data.address_city || "",
-                    "State": data.address_state || "",
-                    "ZIP Code": data.address_zip || "",
-                    "Insurance Info": data.insurance_info || "",
-                    "Insurance Card": data.insurance_card_url || "",
+                    "Appointment Type": data.appointment_type || "",
                     "What is your preferred pharmacy phone number?": data.pharmacy_phone || "",
                     "Referring Provider": data.referring_provider || "",
                     "Who is primary provider ?": data.primary_provider || "",
@@ -3204,7 +3210,14 @@ padding: 0.5rem;
                     "Ethnicity": data.ethnicity || "",
                     "Race": data.race || "",
                     "Reason For Visit": data.reason_for_visit || "",
-                    "Anything more about you?": data.more_info || ""
+                    "Anything more about you?": data.more_info || "",
+                    "Date Of Birth": formattedDOB,
+                    "Street Address": data.address_street || "",
+                    "City": data.address_city || "",
+                    "State": data.address_state || "",
+                    "ZIP Code": data.address_zip || "",
+                    "Insurance Info": data.insurance_info || "",
+                    "Insurance Card": data.insurance_card_url || ""
                 };
                 formData.append('additional_fields', JSON.stringify(additionalFields));
                 
