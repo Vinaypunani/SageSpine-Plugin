@@ -2341,6 +2341,9 @@ padding: 0.5rem;
                 const mainTitle = document.getElementById('booking-main-title');
                 if(mainTitle) mainTitle.classList.add('hidden');
                 
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
             } else {
                 const stepView = document.getElementById(`view-step-${step}`);
                 if (stepView) {
