@@ -1713,7 +1713,7 @@ padding: 0.5rem;
                         </div>
                     </div>
 
-                    <div class="step-nav">
+                    <div class="step-nav" style="justify-content: end;">
                         <button id="btn-step1-continue" onclick="if(state.selectedService) setStep(2);" class="btn-continue" disabled>
                             Continue to Step 2
                         </button>
@@ -1839,6 +1839,11 @@ padding: 0.5rem;
                             <div class="form-group">
                                 <label for="dob">Date of Birth *</label>
                                 <input id="dob" name="dob" required type="date"/>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reason_for_visit">Reason For Visit *</label>
+                                <textarea id="reason_for_visit" name="reason_for_visit" rows="3" required placeholder="Briefly describe the reason for your visit" style="width: 100%; padding: 0.625rem 1rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; background-color: white; color: #0f172a; outline: none; transition: all 0.2s; font-family: inherit;"></textarea>
                             </div>
 
                             <!-- Address -->
@@ -1970,6 +1975,18 @@ padding: 0.5rem;
                                 </div>
                             </div>
 
+                            <!-- Anything more about you? -->
+                            <div class="form-group" style="background-color: #f8fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <input type="checkbox" id="more_info_toggle" style="width: 1.25rem; height: 1.25rem; accent-color: #10b981; cursor: pointer;">
+                                    <label for="more_info_toggle" style="margin: 0; font-weight: 600; color: #334155; cursor: pointer; flex: 1;">Anything more about you? <span style="font-weight: 400; color: #64748b; font-size: 0.8em;">(Optional)</span></label>
+                                </div>
+                                <div id="more_info_container" class="hidden" style="margin-top: 1rem; transition: all 0.3s ease;">
+                                    <label for="more_info" style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 500; color: #475569;">Please share any additional details:</label>
+                                    <textarea id="more_info" name="more_info" rows="3" placeholder="Medical history, specific concerns, etc..." style="width: 100%; padding: 0.625rem 1rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; background-color: white; color: #0f172a; outline: none; transition: all 0.2s; font-family: inherit;"></textarea>
+                                </div>
+                            </div>
+
                             <!-- Form Actions -->
                             <div class="step-nav step-nav-with-border">
                                 <button onclick="setStep(2)" class="btn-secondary" type="button">
@@ -2097,6 +2114,27 @@ padding: 0.5rem;
             
             // Validation / Form Submit
             document.getElementById('booking-form').addEventListener('submit', handleBookingSubmit);
+
+            // Toggle logic for "Anything more about you?"
+            const moreInfoToggle = document.getElementById('more_info_toggle');
+            const moreInfoContainer = document.getElementById('more_info_container');
+
+            if (moreInfoToggle && moreInfoContainer) {
+                // Initial state check
+                if (moreInfoToggle.checked) {
+                    moreInfoContainer.classList.remove('hidden');
+                }
+
+                moreInfoToggle.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        moreInfoContainer.classList.remove('hidden');
+                        // Focus the textarea for better UX
+                        setTimeout(() => document.getElementById('more_info')?.focus(), 100);
+                    } else {
+                        moreInfoContainer.classList.add('hidden');
+                    }
+                });
+            }
         });
 
         // --- Custom Month Picker Logic (Year + Month) ---
@@ -3042,7 +3080,9 @@ padding: 0.5rem;
                     "Language": data.language || "",
                     "Sex": data.sex || "",
                     "Ethnicity": data.ethnicity || "",
-                    "Race": data.race || ""
+                    "Race": data.race || "",
+                    "Reason For Visit": data.reason_for_visit || "",
+                    "Anything more about you?": data.more_info || ""
                 };
                 formData.append('additional_fields', JSON.stringify(additionalFields));
                 
