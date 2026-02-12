@@ -1881,9 +1881,9 @@ padding: 0.5rem;
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label>Insurance Card Image *</label>
+                                    <label>Insurance Card Image</label>
                                     <div id="drop-zone">
-                                        <input accept="image/*,application/pdf" id="insurance-upload" name="insurance_file" type="file" required/>
+                                        <input accept="image/*,application/pdf" id="insurance-upload" name="insurance_file" type="file"/>
                                         <div style="display: flex;
     flex-direction: column;
     align-items: center;">
@@ -1913,8 +1913,8 @@ padding: 0.5rem;
 
                                 <div class="form-grid">
                                     <div class="form-group">
-                                        <label for="pharmacy_phone">What is your preferred pharmacy phone number?</label>
-                                        <input id="pharmacy_phone" name="pharmacy_phone" placeholder="(555) 000-0000" type="text"/>
+                                        <label for="pharmacy_phone">What is your preferred pharmacy phone number? *</label>
+                                        <input id="pharmacy_phone" name="pharmacy_phone" placeholder="(555) 000-0000" type="text" required/>
                                     </div>
                                     <div class="form-group">
                                         <label for="referring_provider">Referring Provider</label>
@@ -1926,8 +1926,8 @@ padding: 0.5rem;
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="language">Language</label>
-                                        <select id="language" name="language">
+                                        <label for="language">Language *</label>
+                                        <select id="language" name="language" required>
                                             <option value="">Select Language</option>
                                             <option value="English">English</option>
                                             <option value="Spanish">Spanish</option>
@@ -1939,8 +1939,8 @@ padding: 0.5rem;
 
                                     <div class="form-grid-3">
                                         <div class="form-group">
-                                            <label for="sex">Sex</label>
-                                            <select id="sex" name="sex">
+                                            <label for="sex">Sex *</label>
+                                            <select id="sex" name="sex" required>
                                                 <option value="">Select</option>
                                                 <option value="Female">Female</option>
                                                 <option value="Male">Male</option>
@@ -1948,8 +1948,8 @@ padding: 0.5rem;
                                             </select>
                                         </div>
                                         <div class="form-group">
-                                            <label for="ethnicity">Ethnicity</label>
-                                            <select id="ethnicity" name="ethnicity">
+                                            <label for="ethnicity">Ethnicity *</label>
+                                            <select id="ethnicity" name="ethnicity" required>
                                                 <option value="">Select</option>
                                                 <option value="Not Hispanic or Latino (White)">Not Hispanic or Latino (White)</option>
                                                 <option value="Not Hispanic or Latino (Two or More Races)">Not Hispanic or Latino (Two or More Races)</option>
@@ -1957,8 +1957,8 @@ padding: 0.5rem;
                                             </select>
                                         </div>
                                         <div class="form-group">
-                                            <label for="race">Race</label>
-                                            <select id="race" name="race">
+                                            <label for="race">Race *</label>
+                                            <select id="race" name="race" required>
                                                 <option value="">Select</option>
                                                 <option value="White">White</option>
                                                 <option value="Asian">Asian</option>
