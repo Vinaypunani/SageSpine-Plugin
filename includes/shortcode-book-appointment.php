@@ -71,6 +71,15 @@ function render_sage_book_appointment() {
             padding: 1rem;
         }
         
+        /* Loading Animation */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
         /* Loading Overlay */
         #sage-book-app #loading-overlay {
             position: fixed;
@@ -1640,9 +1649,6 @@ padding: 0.5rem;
         </div>
 
         <!-- Steps Header -->
-        <div class="booking-header">
-            <h1 id="booking-main-title">Enter Appointment Details</h1>
-        </div>
 
         <div class="main-layout">
             
@@ -1685,6 +1691,10 @@ padding: 0.5rem;
             <!-- Right Content Area -->
             <div id="appointment-main-content" class="with-sidebar">
                 
+                <div class="booking-header" style="text-align: left; margin-bottom: 1.5rem;">
+                    <h1 id="booking-main-title" style="margin: 0; font-size: 1.5rem; text-align: left;">Enter Appointment Details</h1>
+                </div>
+
                 <!-- STEP 1: Select Service/Doctor -->
                 <div id="view-step-1" class="step-view">
                     <div class="step-header">
@@ -1714,8 +1724,8 @@ padding: 0.5rem;
                     </div>
 
                     <div class="step-nav" style="justify-content: end;">
-                        <button id="btn-step1-continue" onclick="if(state.selectedService) setStep(2);" class="btn-continue" disabled>
-                            Continue to Step 2
+                        <button id="btn-step1-continue" onclick="handleStep1Continue(this)" class="btn-continue" disabled>
+                            <span id="btn-step1-text">Continue to Step 2</span>
                         </button>
                     </div>
                 </div>
@@ -1831,7 +1841,7 @@ padding: 0.5rem;
                                     <input id="email" name="email" placeholder="john.doe@example.com" required type="email"/>
                                 </div>
                                 <div class="form-group">
-                                    <label for="phone">Mobile Phone Number *</label>
+                                    <label for="phone">Phone Number *</label>
                                     <input id="phone" name="phone" placeholder="(555) 000-0000" required type="tel"/>
                                 </div>
                             </div>
@@ -1871,7 +1881,7 @@ padding: 0.5rem;
                             <!-- Insurance -->
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label for="insurance_info">Insurance Provider *</label>
+                                    <label for="insurance_info">Insurance Info *</label>
                                     <select id="insurance_info" name="insurance_info" required>
                                         <option disabled selected value="">Select Insurance</option>
                                         <option value="Medicare">Medicare</option>
@@ -2593,19 +2603,57 @@ padding: 0.5rem;
             // Update summary
             document.getElementById('summary-service-name').textContent = svc.name || 'Service';
             
-            // Enable Continue Button
-            updateContinueButton();
+            // Trigger auto-search from today
+            // UPDATE: Don't loadWeekData here if we want to defer loading to "Continue" click?
+            // User requested loading on Step 2 button click.
+            // But we need to know availability to enable button? 
+            // Actually, usually "Continue" just goes to step 2.
+            // If we load data HERE, it might be separate.
+            // Current flow: Select Service -> Enable Button -> Click Continue -> Load Data -> Show Step 2.
             
-            // Pre-load calendar data for smooth transition
-            let calendarDate = new Date(); 
-            // Reset to current week/month? Or just trigger load
+            // To support user request: "shoe the Loading loader in the Button until API have Response and select the Avalable Slot"
+            // We should NOT load data here, OR if we do, we re-load it on button click?
+            // Better UX: Load data here silently? 
+            // User specifically asked for button loading. So we move the loadWeekData call to the button click handler.
+            // state.weekStartDate = getStartOfWeek(new Date()); 
+            // await loadWeekData(true, 0, true); 
             
-            // FIX: Reset weekStartDate to today on service selection
-            // This ensures if user went far ahead then comes back to step 1 and picks another service,
-            // we start searching from today again.
+            // Revert: We still need to reset start date
             state.weekStartDate = getStartOfWeek(new Date()); 
+        }
+
+        async function handleStep1Continue(btn) {
+            if (!state.selectedService) return;
             
-            await loadWeekData(true, 0, true); // Auto-Advance AND Auto-Select on service select
+            // UI Loading State
+            const textSpan = document.getElementById('btn-step1-text');
+            const originalText = textSpan ? textSpan.innerHTML : 'Continue to Step 2';
+            
+            btn.disabled = true;
+            // Custom SVG Spinner
+            const spinner = `<svg class="animate-spin" style="width: 1.25rem; height: 1.25rem; color: white;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle style="opacity: 0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path style="opacity: 0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>`;
+            
+            btn.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">${spinner} <span>Processing...</span></div>`;
+            // lucide.createIcons(); // No longer needed for custom SVG
+            
+            try {
+                // Trigger availability check & auto-selection
+                // We force autoAdvance=true and autoSelect=true to ensure we find a slot
+                await loadWeekData(true, 0, true);
+                
+                // Move to next step
+                setStep(2);
+            } catch (e) {
+                console.error("Error loading step 2:", e);
+                // alert("Failed to load availability. Please try again.");
+            } finally {
+                // Restore button
+                btn.disabled = false;
+                btn.innerHTML = `<span id="btn-step1-text">${originalText}</span>`;
+            }
         }
 
         // --- Calendar Logic (Weekly Strip) ---
