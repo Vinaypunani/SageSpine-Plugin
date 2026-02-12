@@ -12,6 +12,9 @@ function render_sage_book_appointment() {
         const WP_API_NONCE = "<?php echo $api_nonce; ?>";
         const WP_MEDIA_ENDPOINT = "<?php echo esc_url_raw(rest_url('sagespine/v1/upload')); ?>";
     </script>
+    <!-- Fonts for Success Screen -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
     <style>
         /* Scoped Reset to protect against Theme Styles */
         #sage-book-app {
@@ -810,6 +813,230 @@ padding: 0.5rem;
             width: 1.25rem;
             height: 1.25rem;
             color: #4b5563;
+        }
+
+        /* --- NEW SUCCESS SCREEN STYLES --- */
+        #sage-book-app .celebration-bg {
+            background-image: radial-gradient(circle at 50% 50%, rgba(39, 174, 96, 0.05) 0%, transparent 70%);
+        }
+        
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        #sage-book-app .animate-ping {
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        
+        /* Success Layout Utilities */
+        #sage-book-app .success-wrapper {
+            max-width: 36rem; /* max-w-xl */
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        
+        #sage-book-app .success-icon-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        #sage-book-app .success-ping-circle {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(39, 174, 96, 0.2);
+            border-radius: 9999px;
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+            opacity: 0.75;
+        }
+        #sage-book-app .success-icon-circle {
+            position: relative;
+            width: 6rem; /* w-24 */
+            height: 6rem; /* h-24 */
+            background-color: rgba(39, 174, 96, 0.1);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #sage-book-app .material-icons-round.success-check {
+            color: #27AE60;
+            font-size: 3.75rem; /* text-6xl */
+        }
+        
+        #sage-book-app .success-title {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #0f172a; /* text-slate-900 */
+        }
+        @media (min-width: 768px) {
+            #sage-book-app .success-title { font-size: 2.25rem; /* md:text-4xl */ }
+        }
+        
+        #sage-book-app .success-subtitle {
+            font-size: 1.125rem; /* text-lg */
+            color: #64748b; /* text-slate-500 */
+            margin-bottom: 2.5rem;
+        }
+        
+        /* Success Card */
+        #sage-book-app .success-details-card {
+            background-color: white;
+            border: 1px solid #e2e8f0; /* border-slate-200 */
+            border-radius: 1rem; /* rounded-2xl */
+            box-shadow: 0 20px 25px -5px rgba(226, 232, 240, 0.5); /* shadow-xl shadow-slate-200/50 */
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+        }
+        #sage-book-app .success-card-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0.375rem; /* h-1.5 */
+            background-color: #27AE60; /* bg-brand-success */
+        }
+        
+        #sage-book-app .success-card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            align-items: center;
+        }
+        @media (min-width: 768px) {
+            #sage-book-app .success-card-content {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        
+        /* Date Leaf */
+        #sage-book-app .date-leaf {
+            flex-shrink: 0;
+            width: 5rem; /* w-20 */
+            height: 6rem; /* h-24 */
+            background-color: #f8fafc; /* bg-slate-50 */
+            border: 1px solid #e2e8f0; /* border-slate-200 */
+            border-radius: 0.5rem; /* rounded-lg */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+        #sage-book-app .date-leaf-month {
+            background-color: #e2e8f0;
+            width: 100%;
+            padding: 0.25rem 0;
+            font-size: 0.625rem; /* text-[10px] */
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em; /* tracking-widest */
+            color: #64748b; /* text-slate-500 */
+            text-align: center;
+        }
+        #sage-book-app .date-leaf-day {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700;
+            color: #1e293b; /* text-slate-800 */
+        }
+        
+        /* Details List */
+        #sage-book-app .success-info-list {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        @media (min-width: 768px) {
+            #sage-book-app .success-info-list { text-align: left; }
+        }
+        
+        #sage-book-app .success-info-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600;
+            color: #0f172a; /* text-slate-900 */
+        }
+        @media (min-width: 768px) {
+            #sage-book-app .success-info-item { justify-content: flex-start; }
+        }
+        
+        #sage-book-app .success-info-item.sub {
+            color: #475569; /* text-slate-600 */
+            font-size: 1rem;
+            font-weight: normal;
+        }
+        #sage-book-app .success-info-item.small {
+            color: #64748b; /* text-slate-500 */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: normal;
+        }
+        
+        #sage-book-app .material-icons-round.info-icon {
+            color: #94a3b8; /* text-slate-400 */
+            font-size: 1.25rem; /* text-xl */
+        }
+        #sage-book-app .material-icons-round.info-icon-lg {
+            color: #94a3b8;
+            font-size: 1.125rem; /* text-lg */
+        }
+        
+        /* Action Button */
+        #sage-book-app .btn-book-another {
+            width: 100%;
+            background-color: #27AE60; /* bg-brand-success */
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            font-weight: 700;
+            font-size: 1.125rem; /* text-lg */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 10px 15px -3px rgba(39, 174, 96, 0.2);
+            border: none;
+            cursor: pointer;
+        }
+        @media (min-width: 640px) {
+            #sage-book-app .btn-book-another { width: auto; }
+        }
+        #sage-book-app .btn-book-another:hover {
+            background-color: #219150;
+            transform: scale(1.02);
+        }
+        #sage-book-app .btn-book-another:active {
+            transform: scale(0.98);
+        }
+        
+        #sage-book-app .success-footer-link {
+            margin-top: 3rem;
+            color: #94a3b8; /* text-slate-400 */
+            font-size: 0.875rem; /* text-sm */
+        }
+        #sage-book-app .success-footer-link a {
+            color: #27AE60;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        #sage-book-app .success-footer-link a:hover {
+            text-decoration: underline;
         }
         #sage-book-app .days-track-wrapper {
             position: relative;
@@ -2028,70 +2255,69 @@ padding: 0.5rem;
                 </div>
 
                 <!-- SUCCESS VIEW -->
+                <!-- SUCCESS VIEW (New Design) -->
                 <div id="view-success" class="step-view hidden">
-                    <div class="success-container">
-                        <div class="success-icon-wrapper">
-                            <div class="success-check-icon">
-                                <svg fill="none" height="80" viewBox="0 0 80 80" width="80">
-                                    <circle class="circle" cx="40" cy="40" r="36" stroke="#10b981" stroke-width="4"/>
-                                    <polyline class="checkmark" points="25,40 35,50 55,30" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
-                                </svg>
-                            </div>
-                        </div>
-
-                        <div class="success-content">
-                            <h1>Appointment Confirmed with <span id="confirm-doctor-name">Doctor</span>!</h1>
-                            <p>Your appointment has been successfully scheduled.</p>
-                        </div>
-
-                        <!-- Appointment Card -->
-                        <div class="appointment-card">
-                            <div class="appointment-card-header"></div>
-                            
-                            <div class="appointment-card-body">
-                                <!-- Date Box -->
-                                <!-- <div class="date-box">
-                                    <div class="date-box-month" id="confirm-month-abbr">
-                                        FEB
-                                    </div>
-                                    <div class="date-box-day" id="confirm-day-number">
-                                        20
-                                    </div>
-                                </div> -->
-                                
-                                <!-- Details -->
-                                <div class="appointment-details">
-                                    <div class="detail-item">
-                                        <i data-lucide="calendar"></i>
-                                        <span id="confirm-datetime">20 Feb 2026 | 07:30 AM</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i data-lucide="user"></i>
-                                        <span id="confirm-doctor-detail">Doctor Name</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i data-lucide="globe"></i>
-                                        <span id="confirm-timezone">America/Chicago - CST (-06:00)</span>
-                                    </div>
-
-                                    <div class="success-actions">
-                                        <!-- <button class="btn-calendar" onclick="addToGoogleCalendar()">
-                                            <i data-lucide="calendar-plus"></i>
-                                            Add to Calendar
-                                        </button> -->
-                                        <button class="btn-new-appt" onclick="location.reload()">
-                                            <i data-lucide="rotate-ccw"></i>
-                                            Book Another
-                                        </button>
+                    <div class="success-wrapper celebration-bg">
+                        <div class="success-icon-container">
+                            <div class="success-icon-wrapper">
+                                <div class="relative" style="position: relative;">
+                                    <div class="success-ping-circle"></div>
+                                    <div class="success-icon-circle">
+                                        <span class="material-icons-round success-check">check_circle</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        <h1 class="success-title">
+                            Appointment confirmed with <span id="confirm-doctor-name">Doctor</span>!
+                        </h1>
                         
-                        <div class="success-footer">
-                            <i data-lucide="mail"></i>
-                            A confirmation email has been sent to your registered email address.
+                        <p class="success-subtitle">
+                            We've sent a confirmation email with all the details and a calendar invite.
+                        </p>
+
+                        <div class="success-details-card">
+                            <div class="success-card-bar"></div>
+                            <div class="success-card-content">
+                                <!-- Date Box -->
+                                <div class="date-leaf">
+                                    <div class="date-leaf-month" id="confirm-month-abbr">
+                                        FEB
+                                    </div>
+                                    <div class="date-leaf-day" id="confirm-day-number">
+                                        20
+                                    </div>
+                                </div>
+                                
+                                <!-- Info -->
+                                <div class="success-info-list">
+                                    <div class="success-info-item">
+                                        <span class="material-icons-round info-icon">event</span>
+                                        <span id="confirm-datetime">20 Feb 2026 | 07:30 AM</span>
+                                    </div>
+                                    <div class="success-info-item sub">
+                                        <span class="material-icons-round info-icon">person</span>
+                                        <span id="confirm-doctor-detail">Doctor Name</span>
+                                    </div>
+                                    <div class="success-info-item small">
+                                        <span class="material-icons-round info-icon-lg">public</span>
+                                        <span id="confirm-timezone">America/Chicago - CST (-06:00)</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="flex items-center justify-center" style="justify-content: center;">
+                            <button class="btn-book-another" onclick="location.reload()">
+                                Book another appointment
+                                <span class="material-icons-round" style="margin-left: 0.5rem;">arrow_forward</span>
+                            </button>
+                        </div>
+                        
+                        <p class="success-footer-link">
+                            Need help? <a href="#">Contact our support team</a>
+                        </p>
                     </div>
                 </div>
                 
@@ -3391,6 +3617,18 @@ padding: 0.5rem;
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', initOptionalFields);
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     initOptionalFields();
+            
+        //     // DEBUG: Show Success Screen
+        //     document.getElementById('view-success').classList.remove('hidden');
+        //     // Hide Sidebar
+        //     document.getElementById('appointment-sidebar').classList.add('hidden');
+        //     document.getElementById('appointment-main-content').classList.remove('with-sidebar');
+        //     // Hide Main Title
+        //     const mainTitle = document.getElementById('booking-main-title');
+        //     if(mainTitle) mainTitle.classList.add('hidden');
+        // });
 
     </script>
 
