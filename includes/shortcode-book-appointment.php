@@ -1650,7 +1650,7 @@ padding: 0.5rem;
 
         <!-- Steps Header -->
 
-        <div class="main-layout">
+        <div class="main-layout" style="margin: 50px 0px;">
             
             <!-- Left Sidebar: Steps/Summary -->
             <div id="appointment-sidebar">
