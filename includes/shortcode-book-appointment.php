@@ -83,6 +83,37 @@ function render_sage_book_appointment() {
             animation: spin 1s linear infinite;
         }
 
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 9999;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast-notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .toast-notification.error {
+            background-color: #ef4444;
+        }
+        .toast-notification.success {
+            background-color: #10b981;
+        }
+
         /* Loading Overlay */
         #sage-book-app #loading-overlay {
             position: fixed;
@@ -1566,7 +1597,7 @@ padding: 0.5rem;
         /* Success Screen - Reference Match & Refinement */
         #sage-book-app #view-success {
             text-align: center;
-            padding: 3rem 1.5rem;
+            /* padding: 3rem 1.5rem; */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1951,7 +1982,7 @@ padding: 0.5rem;
                     </div>
 
                     <div class="step-nav" style="justify-content: end;">
-                        <button id="btn-step1-continue" onclick="handleStep1Continue(this)" class="btn-continue" disabled>
+                        <button id="btn-step1-continue" type="button" onclick="handleStep1Continue(this)" class="btn-continue">
                             <span id="btn-step1-text">Continue to Step 2</span>
                         </button>
                     </div>
@@ -2032,7 +2063,7 @@ padding: 0.5rem;
                             <!-- <i data-lucide="arrow-left"></i> -->
                             Back
                         </button>
-                        <button id="btn-step2-continue" onclick="if(state.selectedSlot) setStep(3);" class="btn-continue" disabled>
+                        <button id="btn-step2-continue" onclick="handleStep2Continue(this)" class="btn-continue">
                             Continue to Personal Info
                         </button>
                     </div>
@@ -2047,7 +2078,7 @@ padding: 0.5rem;
                             Please enter your details
                         </h2>
                         
-                        <form id="booking-form" style="display: flex;
+                        <form id="booking-form" novalidate style="display: flex;
     flex-direction: column;
     gap: 1.25rem;">
                             <!-- Appointment Type -->
@@ -2263,7 +2294,7 @@ padding: 0.5rem;
                                 <div class="relative" style="position: relative;">
                                     <div class="success-ping-circle"></div>
                                     <div class="success-icon-circle">
-                                        <span class="material-icons-round success-check">check_circle</span>
+                                        <span class="material-icons-round success-check"></span>
                                     </div>
                                 </div>
                             </div>
@@ -2815,13 +2846,9 @@ padding: 0.5rem;
         function updateContinueButton() {
             const btn = document.getElementById('btn-step1-continue');
             if(btn) {
-                if(state.selectedService) {
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-not-allowed');
-                }
+                // ALWAYS ENABLE button to allow validation click (and toast)
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
 
@@ -2862,7 +2889,12 @@ padding: 0.5rem;
         }
 
         async function handleStep1Continue(btn) {
-            if (!state.selectedService) return;
+            console.log("handleStep1Continue called. state.selectedService:", state.selectedService);
+            if (!state.selectedService) {
+                console.log("Showing toast...");
+                showToast("Please select a provider to continue.", "error");
+                return;
+            }
             
             // UI Loading State
             const textSpan = document.getElementById('btn-step1-text');
@@ -2893,6 +2925,14 @@ padding: 0.5rem;
                 btn.disabled = false;
                 btn.innerHTML = `<span id="btn-step1-text">${originalText}</span>`;
             }
+        }
+
+        function handleStep2Continue(btn) {
+            if (!state.selectedSlot) {
+                showToast("Please select a time slot to continue.", "error");
+                return;
+            }
+            setStep(3);
         }
 
         // --- Calendar Logic (Weekly Strip) ---
@@ -3366,6 +3406,21 @@ padding: 0.5rem;
         async function handleBookingSubmit(e) {
             e.preventDefault();
             
+            const form = e.target;
+            if (!form.checkValidity()) {
+                showToast("Please fill in all required fields.", "error");
+                
+                // Focus first invalid field
+                const firstInvalid = form.querySelector(':invalid');
+                if (firstInvalid) {
+                     firstInvalid.focus();
+                     // Optional: shake animation or highlight?
+                     firstInvalid.classList.add('border-red-500');
+                     setTimeout(() => firstInvalid.classList.remove('border-red-500'), 2000);
+                }
+                return;
+            }
+
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
             
@@ -3613,6 +3668,37 @@ padding: 0.5rem;
                     if(uploadStatus) uploadStatus.classList.add('hidden');
                 }
             }
+        }
+
+        // --- Toast Notification Helper ---
+        function showToast(message, type = 'info') {
+            console.log("showToast:", message, type);
+            // Remove existing toast
+            const existing = document.querySelector('.toast-notification');
+            if(existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            
+            let icon = '';
+            if(type === 'error') icon = '<i data-lucide="alert-circle" style="width:16px;height:16px;"></i>';
+            else if(type === 'success') icon = '<i data-lucide="check-circle" style="width:16px;height:16px;"></i>';
+            
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            
+            document.body.appendChild(toast);
+            lucide.createIcons();
+            
+            // Trigger animation
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+            
+            // Auto hide
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         // Initialize when DOM is ready
