@@ -12,6 +12,9 @@ function render_sage_book_appointment() {
         const WP_API_NONCE = "<?php echo $api_nonce; ?>";
         const WP_MEDIA_ENDPOINT = "<?php echo esc_url_raw(rest_url('sagespine/v1/upload')); ?>";
     </script>
+    <!-- Fonts for Success Screen -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
     <style>
         /* Scoped Reset to protect against Theme Styles */
         #sage-book-app {
@@ -71,6 +74,46 @@ function render_sage_book_appointment() {
             padding: 1rem;
         }
         
+        /* Loading Animation */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 9999;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            opacity: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast-notification.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .toast-notification.error {
+            background-color: #ef4444;
+        }
+        .toast-notification.success {
+            background-color: #10b981;
+        }
+
         /* Loading Overlay */
         #sage-book-app #loading-overlay {
             position: fixed;
@@ -802,6 +845,230 @@ padding: 0.5rem;
             height: 1.25rem;
             color: #4b5563;
         }
+
+        /* --- NEW SUCCESS SCREEN STYLES --- */
+        #sage-book-app .celebration-bg {
+            background-image: radial-gradient(circle at 50% 50%, rgba(39, 174, 96, 0.05) 0%, transparent 70%);
+        }
+        
+        @keyframes ping {
+            75%, 100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+        #sage-book-app .animate-ping {
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        
+        /* Success Layout Utilities */
+        #sage-book-app .success-wrapper {
+            max-width: 36rem; /* max-w-xl */
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        
+        #sage-book-app .success-icon-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        #sage-book-app .success-ping-circle {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(39, 174, 96, 0.2);
+            border-radius: 9999px;
+            animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+            opacity: 0.75;
+        }
+        #sage-book-app .success-icon-circle {
+            position: relative;
+            width: 6rem; /* w-24 */
+            height: 6rem; /* h-24 */
+            background-color: rgba(39, 174, 96, 0.1);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #sage-book-app .material-icons-round.success-check {
+            color: #27AE60;
+            font-size: 3.75rem; /* text-6xl */
+        }
+        
+        #sage-book-app .success-title {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #0f172a; /* text-slate-900 */
+        }
+        @media (min-width: 768px) {
+            #sage-book-app .success-title { font-size: 2.25rem; /* md:text-4xl */ }
+        }
+        
+        #sage-book-app .success-subtitle {
+            font-size: 1.125rem; /* text-lg */
+            color: #64748b; /* text-slate-500 */
+            margin-bottom: 2.5rem;
+        }
+        
+        /* Success Card */
+        #sage-book-app .success-details-card {
+            background-color: white;
+            border: 1px solid #e2e8f0; /* border-slate-200 */
+            border-radius: 1rem; /* rounded-2xl */
+            box-shadow: 0 20px 25px -5px rgba(226, 232, 240, 0.5); /* shadow-xl shadow-slate-200/50 */
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+        }
+        #sage-book-app .success-card-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 0.375rem; /* h-1.5 */
+            background-color: #27AE60; /* bg-brand-success */
+        }
+        
+        #sage-book-app .success-card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            align-items: center;
+        }
+        @media (min-width: 768px) {
+            #sage-book-app .success-card-content {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        
+        /* Date Leaf */
+        #sage-book-app .date-leaf {
+            flex-shrink: 0;
+            width: 5rem; /* w-20 */
+            height: 6rem; /* h-24 */
+            background-color: #f8fafc; /* bg-slate-50 */
+            border: 1px solid #e2e8f0; /* border-slate-200 */
+            border-radius: 0.5rem; /* rounded-lg */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+        #sage-book-app .date-leaf-month {
+            background-color: #e2e8f0;
+            width: 100%;
+            padding: 0.25rem 0;
+            font-size: 0.625rem; /* text-[10px] */
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em; /* tracking-widest */
+            color: #64748b; /* text-slate-500 */
+            text-align: center;
+        }
+        #sage-book-app .date-leaf-day {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 700;
+            color: #1e293b; /* text-slate-800 */
+        }
+        
+        /* Details List */
+        #sage-book-app .success-info-list {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        @media (min-width: 768px) {
+            #sage-book-app .success-info-list { text-align: left; }
+        }
+        
+        #sage-book-app .success-info-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600;
+            color: #0f172a; /* text-slate-900 */
+        }
+        @media (min-width: 768px) {
+            #sage-book-app .success-info-item { justify-content: flex-start; }
+        }
+        
+        #sage-book-app .success-info-item.sub {
+            color: #475569; /* text-slate-600 */
+            font-size: 1rem;
+            font-weight: normal;
+        }
+        #sage-book-app .success-info-item.small {
+            color: #64748b; /* text-slate-500 */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: normal;
+        }
+        
+        #sage-book-app .material-icons-round.info-icon {
+            color: #94a3b8; /* text-slate-400 */
+            font-size: 1.25rem; /* text-xl */
+        }
+        #sage-book-app .material-icons-round.info-icon-lg {
+            color: #94a3b8;
+            font-size: 1.125rem; /* text-lg */
+        }
+        
+        /* Action Button */
+        #sage-book-app .btn-book-another {
+            width: 100%;
+            background-color: #27AE60; /* bg-brand-success */
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            font-weight: 700;
+            font-size: 1.125rem; /* text-lg */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 10px 15px -3px rgba(39, 174, 96, 0.2);
+            border: none;
+            cursor: pointer;
+        }
+        @media (min-width: 640px) {
+            #sage-book-app .btn-book-another { width: auto; }
+        }
+        #sage-book-app .btn-book-another:hover {
+            background-color: #219150;
+            transform: scale(1.02);
+        }
+        #sage-book-app .btn-book-another:active {
+            transform: scale(0.98);
+        }
+        
+        #sage-book-app .success-footer-link {
+            margin-top: 3rem;
+            color: #94a3b8; /* text-slate-400 */
+            font-size: 0.875rem; /* text-sm */
+        }
+        #sage-book-app .success-footer-link a {
+            color: #27AE60;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        #sage-book-app .success-footer-link a:hover {
+            text-decoration: underline;
+        }
         #sage-book-app .days-track-wrapper {
             position: relative;
             flex-grow: 1;
@@ -1330,7 +1597,7 @@ padding: 0.5rem;
         /* Success Screen - Reference Match & Refinement */
         #sage-book-app #view-success {
             text-align: center;
-            padding: 3rem 1.5rem;
+            /* padding: 3rem 1.5rem; */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1640,11 +1907,8 @@ padding: 0.5rem;
         </div>
 
         <!-- Steps Header -->
-        <div class="booking-header">
-            <h1 id="booking-main-title">Enter Appointment Details</h1>
-        </div>
 
-        <div class="main-layout">
+        <div class="main-layout" style="margin: 50px 0px;">
             
             <!-- Left Sidebar: Steps/Summary -->
             <div id="appointment-sidebar">
@@ -1685,6 +1949,10 @@ padding: 0.5rem;
             <!-- Right Content Area -->
             <div id="appointment-main-content" class="with-sidebar">
                 
+                <div class="booking-header" style="text-align: left; margin-bottom: 1.5rem;">
+                    <h1 id="booking-main-title" style="margin: 0; font-size: 1.5rem; text-align: left;">Enter Appointment Details</h1>
+                </div>
+
                 <!-- STEP 1: Select Service/Doctor -->
                 <div id="view-step-1" class="step-view">
                     <div class="step-header">
@@ -1713,9 +1981,9 @@ padding: 0.5rem;
                         </div>
                     </div>
 
-                    <div class="step-nav">
-                        <button id="btn-step1-continue" onclick="if(state.selectedService) setStep(2);" class="btn-continue" disabled>
-                            Continue to Step 2
+                    <div class="step-nav" style="justify-content: end;">
+                        <button id="btn-step1-continue" type="button" onclick="handleStep1Continue(this)" class="btn-continue">
+                            <span id="btn-step1-text">Continue to Step 2</span>
                         </button>
                     </div>
                 </div>
@@ -1753,11 +2021,11 @@ padding: 0.5rem;
                             </div>
                         </div>
                         
-                        <div>
+                        <!-- <div>
                             <button id="btn-month-picker-icon">
                                 <i data-lucide="calendar"></i>
                             </button>
-                        </div>
+                        </div> -->
                     </div>
 
                     <!-- Days Scroller -->
@@ -1795,7 +2063,7 @@ padding: 0.5rem;
                             <!-- <i data-lucide="arrow-left"></i> -->
                             Back
                         </button>
-                        <button id="btn-step2-continue" onclick="if(state.selectedSlot) setStep(3);" class="btn-continue" disabled>
+                        <button id="btn-step2-continue" onclick="handleStep2Continue(this)" class="btn-continue">
                             Continue to Personal Info
                         </button>
                     </div>
@@ -1810,9 +2078,19 @@ padding: 0.5rem;
                             Please enter your details
                         </h2>
                         
-                        <form id="booking-form" style="display: flex;
+                        <form id="booking-form" novalidate style="display: flex;
     flex-direction: column;
     gap: 1.25rem;">
+                            <!-- Appointment Type -->
+                            <div class="form-group">
+                                <label for="appointment_type">Appointment Type *</label>
+                                <select id="appointment_type" name="appointment_type" required>
+                                    <option value="" disabled>Select Appointment Type</option>
+                                    <option value="New Appointment" selected>New Appointment</option>
+                                    <option value="Follow-up Appointment">Follow-up Appointment</option>
+                                </select>
+                            </div>
+
                             <!-- Personal Info -->
                             <div class="form-grid-2">
                                 <div class="form-group">
@@ -1831,7 +2109,7 @@ padding: 0.5rem;
                                     <input id="email" name="email" placeholder="john.doe@example.com" required type="email"/>
                                 </div>
                                 <div class="form-group">
-                                    <label for="phone">Mobile Phone Number *</label>
+                                    <label for="phone">Phone Number *</label>
                                     <input id="phone" name="phone" placeholder="(555) 000-0000" required type="tel"/>
                                 </div>
                             </div>
@@ -1839,6 +2117,11 @@ padding: 0.5rem;
                             <div class="form-group">
                                 <label for="dob">Date of Birth *</label>
                                 <input id="dob" name="dob" required type="date"/>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reason_for_visit">Reason For Visit *</label>
+                                <textarea id="reason_for_visit" name="reason_for_visit" rows="3" required placeholder="Briefly describe the reason for your visit" style="width: 100%; padding: 0.625rem 1rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; background-color: white; color: #0f172a; outline: none; transition: all 0.2s; font-family: inherit;"></textarea>
                             </div>
 
                             <!-- Address -->
@@ -1866,17 +2149,33 @@ padding: 0.5rem;
                             <!-- Insurance -->
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label for="insurance_info">Insurance Provider *</label>
+                                    <label for="insurance_info">Insurance Info *</label>
                                     <select id="insurance_info" name="insurance_info" required>
                                         <option disabled selected value="">Select Insurance</option>
-                                        <option value="Medicare">Medicare</option>
-                                        <option value="Medicare with Advantage Plan">Medicare with Advantage Plan</option>
-                                        <option value="Worker's Compensation">Worker's Compensation</option>
-                                        <option value="Auto/Motor Vehicle">Auto/Motor Vehicle</option>
-                                        <option value="Blue Cross">Blue Cross</option>
-                                        <option value="Ucare">Ucare</option>
+                                        <option value="Blue Cross and Blue Shield of Minnesota (Blue Plus)">Blue Cross and Blue Shield of Minnesota (Blue Plus)</option>
                                         <option value="HealthPartners">HealthPartners</option>
                                         <option value="Medica">Medica</option>
+                                        <option value="UnitedHealthcare (UHC)">UnitedHealthcare (UHC)</option>
+                                        <option value="Allina Health | Aetna">Allina Health | Aetna</option>
+                                        <option value="Medicare (Including Advantage)">Medicare (Including Advantage)</option>
+                                        <option value="Worker's Compensation">Worker's Compensation</option>
+                                        <option value="Minnesota Medical Assistance (Medicaid)">Minnesota Medical Assistance (Medicaid)</option>
+                                        <option value="Motor Vehicle">Motor Vehicle</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+
+                                <div id="medicare-advantage-container" class="form-group hidden" style="animation: fadeIn 0.3s ease-in-out;">
+                                    <label for="medicare_advantage_plan">Is this an Advantage Plan? *</label>
+                                    <select id="medicare_advantage_plan" name="medicare_advantage_plan">
+                                        <option value="" disabled selected>Select Option</option>
+                                        <option value="No - Medicare only">No - Medicare only</option>
+                                        <option value="Yes - Blue Cross and Blue Shield of Minnesota (Blue Plus)">Yes - Blue Cross and Blue Shield of Minnesota (Blue Plus)</option>
+                                        <option value="Yes - HealthPartners">Yes - HealthPartners</option>
+                                        <option value="Yes - Medica">Yes - Medica</option>
+                                        <option value="Yes - UnitedHealthcare (UHC)">Yes - UnitedHealthcare (UHC)</option>
+                                        <option value="Yes - Allina Health | Aetna">Yes - Allina Health | Aetna</option>
+                                        <option value="Yes - Other">Yes - Other</option>
                                     </select>
                                 </div>
                                 
@@ -1921,7 +2220,7 @@ padding: 0.5rem;
                                         <input id="referring_provider" name="referring_provider" placeholder="Enter provider name" type="text"/>
                                     </div>
                                     <div class="form-group">
-                                        <label for="primary_provider">Who is primary provider ?</label>
+                                        <label for="primary_provider">Who is your primary care provider?</label>
                                         <input id="primary_provider" name="primary_provider" placeholder="Enter primary provider" type="text"/>
                                     </div>
 
@@ -1970,6 +2269,18 @@ padding: 0.5rem;
                                 </div>
                             </div>
 
+                            <!-- Anything more about you? -->
+                            <div class="form-group" style="background-color: #f8fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <input type="checkbox" id="more_info_toggle" style="width: 1.25rem; height: 1.25rem; accent-color: #10b981; cursor: pointer;">
+                                    <label for="more_info_toggle" style="margin: 0; font-weight: 600; color: #334155; cursor: pointer; flex: 1;">Is there any more details about you that you'd like to share with us?</label>
+                                </div>
+                                <div id="more_info_container" class="hidden" style="margin-top: 1rem; transition: all 0.3s ease;">
+                                    <label for="more_info" style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 500; color: #475569;">Please share any additional details:</label>
+                                    <textarea id="more_info" name="more_info" rows="3" placeholder="Medical history, specific concerns, etc..." style="width: 100%; padding: 0.625rem 1rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; background-color: white; color: #0f172a; outline: none; transition: all 0.2s; font-family: inherit;"></textarea>
+                                </div>
+                            </div>
+
                             <!-- Form Actions -->
                             <div class="step-nav step-nav-with-border">
                                 <button onclick="setStep(2)" class="btn-secondary" type="button">
@@ -1991,70 +2302,69 @@ padding: 0.5rem;
                 </div>
 
                 <!-- SUCCESS VIEW -->
+                <!-- SUCCESS VIEW (New Design) -->
                 <div id="view-success" class="step-view hidden">
-                    <div class="success-container">
-                        <div class="success-icon-wrapper">
-                            <div class="success-check-icon">
-                                <svg fill="none" height="80" viewBox="0 0 80 80" width="80">
-                                    <circle class="circle" cx="40" cy="40" r="36" stroke="#10b981" stroke-width="4"/>
-                                    <polyline class="checkmark" points="25,40 35,50 55,30" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
-                                </svg>
-                            </div>
-                        </div>
-
-                        <div class="success-content">
-                            <h1>Appointment Confirmed with <span id="confirm-doctor-name">Doctor</span>!</h1>
-                            <p>Your appointment has been successfully scheduled.</p>
-                        </div>
-
-                        <!-- Appointment Card -->
-                        <div class="appointment-card">
-                            <div class="appointment-card-header"></div>
-                            
-                            <div class="appointment-card-body">
-                                <!-- Date Box -->
-                                <!-- <div class="date-box">
-                                    <div class="date-box-month" id="confirm-month-abbr">
-                                        FEB
-                                    </div>
-                                    <div class="date-box-day" id="confirm-day-number">
-                                        20
-                                    </div>
-                                </div> -->
-                                
-                                <!-- Details -->
-                                <div class="appointment-details">
-                                    <div class="detail-item">
-                                        <i data-lucide="calendar"></i>
-                                        <span id="confirm-datetime">20 Feb 2026 | 07:30 AM</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i data-lucide="user"></i>
-                                        <span id="confirm-doctor-detail">Doctor Name</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <i data-lucide="globe"></i>
-                                        <span id="confirm-timezone">America/Chicago - CST (-06:00)</span>
-                                    </div>
-
-                                    <div class="success-actions">
-                                        <!-- <button class="btn-calendar" onclick="addToGoogleCalendar()">
-                                            <i data-lucide="calendar-plus"></i>
-                                            Add to Calendar
-                                        </button> -->
-                                        <button class="btn-new-appt" onclick="location.reload()">
-                                            <i data-lucide="rotate-ccw"></i>
-                                            Book Another
-                                        </button>
+                    <div class="success-wrapper celebration-bg">
+                        <div class="success-icon-container">
+                            <div class="success-icon-wrapper">
+                                <div class="relative" style="position: relative;">
+                                    <div class="success-ping-circle"></div>
+                                    <div class="success-icon-circle">
+                                        <span class="material-icons-round success-check">check_circle</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        <h1 class="success-title">
+                            Appointment confirmed with <span id="confirm-doctor-name">Doctor</span>!
+                        </h1>
                         
-                        <div class="success-footer">
-                            <i data-lucide="mail"></i>
-                            A confirmation email has been sent to your registered email address.
+                        <p class="success-subtitle">
+                            We've sent a confirmation email with all the details and a calendar invite.
+                        </p>
+
+                        <div class="success-details-card">
+                            <div class="success-card-bar"></div>
+                            <div class="success-card-content">
+                                <!-- Date Box -->
+                                <div class="date-leaf">
+                                    <div class="date-leaf-month" id="confirm-month-abbr">
+                                        FEB
+                                    </div>
+                                    <div class="date-leaf-day" id="confirm-day-number">
+                                        20
+                                    </div>
+                                </div>
+                                
+                                <!-- Info -->
+                                <div class="success-info-list">
+                                    <div class="success-info-item">
+                                        <span class="material-icons-round info-icon">event</span>
+                                        <span id="confirm-datetime">20 Feb 2026 | 07:30 AM</span>
+                                    </div>
+                                    <div class="success-info-item sub">
+                                        <span class="material-icons-round info-icon">person</span>
+                                        <span id="confirm-doctor-detail">Doctor Name</span>
+                                    </div>
+                                    <div class="success-info-item small">
+                                        <span class="material-icons-round info-icon-lg">public</span>
+                                        <span id="confirm-timezone">America/Chicago - CST (-06:00)</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="flex items-center justify-center" style="justify-content: center;">
+                            <button class="btn-book-another" onclick="location.reload()">
+                                Book another appointment
+                                <span class="material-icons-round" style="margin-left: 0.5rem;">arrow_forward</span>
+                            </button>
+                        </div>
+                        
+                        <p class="success-footer-link">
+                            Need help? <a href="/contact">Contact our support team</a>
+                        </p>
                     </div>
                 </div>
                 
@@ -2072,7 +2382,8 @@ padding: 0.5rem;
         const API_BASE = "<?php echo $api_base; ?>";
         const API_NONCE = "<?php echo $api_nonce; ?>";
         
-        let state = {
+        
+        let currentState = {
             step: 1,
             services: [],
             selectedService: null,  // Doctor/Service object
@@ -2081,6 +2392,9 @@ padding: 0.5rem;
             selectedSlot: null,     // "HH:mm"
             customer: {}
         };
+        // Rename to avoid conflict if 'state' is used elsewhere (good practice)
+        let state = currentState;
+
         
         let calendarDate = new Date(); // Current view month
 
@@ -2097,6 +2411,27 @@ padding: 0.5rem;
             
             // Validation / Form Submit
             document.getElementById('booking-form').addEventListener('submit', handleBookingSubmit);
+
+            // Toggle logic for "Anything more about you?"
+            const moreInfoToggle = document.getElementById('more_info_toggle');
+            const moreInfoContainer = document.getElementById('more_info_container');
+
+            if (moreInfoToggle && moreInfoContainer) {
+                // Initial state check
+                if (moreInfoToggle.checked) {
+                    moreInfoContainer.classList.remove('hidden');
+                }
+
+                moreInfoToggle.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        moreInfoContainer.classList.remove('hidden');
+                        // Focus the textarea for better UX
+                        setTimeout(() => document.getElementById('more_info')?.focus(), 100);
+                    } else {
+                        moreInfoContainer.classList.add('hidden');
+                    }
+                });
+            }
         });
 
         // --- Custom Month Picker Logic (Year + Month) ---
@@ -2242,7 +2577,8 @@ padding: 0.5rem;
             state.weekStartDate = newStart;
             
             // Updated to use loadWeekData for consistent loading state
-            await loadWeekData();
+            state.weekStartDate = newStart;
+            await loadWeekData(false, 0, false); // No auto-select on manual month change
             
             // Update Label
              const monthLabel = document.getElementById('current-month-label');
@@ -2281,6 +2617,9 @@ padding: 0.5rem;
                 // Hide Main Title on Success Page
                 const mainTitle = document.getElementById('booking-main-title');
                 if(mainTitle) mainTitle.classList.add('hidden');
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 
             } else {
                 const stepView = document.getElementById(`view-step-${step}`);
@@ -2527,13 +2866,9 @@ padding: 0.5rem;
         function updateContinueButton() {
             const btn = document.getElementById('btn-step1-continue');
             if(btn) {
-                if(state.selectedService) {
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                } else {
-                    btn.disabled = true;
-                    btn.classList.add('opacity-50', 'cursor-not-allowed');
-                }
+                // ALWAYS ENABLE button to allow validation click (and toast)
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         }
 
@@ -2554,12 +2889,70 @@ padding: 0.5rem;
             // Update summary
             document.getElementById('summary-service-name').textContent = svc.name || 'Service';
             
-            // Enable Continue Button
-            updateContinueButton();
+            // Trigger auto-search from today
+            // UPDATE: Don't loadWeekData here if we want to defer loading to "Continue" click?
+            // User requested loading on Step 2 button click.
+            // But we need to know availability to enable button? 
+            // Actually, usually "Continue" just goes to step 2.
+            // If we load data HERE, it might be separate.
+            // Current flow: Select Service -> Enable Button -> Click Continue -> Load Data -> Show Step 2.
             
-            // Pre-load calendar data for smooth transition
-            let calendarDate = new Date(); 
-            await loadWeekData();
+            // To support user request: "shoe the Loading loader in the Button until API have Response and select the Avalable Slot"
+            // We should NOT load data here, OR if we do, we re-load it on button click?
+            // Better UX: Load data here silently? 
+            // User specifically asked for button loading. So we move the loadWeekData call to the button click handler.
+            // state.weekStartDate = getStartOfWeek(new Date()); 
+            // await loadWeekData(true, 0, true); 
+            
+            // Revert: We still need to reset start date
+            state.weekStartDate = getStartOfWeek(new Date()); 
+        }
+
+        async function handleStep1Continue(btn) {
+            console.log("handleStep1Continue called. state.selectedService:", state.selectedService);
+            if (!state.selectedService) {
+                console.log("Showing toast...");
+                showToast("Please select a provider to continue.", "error");
+                return;
+            }
+            
+            // UI Loading State
+            const textSpan = document.getElementById('btn-step1-text');
+            const originalText = textSpan ? textSpan.innerHTML : 'Continue to Step 2';
+            
+            btn.disabled = true;
+            // Custom SVG Spinner
+            const spinner = `<svg class="animate-spin" style="width: 1.25rem; height: 1.25rem; color: white;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle style="opacity: 0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path style="opacity: 0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>`;
+            
+            btn.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">${spinner} <span>Processing...</span></div>`;
+            // lucide.createIcons(); // No longer needed for custom SVG
+            
+            try {
+                // Trigger availability check & auto-selection
+                // We force autoAdvance=true and autoSelect=true to ensure we find a slot
+                await loadWeekData(true, 0, true);
+                
+                // Move to next step
+                setStep(2);
+            } catch (e) {
+                console.error("Error loading step 2:", e);
+                // alert("Failed to load availability. Please try again.");
+            } finally {
+                // Restore button
+                btn.disabled = false;
+                btn.innerHTML = `<span id="btn-step1-text">${originalText}</span>`;
+            }
+        }
+
+        function handleStep2Continue(btn) {
+            if (!state.selectedSlot) {
+                showToast("Please select a time slot to continue.", "error");
+                return;
+            }
+            setStep(3);
         }
 
         // --- Calendar Logic (Weekly Strip) ---
@@ -2585,7 +2978,7 @@ padding: 0.5rem;
                     const monday = new Date(year, month - 1, diff);
                     
                     state.weekStartDate = monday;
-                    await loadWeekData();
+                    await loadWeekData(false, 0, false); // Manual nav: no auto-select
                 });
             }
             
@@ -2612,20 +3005,22 @@ padding: 0.5rem;
             newDate.setDate(newDate.getDate() + (direction * daysToScroll));
             
             state.weekStartDate = newDate;
-            await loadWeekData();
+            // Only auto-advance if going forward (direction > 0) -> CHANGED: No auto-advance on manual, BUT auto-select first day
+            await loadWeekData(false, 0, true);
         }
         
         
         
-        async function loadWeekData() {
+        async function loadWeekData(searchNext = false, depth = 0, autoSelect = false) {
             const loadingEl = document.getElementById('calendar-loading');
             const trackEl = document.getElementById('calendar-days-track');
             const slotsContainer = document.getElementById('slots-container');
+            const MAX_DEPTH = 12; // Approx 3 months search limit
             
             // Show loading
             if(loadingEl) loadingEl.classList.remove('hidden');
 
-            if(trackEl) trackEl.innerHTML = ''; // Clear the track completely
+            if(trackEl && depth === 0) trackEl.innerHTML = ''; // Clear only on initial call to avoid flicker during recursing? Actually maybe always clear
             
             // Hide slots until a date is selected
             if (slotsContainer) slotsContainer.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2.5rem;">Select a date to view availability</div>';
@@ -2655,9 +3050,73 @@ padding: 0.5rem;
             // Wait for both to complete
             await Promise.all([dataFetch, minDisplayTime]);
             
-            // Hide loading state and show slots
-            if(loadingEl) loadingEl.classList.add('hidden');
-            if(slotsContainer) slotsContainer.classList.remove('hidden');
+            // Check for availability to auto-select
+            const firstDayWithSlots = findFirstDayWithSlots();
+            
+            // ONLY Auto-select if requested (initial load)
+            if (firstDayWithSlots && autoSelect) {
+                // Found slots! Select the day
+                selectDate(firstDayWithSlots);
+                
+                // Hide loading state and show slots
+                if(loadingEl) loadingEl.classList.add('hidden');
+                if(slotsContainer) slotsContainer.classList.remove('hidden');
+                
+            } else {
+                // No slots in this week
+                if (searchNext && depth < MAX_DEPTH) {
+                    // Auto-advance to next week
+                    const nextDate = new Date(state.weekStartDate);
+                    nextDate.setDate(nextDate.getDate() + 7);
+                    state.weekStartDate = nextDate;
+                    
+                    // Recursive call
+                    await loadWeekData(true, depth + 1, true); // Keep autoSelect=true if we are auto-advancing
+                } else {
+                    // Stop searching
+                    if(loadingEl) loadingEl.classList.add('hidden');
+                    if(slotsContainer) {
+                        slotsContainer.classList.remove('hidden');
+                        if (searchNext && depth >= MAX_DEPTH) {
+                             slotsContainer.innerHTML = '<div style="text-align: center; color: #ef4444; padding: 2.5rem;">No availability found for the next 3 months.</div>';
+                        }
+                    }
+                }
+            }
+        }
+
+        function findFirstDayWithSlots() {
+            if (!state.selectedService) return null;
+            
+            const daysToCheck = 7;
+            const todayStr = getLocalDateString(new Date());
+
+            for (let i = 0; i < daysToCheck; i++) {
+                const d = new Date(state.weekStartDate);
+                d.setDate(d.getDate() + i);
+                const dateStr = getLocalDateString(d);
+                
+                // Skip past
+                if (dateStr < todayStr) continue;
+
+                const cached = state.slotsCache[dateStr];
+                // Check if we have valid slots
+                if (cached && 
+                    cached.serviceId === state.selectedService.id && 
+                    ((Array.isArray(cached.slots) && cached.slots.length > 0) || (typeof cached.slots === 'object' && Object.keys(cached.slots).length > 0))
+                   ) {
+                    return d;
+                }
+            }
+            return null;
+        }
+
+        // --- Helper: Get Start of Week (Monday) ---
+        function getStartOfWeek(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+            return new Date(d.setDate(diff));
         }
 
         // --- Helper: Local Date String (YYYY-MM-DD) ---
@@ -2967,6 +3426,21 @@ padding: 0.5rem;
         async function handleBookingSubmit(e) {
             e.preventDefault();
             
+            const form = e.target;
+            if (!form.checkValidity()) {
+                showToast("Please fill in all required fields.", "error");
+                
+                // Focus first invalid field
+                const firstInvalid = form.querySelector(':invalid');
+                if (firstInvalid) {
+                     firstInvalid.focus();
+                     // Optional: shake animation or highlight?
+                     firstInvalid.classList.add('border-red-500');
+                     setTimeout(() => firstInvalid.classList.remove('border-red-500'), 2000);
+                }
+                return;
+            }
+
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
             
@@ -3028,21 +3502,27 @@ padding: 0.5rem;
                 
                 // additional_fields as JSON string
                 // Map new optional fields + DOB
+                // additional_fields as JSON string
+                // Map new optional fields + DOB
                 const additionalFields = {
-                    "Date Of Birth": formattedDOB,
-                    "Street Address": data.address_street || "",
-                    "City": data.address_city || "",
-                    "State": data.address_state || "",
-                    "ZIP Code": data.address_zip || "",
-                    "Insurance Info": data.insurance_info || "",
-                    "Insurance Card": data.insurance_card_url || "",
+                    "Appointment Type": data.appointment_type || "",
                     "What is your preferred pharmacy phone number?": data.pharmacy_phone || "",
                     "Referring Provider": data.referring_provider || "",
                     "Who is primary provider ?": data.primary_provider || "",
                     "Language": data.language || "",
                     "Sex": data.sex || "",
                     "Ethnicity": data.ethnicity || "",
-                    "Race": data.race || ""
+                    "Race": data.race || "",
+                    "Reason For Visit": data.reason_for_visit || "",
+                    "Anything more about you?": data.more_info || "",
+                    "Date Of Birth": formattedDOB,
+                    "Street Address": data.address_street || "",
+                    "City": data.address_city || "",
+                    "State": data.address_state || "",
+                    "ZIP Code": data.address_zip || "",
+                    "Insurance Info": data.insurance_info || "",
+                    "Is this an Advantage Plan?": data.medicare_advantage_plan || "",
+                    "Insurance Card": data.insurance_card_url || ""
                 };
                 formData.append('additional_fields', JSON.stringify(additionalFields));
                 
@@ -3211,8 +3691,79 @@ padding: 0.5rem;
             }
         }
 
+        function initInsuranceLogic() {
+            const insuranceSelect = document.getElementById('insurance_info');
+            const advantageContainer = document.getElementById('medicare-advantage-container');
+            const advantageSelect = document.getElementById('medicare_advantage_plan');
+
+            if (insuranceSelect && advantageContainer && advantageSelect) {
+                const handleInsuranceChange = () => {
+                    if (insuranceSelect.value === 'Medicare (Including Advantage)') {
+                        advantageContainer.classList.remove('hidden');
+                        advantageSelect.required = true;
+                    } else {
+                        advantageContainer.classList.add('hidden');
+                        advantageSelect.required = false;
+                        advantageSelect.value = ""; // Reset value
+                    }
+                };
+
+                // Init listener
+                insuranceSelect.addEventListener('change', handleInsuranceChange);
+                
+                // Trigger once on load in case of preset value
+                handleInsuranceChange();
+            }
+        }
+
+        // --- Toast Notification Helper ---
+        function showToast(message, type = 'info') {
+            console.log("showToast:", message, type);
+            // Remove existing toast
+            const existing = document.querySelector('.toast-notification');
+            if(existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            
+            let icon = '';
+            if(type === 'error') icon = '<i data-lucide="alert-circle" style="width:16px;height:16px;"></i>';
+            else if(type === 'success') icon = '<i data-lucide="check-circle" style="width:16px;height:16px;"></i>';
+            
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            
+            document.body.appendChild(toast);
+            lucide.createIcons();
+            
+            // Trigger animation
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+            
+            // Auto hide
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', initOptionalFields);
+        document.addEventListener('DOMContentLoaded', () => {
+            initOptionalFields();
+            initInsuranceLogic();
+        });
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     initOptionalFields();
+            
+        //     // DEBUG: Show Success Screen
+        //     document.getElementById('view-success').classList.remove('hidden');
+        //     // Hide Sidebar
+        //     document.getElementById('appointment-sidebar').classList.add('hidden');
+        //     document.getElementById('appointment-main-content').classList.remove('with-sidebar');
+        //     // Hide Main Title
+        //     const mainTitle = document.getElementById('booking-main-title');
+        //     if(mainTitle) mainTitle.classList.add('hidden');
+        // });
 
     </script>
 
