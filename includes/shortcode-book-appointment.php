@@ -2152,14 +2152,30 @@ padding: 0.5rem;
                                     <label for="insurance_info">Insurance Info *</label>
                                     <select id="insurance_info" name="insurance_info" required>
                                         <option disabled selected value="">Select Insurance</option>
-                                        <option value="Medicare">Medicare</option>
-                                        <option value="Medicare with Advantage Plan">Medicare with Advantage Plan</option>
-                                        <option value="Worker's Compensation">Worker's Compensation</option>
-                                        <option value="Auto/Motor Vehicle">Auto/Motor Vehicle</option>
-                                        <option value="Blue Cross">Blue Cross</option>
-                                        <option value="Ucare">Ucare</option>
+                                        <option value="Blue Cross and Blue Shield of Minnesota (Blue Plus)">Blue Cross and Blue Shield of Minnesota (Blue Plus)</option>
                                         <option value="HealthPartners">HealthPartners</option>
                                         <option value="Medica">Medica</option>
+                                        <option value="UnitedHealthcare (UHC)">UnitedHealthcare (UHC)</option>
+                                        <option value="Allina Health | Aetna">Allina Health | Aetna</option>
+                                        <option value="Medicare (Including Advantage)">Medicare (Including Advantage)</option>
+                                        <option value="Worker's Compensation">Worker's Compensation</option>
+                                        <option value="Minnesota Medical Assistance (Medicaid)">Minnesota Medical Assistance (Medicaid)</option>
+                                        <option value="Motor Vehicle">Motor Vehicle</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+
+                                <div id="medicare-advantage-container" class="form-group hidden" style="animation: fadeIn 0.3s ease-in-out;">
+                                    <label for="medicare_advantage_plan">Is this an Advantage Plan? *</label>
+                                    <select id="medicare_advantage_plan" name="medicare_advantage_plan">
+                                        <option value="" disabled selected>Select Option</option>
+                                        <option value="No - Medicare only">No - Medicare only</option>
+                                        <option value="Yes - Blue Cross and Blue Shield of Minnesota (Blue Plus)">Yes - Blue Cross and Blue Shield of Minnesota (Blue Plus)</option>
+                                        <option value="Yes - HealthPartners">Yes - HealthPartners</option>
+                                        <option value="Yes - Medica">Yes - Medica</option>
+                                        <option value="Yes - UnitedHealthcare (UHC)">Yes - UnitedHealthcare (UHC)</option>
+                                        <option value="Yes - Allina Health | Aetna">Yes - Allina Health | Aetna</option>
+                                        <option value="Yes - Other">Yes - Other</option>
                                     </select>
                                 </div>
                                 
@@ -2204,7 +2220,7 @@ padding: 0.5rem;
                                         <input id="referring_provider" name="referring_provider" placeholder="Enter provider name" type="text"/>
                                     </div>
                                     <div class="form-group">
-                                        <label for="primary_provider">Who is primary provider ?</label>
+                                        <label for="primary_provider">Who is your primary care provider?</label>
                                         <input id="primary_provider" name="primary_provider" placeholder="Enter primary provider" type="text"/>
                                     </div>
 
@@ -2257,7 +2273,7 @@ padding: 0.5rem;
                             <div class="form-group" style="background-color: #f8fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
                                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                                     <input type="checkbox" id="more_info_toggle" style="width: 1.25rem; height: 1.25rem; accent-color: #10b981; cursor: pointer;">
-                                    <label for="more_info_toggle" style="margin: 0; font-weight: 600; color: #334155; cursor: pointer; flex: 1;">Anything more about you? <span style="font-weight: 400; color: #64748b; font-size: 0.8em;">(Optional)</span></label>
+                                    <label for="more_info_toggle" style="margin: 0; font-weight: 600; color: #334155; cursor: pointer; flex: 1;">Is there any more details about you that you'd like to share with us?</label>
                                 </div>
                                 <div id="more_info_container" class="hidden" style="margin-top: 1rem; transition: all 0.3s ease;">
                                     <label for="more_info" style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 500; color: #475569;">Please share any additional details:</label>
@@ -2294,7 +2310,7 @@ padding: 0.5rem;
                                 <div class="relative" style="position: relative;">
                                     <div class="success-ping-circle"></div>
                                     <div class="success-icon-circle">
-                                        <span class="material-icons-round success-check"></span>
+                                        <span class="material-icons-round success-check">check_circle</span>
                                     </div>
                                 </div>
                             </div>
@@ -2347,7 +2363,7 @@ padding: 0.5rem;
                         </div>
                         
                         <p class="success-footer-link">
-                            Need help? <a href="#">Contact our support team</a>
+                            Need help? <a href="/contact">Contact our support team</a>
                         </p>
                     </div>
                 </div>
@@ -2366,7 +2382,8 @@ padding: 0.5rem;
         const API_BASE = "<?php echo $api_base; ?>";
         const API_NONCE = "<?php echo $api_nonce; ?>";
         
-        let state = {
+        
+        let currentState = {
             step: 1,
             services: [],
             selectedService: null,  // Doctor/Service object
@@ -2375,6 +2392,9 @@ padding: 0.5rem;
             selectedSlot: null,     // "HH:mm"
             customer: {}
         };
+        // Rename to avoid conflict if 'state' is used elsewhere (good practice)
+        let state = currentState;
+
         
         let calendarDate = new Date(); // Current view month
 
@@ -3501,6 +3521,7 @@ padding: 0.5rem;
                     "State": data.address_state || "",
                     "ZIP Code": data.address_zip || "",
                     "Insurance Info": data.insurance_info || "",
+                    "Is this an Advantage Plan?": data.medicare_advantage_plan || "",
                     "Insurance Card": data.insurance_card_url || ""
                 };
                 formData.append('additional_fields', JSON.stringify(additionalFields));
@@ -3670,6 +3691,31 @@ padding: 0.5rem;
             }
         }
 
+        function initInsuranceLogic() {
+            const insuranceSelect = document.getElementById('insurance_info');
+            const advantageContainer = document.getElementById('medicare-advantage-container');
+            const advantageSelect = document.getElementById('medicare_advantage_plan');
+
+            if (insuranceSelect && advantageContainer && advantageSelect) {
+                const handleInsuranceChange = () => {
+                    if (insuranceSelect.value === 'Medicare (Including Advantage)') {
+                        advantageContainer.classList.remove('hidden');
+                        advantageSelect.required = true;
+                    } else {
+                        advantageContainer.classList.add('hidden');
+                        advantageSelect.required = false;
+                        advantageSelect.value = ""; // Reset value
+                    }
+                };
+
+                // Init listener
+                insuranceSelect.addEventListener('change', handleInsuranceChange);
+                
+                // Trigger once on load in case of preset value
+                handleInsuranceChange();
+            }
+        }
+
         // --- Toast Notification Helper ---
         function showToast(message, type = 'info') {
             console.log("showToast:", message, type);
@@ -3702,7 +3748,10 @@ padding: 0.5rem;
         }
 
         // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', initOptionalFields);
+        document.addEventListener('DOMContentLoaded', () => {
+            initOptionalFields();
+            initInsuranceLogic();
+        });
         // document.addEventListener('DOMContentLoaded', () => {
         //     initOptionalFields();
             
