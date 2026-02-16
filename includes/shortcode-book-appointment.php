@@ -2102,6 +2102,11 @@ padding: 0.5rem;
                                     <input id="last_name" name="last_name" placeholder="Doe" required type="text"/>
                                 </div>
                             </div>
+
+                            <div class="form-group">
+                                <label for="preferred_name">Preferred First Name/ What Name Do You Go By? (If not the name on your insurance card)</label>
+                                <input id="preferred_name" name="preferred_name" placeholder="Enter preferred name" type="text"/>
+                            </div>
                             
                             <div class="form-grid-2">
                                 <div class="form-group">
@@ -3507,6 +3512,7 @@ padding: 0.5rem;
                 // Map new optional fields + DOB
                 const additionalFields = {
                     "Appointment Type": data.appointment_type || "",
+                    "Preferred First Name OR What Name Do You Go By?": data.preferred_name || "",
                     "What is your preferred pharmacy phone number?": data.pharmacy_phone || "",
                     "Referring Provider": data.referring_provider || "",
                     "Who is your primary care provider ?": data.primary_provider || "",
