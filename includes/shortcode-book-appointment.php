@@ -2250,9 +2250,9 @@ padding: 0.5rem;
                                             <label for="ethnicity">Ethnicity *</label>
                                             <select id="ethnicity" name="ethnicity" required>
                                                 <option value="">Select</option>
-                                                <option value="Not Hispanic or Latino (White)">Not Hispanic or Latino (White)</option>
-                                                <option value="Not Hispanic or Latino (Two or More Races)">Not Hispanic or Latino (Two or More Races)</option>
-                                                <option value="Not Hispanic or Latino (Asian)">Not Hispanic or Latino (Asian)</option>
+                                                <option value="Hispanic or Latino">Hispanic or Latino</option>
+                                                <option value="Not Hispanic or Latino">Not Hispanic or Latino</option>
+                                                <option value="Declined to Specify">Declined to Specify</option>
                                             </select>
                                         </div>
                                         <div class="form-group">
@@ -2263,6 +2263,7 @@ padding: 0.5rem;
                                                 <option value="Asian">Asian</option>
                                                 <option value="Black or African American">Black or African American</option>
                                                 <option value="American Indian/Alaska Native">American Indian/Alaska Native</option>
+                                                <option value="Other">Other</option>
                                             </select>
                                         </div>
                                     </div>
@@ -2273,7 +2274,7 @@ padding: 0.5rem;
                             <div class="form-group" style="background-color: #f8fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
                                 <div style="display: flex; align-items: center; gap: 0.75rem;">
                                     <input type="checkbox" id="more_info_toggle" style="width: 1.25rem; height: 1.25rem; accent-color: #10b981; cursor: pointer;">
-                                    <label for="more_info_toggle" style="margin: 0; font-weight: 600; color: #334155; cursor: pointer; flex: 1;">Is there any more details about you that you'd like to share with us?</label>
+                                    <label for="more_info_toggle" style="margin: 0; font-weight: 600; color: #334155; cursor: pointer; flex: 1;">Are there any more details about you that you'd like to share with us?</label>
                                 </div>
                                 <div id="more_info_container" class="hidden" style="margin-top: 1rem; transition: all 0.3s ease;">
                                     <label for="more_info" style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 500; color: #475569;">Please share any additional details:</label>
