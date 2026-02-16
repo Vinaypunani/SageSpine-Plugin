@@ -2316,7 +2316,7 @@ padding: 0.5rem;
                                 <div class="relative" style="position: relative;">
                                     <div class="success-ping-circle"></div>
                                     <div class="success-icon-circle">
-                                        <span class="material-icons-round success-check">check_circle</span>
+                                        <i data-lucide="check-circle" class="success-check" style="width: 4rem; height: 4rem; color: #10b981;"></i>
                                     </div>
                                 </div>
                             </div>
@@ -2346,15 +2346,15 @@ padding: 0.5rem;
                                 <!-- Info -->
                                 <div class="success-info-list">
                                     <div class="success-info-item">
-                                        <span class="material-icons-round info-icon">event</span>
+                                        <i data-lucide="calendar" class="info-icon"></i>
                                         <span id="confirm-datetime">20 Feb 2026 | 07:30 AM</span>
                                     </div>
                                     <div class="success-info-item sub">
-                                        <span class="material-icons-round info-icon">person</span>
+                                        <i data-lucide="user" class="info-icon"></i>
                                         <span id="confirm-doctor-detail">Doctor Name</span>
                                     </div>
                                     <div class="success-info-item small">
-                                        <span class="material-icons-round info-icon-lg">public</span>
+                                        <i data-lucide="globe" class="info-icon-lg"></i>
                                         <span id="confirm-timezone">America/Chicago - CST (-06:00)</span>
                                     </div>
                                 </div>
@@ -2364,7 +2364,7 @@ padding: 0.5rem;
                         <div class="flex items-center justify-center" style="justify-content: center;">
                             <button class="btn-book-another" onclick="location.reload()">
                                 Book another appointment
-                                <span class="material-icons-round" style="margin-left: 0.5rem;">arrow_forward</span>
+                                <i data-lucide="arrow-right" style="margin-left: 0.5rem; width: 1.25rem; height: 1.25rem;"></i>
                             </button>
                         </div>
                         
@@ -3578,6 +3578,7 @@ padding: 0.5rem;
                     document.getElementById('confirm-timezone').textContent = "America/Chicago - CST (-06:00)";
                     
                     setStep(4); // Show success screen
+                    setTimeout(() => lucide.createIcons(), 100);
                 } else {
                      const errorMessage = result.response?.returnvalue?.message || result.message || "Unknown error";
                      alert("Booking Failed: " + errorMessage);
