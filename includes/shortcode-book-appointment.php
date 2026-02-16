@@ -2130,7 +2130,7 @@ padding: 0.5rem;
                                 </div>
                                 <div class="form-group">
                                     <label for="phone">Phone Number <span class="text-red-500">*</span></label>
-                                    <input id="phone" name="phone" placeholder="(555) 000-0000" required type="tel"/>
+                                    <input id="phone" name="phone" placeholder="(555) 000-0000" required type="number"/>
                                 </div>
                             </div>
                             
@@ -2233,7 +2233,7 @@ padding: 0.5rem;
                                 <div class="form-grid">
                                     <div class="form-group">
                                         <label for="pharmacy_phone">What is your preferred pharmacy phone number? <span class="text-red-500">*</span></label>
-                                        <input id="pharmacy_phone" name="pharmacy_phone" placeholder="(555) 000-0000" type="text" required/>
+                                        <input id="pharmacy_phone" name="pharmacy_phone" placeholder="(555) 000-0000" type="number" required/>
                                     </div>
                                     <div class="form-group">
                                         <label for="referring_provider">Referring Provider</label>
