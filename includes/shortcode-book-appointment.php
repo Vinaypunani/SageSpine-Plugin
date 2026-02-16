@@ -114,6 +114,21 @@ function render_sage_book_appointment() {
             background-color: #10b981;
         }
 
+        /* Validation Error Styles */
+        #sage-book-app .border-red-500 {
+            border-color: #ef4444 !important;
+            border-width: 1px !important;
+        }
+        #sage-book-app .text-red-500 {
+            color: #ef4444 !important;
+        }
+        #sage-book-app .validation-error-msg {
+            color: #ef4444 !important;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+        
         /* Loading Overlay */
         #sage-book-app #loading-overlay {
             position: fixed;
@@ -2078,12 +2093,12 @@ padding: 0.5rem;
                             Please enter your details
                         </h2>
                         
-                        <form id="booking-form" novalidate style="display: flex;
+                            <form id="booking-form" novalidate style="display: flex;
     flex-direction: column;
     gap: 1.25rem;">
                             <!-- Appointment Type -->
                             <div class="form-group">
-                                <label for="appointment_type">Appointment Type *</label>
+                                <label for="appointment_type">Appointment Type <span class="text-red-500">*</span></label>
                                 <select id="appointment_type" name="appointment_type" required>
                                     <option value="" disabled>Select Appointment Type</option>
                                     <option value="New Appointment" selected>New Appointment</option>
@@ -2094,11 +2109,11 @@ padding: 0.5rem;
                             <!-- Personal Info -->
                             <div class="form-grid-2">
                                 <div class="form-group">
-                                    <label for="first_name">First Name *</label>
+                                    <label for="first_name">First Name <span class="text-red-500">*</span></label>
                                     <input id="first_name" name="first_name" placeholder="John" required type="text"/>
                                 </div>
                                 <div class="form-group">
-                                    <label for="last_name">Last Name *</label>
+                                    <label for="last_name">Last Name <span class="text-red-500">*</span></label>
                                     <input id="last_name" name="last_name" placeholder="Doe" required type="text"/>
                                 </div>
                             </div>
@@ -2110,42 +2125,42 @@ padding: 0.5rem;
                             
                             <div class="form-grid-2">
                                 <div class="form-group">
-                                    <label for="email">Email Address *</label>
+                                    <label for="email">Email Address <span class="text-red-500">*</span></label>
                                     <input id="email" name="email" placeholder="john.doe@example.com" required type="email"/>
                                 </div>
                                 <div class="form-group">
-                                    <label for="phone">Phone Number *</label>
+                                    <label for="phone">Phone Number <span class="text-red-500">*</span></label>
                                     <input id="phone" name="phone" placeholder="(555) 000-0000" required type="tel"/>
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="dob">Date of Birth *</label>
+                                <label for="dob">Date of Birth <span class="text-red-500">*</span></label>
                                 <input id="dob" name="dob" required type="date"/>
                             </div>
                             
                             <div class="form-group">
-                                <label for="reason_for_visit">Reason For Visit *</label>
+                                <label for="reason_for_visit">Reason For Visit <span class="text-red-500">*</span></label>
                                 <textarea id="reason_for_visit" name="reason_for_visit" rows="3" required placeholder="Briefly describe the reason for your visit" style="width: 100%; padding: 0.625rem 1rem; border-radius: 0.5rem; border: 1px solid #cbd5e1; background-color: white; color: #0f172a; outline: none; transition: all 0.2s; font-family: inherit;"></textarea>
                             </div>
 
                             <!-- Address -->
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label for="address_street">Street Address *</label>
+                                    <label for="address_street">Street Address <span class="text-red-500">*</span></label>
                                     <input id="address_street" name="address_street" placeholder="123 Main St" required type="text"/>
                                 </div>
                                 <div class="form-grid-3">
                                     <div class="form-group">
-                                        <label for="address_city">City *</label>
+                                        <label for="address_city">City <span class="text-red-500">*</span></label>
                                         <input id="address_city" name="address_city" placeholder="City" required type="text"/>
                                     </div>
                                     <div class="form-group">
-                                        <label for="address_state">State *</label>
+                                        <label for="address_state">State <span class="text-red-500">*</span></label>
                                         <input id="address_state" name="address_state" placeholder="State" required type="text"/>
                                     </div>
                                     <div class="form-group">
-                                        <label for="address_zip">ZIP Code *</label>
+                                        <label for="address_zip">ZIP Code <span class="text-red-500">*</span></label>
                                         <input id="address_zip" name="address_zip" placeholder="ZIP Code" required type="text"/>
                                     </div>
                                 </div>
@@ -2154,7 +2169,7 @@ padding: 0.5rem;
                             <!-- Insurance -->
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label for="insurance_info">Insurance Info *</label>
+                                    <label for="insurance_info">Insurance Info <span class="text-red-500">*</span></label>
                                     <select id="insurance_info" name="insurance_info" required>
                                         <option disabled selected value="">Select Insurance</option>
                                         <option value="Blue Cross and Blue Shield of Minnesota (Blue Plus)">Blue Cross and Blue Shield of Minnesota (Blue Plus)</option>
@@ -2171,7 +2186,7 @@ padding: 0.5rem;
                                 </div>
 
                                 <div id="medicare-advantage-container" class="form-group hidden" style="animation: fadeIn 0.3s ease-in-out;">
-                                    <label for="medicare_advantage_plan">Is this an Advantage Plan? *</label>
+                                    <label for="medicare_advantage_plan">Is this an Advantage Plan? <span class="text-red-500">*</span></label>
                                     <select id="medicare_advantage_plan" name="medicare_advantage_plan">
                                         <option value="" disabled selected>Select Option</option>
                                         <option value="No - Medicare only">No - Medicare only</option>
@@ -2217,7 +2232,7 @@ padding: 0.5rem;
 
                                 <div class="form-grid">
                                     <div class="form-group">
-                                        <label for="pharmacy_phone">What is your preferred pharmacy phone number? *</label>
+                                        <label for="pharmacy_phone">What is your preferred pharmacy phone number? <span class="text-red-500">*</span></label>
                                         <input id="pharmacy_phone" name="pharmacy_phone" placeholder="(555) 000-0000" type="text" required/>
                                     </div>
                                     <div class="form-group">
@@ -2230,7 +2245,7 @@ padding: 0.5rem;
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="language">Language *</label>
+                                        <label for="language">Language <span class="text-red-500">*</span></label>
                                         <select id="language" name="language" required>
                                             <option value="">Select Language</option>
                                             <option value="English">English</option>
@@ -2243,7 +2258,7 @@ padding: 0.5rem;
 
                                     <div class="form-grid-3">
                                         <div class="form-group">
-                                            <label for="sex">Sex *</label>
+                                            <label for="sex">Sex <span class="text-red-500">*</span></label>
                                             <select id="sex" name="sex" required>
                                                 <option value="">Select</option>
                                                 <option value="Female">Female</option>
@@ -2252,7 +2267,7 @@ padding: 0.5rem;
                                             </select>
                                         </div>
                                         <div class="form-group">
-                                            <label for="ethnicity">Ethnicity *</label>
+                                            <label for="ethnicity">Ethnicity <span class="text-red-500">*</span></label>
                                             <select id="ethnicity" name="ethnicity" required>
                                                 <option value="">Select</option>
                                                 <option value="Hispanic or Latino">Hispanic or Latino</option>
@@ -2261,7 +2276,7 @@ padding: 0.5rem;
                                             </select>
                                         </div>
                                         <div class="form-group">
-                                            <label for="race">Race *</label>
+                                            <label for="race">Race <span class="text-red-500">*</span></label>
                                             <select id="race" name="race" required>
                                                 <option value="">Select</option>
                                                 <option value="White">White</option>
@@ -3429,26 +3444,261 @@ padding: 0.5rem;
         }
 
         // --- Step 3: Booking ---
+        // Defined outside to be accessible by helpers
+        const requiredFields = [
+            { key: 'first_name', label: 'First Name' },
+            { key: 'last_name', label: 'Last Name' },
+            { key: 'email', label: 'Email Address' },
+            { key: 'phone', label: 'Phone Number' },
+            { key: 'dob', label: 'Date of Birth' },
+            { key: 'reason_for_visit', label: 'Reason for Visit' },
+            { key: 'address_street', label: 'Street Address' },
+            { key: 'address_city', label: 'City' },
+            { key: 'address_state', label: 'State' },
+            { key: 'address_zip', label: 'ZIP Code' },
+            { key: 'insurance_info', label: 'Insurance Info' },
+            { key: 'pharmacy_phone', label: 'Pharmacy Phone' },
+            { key: 'language', label: 'Language' },
+            { key: 'sex', label: 'Sex' },
+            { key: 'ethnicity', label: 'Ethnicity' },
+            { key: 'race', label: 'Race' }
+        ];
+
+        function validateBookingForm(data) {
+            let errors = {};
+            // requiredFields is now valid here
+
+            // 1. Required Fields Check
+            for (const field of requiredFields) {
+                if (!data[field.key] || data[field.key].trim() === '') {
+                    errors[field.key] = { type: 'required', message: null }; 
+                }
+            }
+
+            // 2. Email Validation
+            if (data.email && data.email.trim() !== '') {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(data.email)) {
+                     errors['email'] = { type: 'format', message: "Please enter a valid email address." };
+                }
+            }
+
+            // 3. Phone Validation (10-15 digits)
+            if (data.phone && data.phone.trim() !== '') {
+                const phoneRegex = /^\+?[0-9]{10,15}$/;
+                const cleanPhone = data.phone.replace(/[^0-9+]/g, '');
+                if (!phoneRegex.test(cleanPhone)) {
+                     errors['phone'] = { type: 'format', message: "Please enter a valid phone number (10-15 digits)." };
+                }
+            }
+            
+            // Pharmacy phone validation
+             if (data.pharmacy_phone && data.pharmacy_phone.trim() !== '') {
+                const phoneRegex = /^\+?[0-9]{10,15}$/;
+                const cleanPharmPhone = data.pharmacy_phone.replace(/[^0-9+]/g, '');
+                if (!phoneRegex.test(cleanPharmPhone)) {
+                    errors['pharmacy_phone'] = { type: 'format', message: "Please enter a valid pharmacy phone number (10-15 digits)." };
+                }
+            }
+
+            // 4. Medicare Advantage Check
+            if (data.insurance_info === 'Medicare (Including Advantage)') {
+                if (!data.medicare_advantage_plan) {
+                     errors['medicare_advantage_plan'] = { type: 'required', message: null };
+                }
+            }
+            
+            // 5. ZIP Code
+            if (data.address_zip && data.address_zip.trim() !== '') {
+                const zipRegex = /^\d{5}(-\d{4})?$/;
+                if (!zipRegex.test(data.address_zip)) {
+                     errors['address_zip'] = { type: 'format', message: "Please enter a valid ZIP code." };
+                }
+            }
+
+            return Object.keys(errors).length > 0 ? errors : null;
+        }
+
+        // Validate a single input field (Used for Blur event)
+        function validateInput(input) {
+            const name = input.name;
+            const value = input.value;
+            let error = null;
+
+            // Check Required
+            const isRequired = requiredFields.find(f => f.key === name);
+            if (isRequired) {
+                if (!value || value.trim() === '') {
+                    error = { type: 'required', message: null };
+                }
+            }
+            
+            // Check Format (Only if not empty, otherwise required check handles it)
+            if (!error && value && value.trim() !== '') {
+                if (name === 'email') {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(value)) error = { type: 'format', message: "Please enter a valid email address." };
+                } else if (name === 'phone' || name === 'pharmacy_phone') {
+                    const phoneRegex = /^\+?[0-9]{10,15}$/;
+                    const cleanPhone = value.replace(/[^0-9+]/g, '');
+                    if (!phoneRegex.test(cleanPhone)) error = { type: 'format', message: `Please enter a valid ${name === 'pharmacy_phone' ? 'pharmacy ' : ''}phone number (10-15 digits).` };
+                } else if (name === 'address_zip') {
+                    const zipRegex = /^\d{5}(-\d{4})?$/;
+                    if (!zipRegex.test(value)) error = { type: 'format', message: "Please enter a valid ZIP code." };
+                }
+            }
+            
+            // Medicare conditional check
+            if (!error && name === 'medicare_advantage_plan') {
+                 // We need to check insurance_info value. 
+                 // Finding the insurance_info input might be tricky if not passed.
+                 // Assuming document context.
+                 const insuranceSelect = document.querySelector('[name="insurance_info"]');
+                 if (insuranceSelect && insuranceSelect.value === 'Medicare (Including Advantage)') {
+                     if (!value) error = { type: 'required', message: null };
+                 }
+            }
+
+            if (error) {
+                // Reuse markInvalid but we need 'form' reference. 
+                // We can find form from input.closest('form')
+                const form = input.closest('form');
+                if (form) markInvalid(form, name, error);
+            } else {
+                clearFieldValidation(input);
+            }
+        }
+        
+        // Helper to clear validation styles
+        function clearValidationHook(form) {
+            // Remove border-red-500 from all inputs
+            const invalidInputs = form.querySelectorAll('.border-red-500');
+            invalidInputs.forEach(el => el.classList.remove('border-red-500'));
+            
+            // Remove inserted error messages
+            const errorMsgs = form.querySelectorAll('.validation-error-msg');
+            errorMsgs.forEach(el => el.remove());
+        }
+        
+        // Helper to clear validation errors for a specific field (Real-time)
+        function clearFieldValidation(input) {
+            input.classList.remove('border-red-500');
+            // Remove next sibling if it's an error msg (assuming it was appended after)
+            const parent = input.parentNode;
+            const errorMsg = parent.querySelector('.validation-error-msg');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        }
+        
+        // Helper to mark field invalid
+        function markInvalid(form, fieldName, errorData) {
+            const input = form.querySelector(`[name="${fieldName}"]`);
+            if (input) {
+                // Add red border
+                input.classList.add('border-red-500');
+                
+                // If format error (message exists), append it
+                if (errorData.message) {
+                    // Remove existing msg if any to avoid duplicates
+                    const parent = input.parentNode;
+                    const existingMsg = parent.querySelector('.validation-error-msg');
+                    if (existingMsg) existingMsg.remove();
+
+                    const msgEl = document.createElement('p');
+                    msgEl.className = "text-red-500 text-xs mt-1 validation-error-msg";
+                    msgEl.textContent = errorData.message;
+                    
+                    // Append to parent (form-group)
+                    parent.appendChild(msgEl);
+                }
+                
+                // Attach listeners
+                // 1. Real-time clearing (already implemented logic below)
+                if (!input.dataset.validationListenerAttached) {
+                     const eventType = (input.tagName === 'SELECT' || input.type === 'date' || input.type === 'checkbox') ? 'change' : 'input';
+                     
+                     // Clear on input
+                     input.addEventListener(eventType, function() {
+                         clearFieldValidation(this);
+                     });
+                     
+                     // Validate on Blur (The new request)
+                     input.addEventListener('blur', function() {
+                         validateInput(this);
+                     });
+                     
+                     input.dataset.validationListenerAttached = "true";
+                }
+            }
+        }
+        
+        // Initialize Blur Listeners for all fields on load?
+        // Since fields might not be marked invalid yet, they won't have the listener attached by markInvalid.
+        // We need to attach them proactively.
+        document.addEventListener('DOMContentLoaded', () => {
+             // Wait for form to be visible? Or just attach to what exists.
+             // If Step 3 is dynamically shown, we might need to attach then.
+             // But the HTML is in the DOM, just hidden? 
+             // Let's attach to all inputs in #sage-book-app
+             setTimeout(() => {
+                 const container = document.getElementById('sage-book-app');
+                 if(container) {
+                     const inputs = container.querySelectorAll('input, select, textarea');
+                     inputs.forEach(input => {
+                         if (!input.dataset.validationListenerAttached) {
+                             const eventType = (input.tagName === 'SELECT' || input.type === 'date' || input.type === 'checkbox') ? 'change' : 'input';
+                             
+                             // Clear check
+                             input.addEventListener(eventType, function() {
+                                 // Only clear if invalid? Or just always run clear?
+                                 // clearFieldValidation is cheap.
+                                 if (this.classList.contains('border-red-500')) clearFieldValidation(this);
+                             });
+                             
+                             // Validate on Blur
+                             input.addEventListener('blur', function() {
+                                 validateInput(this);
+                             });
+                             
+                             input.dataset.validationListenerAttached = "true";
+                         }
+                     });
+                 }
+             }, 1000); // Delay to ensure DOM is ready/rendered
+        });
+
+        // --- Step 3: Booking ---
         async function handleBookingSubmit(e) {
             e.preventDefault();
             
             const form = e.target;
-            if (!form.checkValidity()) {
-                showToast("Please fill in all required fields.", "error");
-                
-                // Focus first invalid field
-                const firstInvalid = form.querySelector(':invalid');
-                if (firstInvalid) {
-                     firstInvalid.focus();
-                     // Optional: shake animation or highlight?
-                     firstInvalid.classList.add('border-red-500');
-                     setTimeout(() => firstInvalid.classList.remove('border-red-500'), 2000);
-                }
-                return;
-            }
-
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
+
+            // Clear previous validation
+            clearValidationHook(form);
+
+            // Run Custom Validation
+            const validationErrors = validateBookingForm(data);
+            if (validationErrors) {
+                // validationErrors is object: { field: { type, message } }
+                // Iterate and mark invalid
+                let firstInvalid = null;
+                
+                for (const [field, error] of Object.entries(validationErrors)) {
+                    markInvalid(form, field, error);
+                    if (!firstInvalid) firstInvalid = form.querySelector(`[name="${field}"]`);
+                }
+                
+                if (firstInvalid) {
+                     firstInvalid.focus();
+                     // Optional: smooth scroll into view
+                     firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                return;
+            }
             
             state.customer = data;
             
