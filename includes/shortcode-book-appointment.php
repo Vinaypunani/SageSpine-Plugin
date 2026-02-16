@@ -342,7 +342,7 @@ function render_sage_book_appointment() {
             display: flex;
             flex-direction: row;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             gap: 1rem;
             width: 100%;
         }
@@ -514,7 +514,7 @@ function render_sage_book_appointment() {
             display: flex;
             flex-direction: row;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             gap: 1rem;
             width: 100%;
         }
@@ -2172,14 +2172,15 @@ padding: 0.5rem;
                                     <label for="insurance_info">Insurance Info <span class="text-red-500">*</span></label>
                                     <select id="insurance_info" name="insurance_info" required>
                                         <option disabled selected value="">Select Insurance</option>
+                                        <option value="Medicare (Including Advantage)">Medicare (Including Advantage)</option>
                                         <option value="Blue Cross and Blue Shield of Minnesota (Blue Plus)">Blue Cross and Blue Shield of Minnesota (Blue Plus)</option>
                                         <option value="HealthPartners">HealthPartners</option>
                                         <option value="Medica">Medica</option>
                                         <option value="UnitedHealthcare (UHC)">UnitedHealthcare (UHC)</option>
                                         <option value="Allina Health | Aetna">Allina Health | Aetna</option>
-                                        <option value="Medicare (Including Advantage)">Medicare (Including Advantage)</option>
                                         <option value="Worker's Compensation">Worker's Compensation</option>
                                         <option value="Minnesota Medical Assistance (Medicaid)">Minnesota Medical Assistance (Medicaid)</option>
+                                        <option value="Humana">Humana</option>
                                         <option value="Motor Vehicle">Motor Vehicle</option>
                                         <option value="Other">Other</option>
                                     </select>
@@ -2866,13 +2867,11 @@ padding: 0.5rem;
                     
                     <div class="service-info">
                          <h3>${name}</h3>
-                         <p class="service-description">${svc.description ? svc.description.split('Log in')[0] : 'Interventional Pain Medicine'}</p>
+                         <p class="service-description">Interventional Pain Medicine <br>
+38500 Tanger Drive #110, North Branch, MN 55056</p>
                     </div>
                     
                     <div class="service-meta">
-                         <div class="service-duration">
-                             ${svc.duration || '15 mins'}
-                         </div>
                          ${radioHtml}
                     </div>
                 `;
