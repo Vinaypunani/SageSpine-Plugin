@@ -3749,7 +3749,8 @@ padding: 0.5rem;
                 
                 // customer_details as JSON string
                 const customerDetails = {
-                    name: `${data.first_name} ${data.last_name}`,
+                    first_name: data.first_name,
+                    last_name: data.last_name,
                     email: data.email,
                     phone_number: data.phone
                 };

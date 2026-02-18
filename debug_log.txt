@@ -35,3 +35,12 @@ Criteria: ((Last_Name:equals:mit)and(First_Name:equals:test )and(Date_of_Birth:e
 [2026-01-29 12:04:30] Token Generated for pymit143@gmail.com (ID: 6950740000003124025): 3fb697dc450ed68193ec4de96b3cc7fd
 Link: http://localhost/sagespine/?screen=lookup&sage_token=3fb697dc450ed68193ec4de96b3cc7fd
 [2026-01-29 12:04:32] wp_mail failed (Token flow). Assuming local environment.
+[2026-02-18 09:50:42] Search params: First= Rick , Last=Zecher, DOB=1951-04-10
+Criteria: ((Last_Name:equals:Zecher)and(First_Name:equals: Rick )and(Date_of_Birth:equals:1951-04-10))
+[2026-02-18 10:22:53] Search params: First=Test , Last=Vin, DOB=2022-02-22
+Criteria: ((Last_Name:equals:Vin)and(First_Name:equals:Test )and(Date_of_Birth:equals:2022-02-22))
+[2026-02-18 10:22:55] Response: {"data":[{"Owner":{"name":"Andrew Clary","id":"6950740000000572001","email":"aclary@sagespine.com"},"Email":"vin@gmail.com","Primary_Provider":"Test Primary Provider","$currency_symbol":"$","Visitor_Score":null,"$field_states":null,"Other_Phone":null,"Mailing_State":null,"Other_State":null,"Gender":"Male","Other_Country":null,"Last_Activity_Time":"2026-02-18T04:21:51-06:00","Department":null,"$state":"save","Unsubscribed_Mode":null,"$process_flow":false,"Assistant":null,"Anything_more_about_you":null,"Mailing_Country":null,"$locked_for_me":false,"id":"6950740000004280001","Data_Source":"API","$approved":true,"Reporting_To":null,"Appointment_Type":"New Appointment","Preferred_First_Name_What_Name_Do_You_Go_By":"sdtyuiopkh","$approval":{"delegate":false,"takeover":false,"approve":false,"reject":false,"resubmit":false},"First_Visited_URL":null,"Days_Visited":null,"ZIP_Code":"87686","Other_City":null,"Created_Time":"2026-02-18T04:21:48-06:00","$editable":true,"City":"test City","Home_Phone
+
+[2026-02-18 10:22:56] Token Generated for vin@gmail.com (ID: 6950740000004280001): 063cd51230546112e8b46a0f0ef060ce
+Link: http://localhost/sagespine/?screen=lookup&sage_token=063cd51230546112e8b46a0f0ef060ce
+[2026-02-18 10:22:58] wp_mail failed (Token flow). Assuming local environment.
