@@ -299,6 +299,12 @@
             input.addEventListener('input', checkValue);
             input.addEventListener('change', checkValue);
             input.addEventListener('blur', checkValue);
+
+            // Dynamic placeholder for DOB floating label fix
+            if (input.id === 'sageDob') {
+                input.addEventListener('focus', () => input.setAttribute('placeholder', 'MM/DD/YYYY'));
+                input.addEventListener('blur', () => input.setAttribute('placeholder', ' '));
+            }
         });
     }
 

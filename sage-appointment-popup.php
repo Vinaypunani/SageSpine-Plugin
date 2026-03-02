@@ -286,7 +286,7 @@ class Sage_Appointment_Popup {
         </div>
         <div class="sage-form-group" style="position: relative; margin-bottom: 40px !important;">
                 <i data-lucide="calendar" class="sage-input-icon icon-calendar"></i>
-            <input type="text" id="sageDob" class="sage-form-input" required placeholder="MM/DD/YYYY" maxlength="10">
+            <input type="text" id="sageDob" class="sage-form-input" required placeholder=" " maxlength="10" autocomplete="off">
             <label for="sageDob" class="sage-form-label">Date of Birth</label>
         </div>
         <button type="submit" class="sage-btn-submit" style="width: 100% !important; background: #2E8B57 !important; color: white !important; border: none !important; border-radius: 50px !important; font-size: 16px !important; font-weight: 600 !important;  cursor: pointer !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;">Lookup</button>
