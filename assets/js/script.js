@@ -161,7 +161,16 @@
         if (appState.searchParams) {
             if (document.getElementById('sageFirstName')) document.getElementById('sageFirstName').value = appState.searchParams.firstName || '';
             if (document.getElementById('sageLastName')) document.getElementById('sageLastName').value = appState.searchParams.lastName || '';
-            if (document.getElementById('sageDob')) document.getElementById('sageDob').value = appState.searchParams.dob || ''; // ISO Format
+            if (document.getElementById('sageDob')) {
+                let displayDob = appState.searchParams.dob || '';
+                if (displayDob && displayDob.includes('-') && displayDob.length === 10) {
+                    const dParts = displayDob.split('-');
+                    if (dParts.length === 3 && dParts[0].length === 4) {
+                        displayDob = `${dParts[1]}/${dParts[2]}/${dParts[0]}`;
+                    }
+                }
+                document.getElementById('sageDob').value = displayDob;
+            }
         }
 
         // Attach listeners and check initial state
@@ -248,13 +257,44 @@
             }
 
             // Events
-            const checkValue = () => {
+            let previousValue = '';
+            const checkValue = (e) => {
+                if (input.id === 'sageDob' && e && (e.type === 'input' || e.type === 'keyup')) {
+                    let val = input.value;
+
+                    // If the user just pressed backspace/delete, let them delete freely
+                    if (e.inputType === 'deleteContentBackward' || (e.key && (e.key === 'Backspace' || e.key === 'Delete'))) {
+                        previousValue = val;
+                        return;
+                    }
+
+                    // For normal typing, format it
+                    let clean = val.replace(/\D/g, '');
+                    if (clean.length > 8) clean = clean.substring(0, 8);
+
+                    if (clean.length >= 4) {
+                        val = clean.substring(0, 2) + '/' + clean.substring(2, 4) + '/' + clean.substring(4);
+                    } else if (clean.length >= 2) {
+                        val = clean.substring(0, 2) + '/' + clean.substring(2);
+                    } else {
+                        val = clean;
+                    }
+
+                    input.value = val;
+                    previousValue = val;
+                }
+
                 if (input.value && input.value.trim() !== '') {
                     input.classList.add('has-value');
                 } else {
                     input.classList.remove('has-value');
                 }
             };
+
+            // Remove existing listeners if any to prevent duplicates
+            input.removeEventListener('input', checkValue);
+            input.removeEventListener('change', checkValue);
+            input.removeEventListener('blur', checkValue);
 
             input.addEventListener('input', checkValue);
             input.addEventListener('change', checkValue);
@@ -277,7 +317,21 @@
 
         const firstName = document.querySelector('#sageFirstName').value;
         const lastName = document.querySelector('#sageLastName').value;
-        const dobISO = document.querySelector('#sageDob').value;
+        const dobRaw = document.querySelector('#sageDob').value;
+
+        // Validation for MM/DD/YYYY
+        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dobRaw)) {
+            alert('Please enter a valid Date of Birth in MM/DD/YYYY format.');
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            return;
+        }
+
+        let dobISO = dobRaw;
+        const parts = dobRaw.split('/');
+        if (parts.length === 3) {
+            dobISO = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+        }
 
         // Store
         lastSearchParams = { firstName, lastName, dob: dobISO };

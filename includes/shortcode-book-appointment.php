@@ -2136,7 +2136,7 @@ padding: 0.5rem;
                             
                             <div class="form-group">
                                 <label for="dob">Date of Birth <span class="text-red-500">*</span></label>
-                                <input id="dob" name="dob" required type="date"/>
+                                <input id="dob" name="dob" required type="text" placeholder="MM/DD/YYYY" maxlength="10"/>
                             </div>
                             
                             <div class="form-group">
@@ -2453,6 +2453,37 @@ padding: 0.5rem;
                         moreInfoContainer.classList.add('hidden');
                     }
                 });
+            }
+
+            // DOB Auto-formatting Logic
+            const dobInput = document.getElementById('dob');
+            if (dobInput) {
+                const checkValueDob = (e) => {
+                    if (e && (e.type === 'input' || e.type === 'keyup')) {
+                        let val = dobInput.value;
+                        
+                        // If the user just pressed backspace/delete, let them delete freely
+                        if (e.inputType === 'deleteContentBackward' || (e.key && (e.key === 'Backspace' || e.key === 'Delete'))) {
+                            return;
+                        }
+
+                        // For normal typing, format it
+                        let clean = val.replace(/\D/g, '');
+                        if (clean.length > 8) clean = clean.substring(0, 8);
+                        
+                        if (clean.length >= 4) {
+                            val = clean.substring(0, 2) + '/' + clean.substring(2, 4) + '/' + clean.substring(4);
+                        } else if (clean.length >= 2) {
+                            val = clean.substring(0, 2) + '/' + clean.substring(2);
+                        } else {
+                            val = clean;
+                        }
+                        
+                        dobInput.value = val;
+                    }
+                };
+                dobInput.addEventListener('input', checkValueDob);
+                dobInput.addEventListener('keyup', checkValueDob);
             }
         });
 
@@ -3728,18 +3759,45 @@ padding: 0.5rem;
                 }
                 
                 // Format DOB to match API expectations (DD-MMM-YYYY format)
-                let formattedDOB = data.dob;
-                if (data.dob) {
-                    const dobDate = new Date(data.dob);
-                    const day = String(dobDate.getDate()).padStart(2, '0');
-                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                    const month = monthNames[dobDate.getMonth()];
-                    const year = dobDate.getFullYear();
-                    formattedDOB = `${day}-${month}-${year}`;
+                let dobFormatted = '';
+                if (state.customer.dob) {
+                    // Current format: MM/DD/YYYY from text input
+                    const rawDob = state.customer.dob;
+                    if (!/^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/.test(rawDob)) {
+                        alert('Please enter a valid Date of Birth in MM/DD/YYYY format.');
+                        showLoading(false);
+                        return;
+                    }
+                    
+                    const dParts = rawDob.split('/');
+                    if (dParts.length === 3) {
+                        try {
+                            const y = parseInt(dParts[2], 10);
+                            const m = parseInt(dParts[0], 10) - 1; // 0-indexed
+                            const d = parseInt(dParts[1], 10);
+                            const dateObj = new Date(y, m, d);
+                            
+                            // Check for valid date (e.g., 31st Feb)
+                            if (dateObj.getFullYear() === y && dateObj.getMonth() === m && dateObj.getDate() === d) {
+                                dobFormatted = dateObj.toLocaleDateString('en-GB', {
+                                    day: '2-digit', month: 'short', year: 'numeric'
+                                }).replace(/ /g, '-');
+                            } else {
+                                alert('Please enter a valid date in MM/DD/YYYY format.');
+                                showLoading(false);
+                                return;
+                            }
+                        } catch(e) { 
+                            console.error("DOB Parse err", e); 
+                            alert('An error occurred parsing the Date of Birth. Please check the format.');
+                            showLoading(false);
+                            return;
+                        }
+                    }
                 }
                 
                 console.log("Booking Data:", data);
-                console.log("Formatted DOB:", formattedDOB);
+                console.log("Formatted DOB:", dobFormatted); // Changed from formattedDOB to dobFormatted
                 
                 // Create FormData instead of JSON payload
                 const formData = new FormData();
@@ -3772,7 +3830,7 @@ padding: 0.5rem;
                     "Race": data.race || "",
                     "Reason For Visit": data.reason_for_visit || "",
                     "Is there any more details about you that you'd like to share with us ?": data.more_info || "",
-                    "Date Of Birth": formattedDOB,
+                    "Date Of Birth": dobFormatted,
                     "Street Address": data.address_street || "",
                     "City": data.address_city || "",
                     "State": data.address_state || "",

@@ -44,3 +44,24 @@ Criteria: ((Last_Name:equals:Vin)and(First_Name:equals:Test )and(Date_of_Birth:e
 [2026-02-18 10:22:56] Token Generated for vin@gmail.com (ID: 6950740000004280001): 063cd51230546112e8b46a0f0ef060ce
 Link: http://localhost/sagespine/?screen=lookup&sage_token=063cd51230546112e8b46a0f0ef060ce
 [2026-02-18 10:22:58] wp_mail failed (Token flow). Assuming local environment.
+[2026-03-02 11:16:57] Search params: First=vinay, Last=punani, DOB=10312004
+Criteria: ((Last_Name:equals:punani)and(First_Name:equals:vinay)and(Date_of_Birth:equals:10312004))
+[2026-03-02 11:16:58] Response: {"code":"INVALID_QUERY","details":{},"message":"Invalid query formed","status":"error"}
+
+
+[2026-03-02 11:22:48] Search params: First=Jesse , Last=Brula, DOB=1982-02-12
+Criteria: ((Last_Name:equals:Brula)and(First_Name:equals:Jesse )and(Date_of_Birth:equals:1982-02-12))
+[2026-03-02 11:23:45] Search params: First=Lori, Last=Shoultz, DOB=1961-03-06
+Criteria: ((Last_Name:equals:Shoultz)and(First_Name:equals:Lori)and(Date_of_Birth:equals:1961-03-06))
+[2026-03-02 11:23:46] Response: {"data":[{"Owner":{"name":"Andrew Clary","id":"6950740000000572001","email":"aclary@sagespine.com"},"Email":"lrshoultz@aol.com","Primary_Provider":"Gina Groshek, MD","$currency_symbol":"$","Visitor_Score":null,"$field_states":null,"Other_Phone":null,"Mailing_State":null,"Other_State":null,"Gender":"Female","Other_Country":null,"Last_Activity_Time":"2026-02-28T10:41:48-06:00","Department":null,"$state":"save","Unsubscribed_Mode":null,"$process_flow":false,"Assistant":null,"Anything_more_about_you":null,"Mailing_Country":null,"$locked_for_me":false,"id":"6950740000005037001","Data_Source":"API","$approved":true,"Reporting_To":null,"Appointment_Type":"New Appointment","Preferred_First_Name_What_Name_Do_You_Go_By":"Lori Shoultz","$approval":{"delegate":false,"takeover":false,"approve":false,"reject":false,"resubmit":false},"First_Visited_URL":null,"Days_Visited":null,"ZIP_Code":"55056","Other_City":null,"Created_Time":"2026-02-28T10:39:08-06:00","$editable":true,"City":"NORTH BRANCH","Home
+
+[2026-03-02 11:23:48] Token Generated for lrshoultz@aol.com (ID: 6950740000005037001): e7b8e5dc635df462811a9f3b28aa1a11
+Link: http://localhost/sagespine/?screen=lookup&sage_token=e7b8e5dc635df462811a9f3b28aa1a11
+[2026-03-02 11:23:50] wp_mail failed (Token flow). Assuming local environment.
+[2026-03-02 11:36:50] Search params: First=test, Last=test, DOB=2004-10-31
+Criteria: ((Last_Name:equals:test)and(First_Name:equals:test)and(Date_of_Birth:equals:2004-10-31))
+[2026-03-02 11:36:52] Response: {"data":[{"Owner":{"name":"Andrew Clary","id":"6950740000000572001","email":"aclary@sagespine.com"},"Email":"test@gmail.com","Primary_Provider":null,"$currency_symbol":"$","Visitor_Score":null,"$field_states":null,"Other_Phone":null,"Mailing_State":null,"Other_State":null,"Gender":"Male","Other_Country":null,"Last_Activity_Time":"2026-03-02T05:35:47-06:00","Department":null,"$state":"save","Unsubscribed_Mode":null,"$process_flow":false,"Assistant":null,"Anything_more_about_you":"test","Mailing_Country":null,"$locked_for_me":false,"id":"6950740000003449001","Data_Source":"API","$approved":true,"Reporting_To":null,"Appointment_Type":"New Appointment","Preferred_First_Name_What_Name_Do_You_Go_By":"test","$approval":{"delegate":false,"takeover":false,"approve":false,"reject":false,"resubmit":false},"First_Visited_URL":null,"Days_Visited":null,"ZIP_Code":"12345","Other_City":null,"Created_Time":"2026-02-04T05:21:50-06:00","$editable":true,"City":"test","Home_Phone":null,"Insurance_Info":"Me
+
+[2026-03-02 11:36:53] Token Generated for test@gmail.com (ID: 6950740000003449001): 9aa32adbb2d09deb6819aa4a7bbed994
+Link: http://localhost/sagespine/?screen=lookup&sage_token=9aa32adbb2d09deb6819aa4a7bbed994
+[2026-03-02 11:36:55] wp_mail failed (Token flow). Assuming local environment.
