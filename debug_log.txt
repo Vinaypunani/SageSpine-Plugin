@@ -79,3 +79,10 @@ Criteria: ((Last_Name:equals:test)and(First_Name:equals:test)and(Date_of_Birth:e
 [2026-03-03 06:42:04] Token Generated for test@gmail.com (ID: 6950740000003449001): aa4b38e3863d806fce401dd0a492d33b
 Link: http://localhost/sagespine/?screen=lookup&sage_token=aa4b38e3863d806fce401dd0a492d33b
 [2026-03-03 06:42:06] wp_mail failed (Token flow). Assuming local environment.
+[2026-03-03 08:33:50] Search params: First=test, Last=demo 17, DOB=2007-07-17
+Criteria: ((Last_Name:equals:demo 17)and(First_Name:equals:test)and(Date_of_Birth:equals:2007-07-17))
+[2026-03-03 08:33:51] Response: {"data":[{"Owner":{"name":"Andrew Clary","id":"6950740000000572001","email":"aclary@sagespine.com"},"Email":"hagon75638@ostahie.com","Primary_Provider":"dr priyank","$currency_symbol":"$","Visitor_Score":null,"$field_states":null,"Other_Phone":null,"Mailing_State":null,"Other_State":null,"Gender":"Male","Other_Country":null,"Last_Activity_Time":"2026-03-03T02:32:58-06:00","Department":null,"$state":"save","Unsubscribed_Mode":null,"$process_flow":false,"Assistant":null,"Anything_more_about_you":"Test demo","Mailing_Country":null,"$locked_for_me":false,"id":"6950740000005172001","Data_Source":"API","$approved":true,"Reporting_To":null,"Appointment_Type":"New Appointment","Preferred_First_Name_What_Name_Do_You_Go_By":"Insurance card 2","$approval":{"delegate":false,"takeover":false,"approve":false,"reject":false,"resubmit":false},"First_Visited_URL":null,"Days_Visited":null,"ZIP_Code":"95877","Other_City":null,"Created_Time":"2026-03-03T02:30:09-06:00","$editable":true,"City":"ahmedabad",
+
+[2026-03-03 08:33:53] Token Generated for hagon75638@ostahie.com (ID: 6950740000005172001): f28fd2078a0e8b983e74a9b05d90d288
+Link: http://localhost/sagespine/?screen=lookup&sage_token=f28fd2078a0e8b983e74a9b05d90d288
+[2026-03-03 08:33:55] wp_mail failed (Token flow). Assuming local environment.
