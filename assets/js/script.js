@@ -272,6 +272,46 @@
                     let clean = val.replace(/\D/g, '');
                     if (clean.length > 8) clean = clean.substring(0, 8);
 
+                    // Month Validation
+                    if (clean.length >= 2) {
+                        let mm = parseInt(clean.substring(0, 2), 10);
+                        if (mm > 12) {
+                            clean = '12' + clean.substring(2);
+                        } else if (mm === 0) {
+                            clean = '01' + clean.substring(2);
+                        }
+                    }
+
+                    // Year Validation
+                    if (clean.length === 8) {
+                        let yyyy = parseInt(clean.substring(4, 8), 10);
+                        let currentYear = new Date().getFullYear();
+                        if (yyyy > currentYear) {
+                            clean = clean.substring(0, 4) + currentYear.toString();
+                        }
+                    }
+
+                    // Day Validation
+                    if (clean.length >= 4) {
+                        let mm = parseInt(clean.substring(0, 2), 10);
+                        let dd = parseInt(clean.substring(2, 4), 10);
+
+                        let daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+                        let maxDays = (mm >= 1 && mm <= 12) ? daysInMonth[mm - 1] : 31;
+
+                        if (clean.length === 8 && mm === 2) {
+                            let yyyy = parseInt(clean.substring(4, 8), 10);
+                            let isLeap = (yyyy % 4 === 0 && yyyy % 100 !== 0) || (yyyy % 400 === 0);
+                            maxDays = isLeap ? 29 : 28;
+                        }
+
+                        if (dd > maxDays) {
+                            clean = clean.substring(0, 2) + maxDays.toString() + clean.substring(4);
+                        } else if (dd === 0) {
+                            clean = clean.substring(0, 2) + '01' + clean.substring(4);
+                        }
+                    }
+
                     if (clean.length >= 4) {
                         val = clean.substring(0, 2) + '/' + clean.substring(2, 4) + '/' + clean.substring(4);
                     } else if (clean.length >= 2) {

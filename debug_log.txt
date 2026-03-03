@@ -72,3 +72,10 @@ Criteria: ((Last_Name:equals:test)and(First_Name:equals:test)and(Date_of_Birth:e
 [2026-03-02 11:43:40] Token Generated for test@gmail.com (ID: 6950740000003449001): d8d6559f6bc8da4a3ff6c7ffeb6bac0b
 Link: http://localhost/sagespine/?screen=lookup&sage_token=d8d6559f6bc8da4a3ff6c7ffeb6bac0b
 [2026-03-02 11:43:42] wp_mail failed (Token flow). Assuming local environment.
+[2026-03-03 06:42:01] Search params: First=test, Last=test, DOB=2004-10-31
+Criteria: ((Last_Name:equals:test)and(First_Name:equals:test)and(Date_of_Birth:equals:2004-10-31))
+[2026-03-03 06:42:02] Response: {"data":[{"Owner":{"name":"Andrew Clary","id":"6950740000000572001","email":"aclary@sagespine.com"},"Email":"test@gmail.com","Primary_Provider":null,"$currency_symbol":"$","Visitor_Score":null,"$field_states":null,"Other_Phone":null,"Mailing_State":null,"Other_State":null,"Gender":"Male","Other_Country":null,"Last_Activity_Time":"2026-03-02T05:35:47-06:00","Department":null,"$state":"save","Unsubscribed_Mode":null,"$process_flow":false,"Assistant":null,"Anything_more_about_you":"test","Mailing_Country":null,"$locked_for_me":false,"id":"6950740000003449001","Data_Source":"API","$approved":true,"Reporting_To":null,"Appointment_Type":"New Appointment","Preferred_First_Name_What_Name_Do_You_Go_By":"test","$approval":{"delegate":false,"takeover":false,"approve":false,"reject":false,"resubmit":false},"First_Visited_URL":null,"Days_Visited":null,"ZIP_Code":"12345","Other_City":null,"Created_Time":"2026-02-04T05:21:50-06:00","$editable":true,"City":"test","Home_Phone":null,"Insurance_Info":"Me
+
+[2026-03-03 06:42:04] Token Generated for test@gmail.com (ID: 6950740000003449001): aa4b38e3863d806fce401dd0a492d33b
+Link: http://localhost/sagespine/?screen=lookup&sage_token=aa4b38e3863d806fce401dd0a492d33b
+[2026-03-03 06:42:06] wp_mail failed (Token flow). Assuming local environment.
