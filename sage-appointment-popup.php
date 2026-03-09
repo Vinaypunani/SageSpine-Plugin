@@ -441,12 +441,13 @@ class Sage_Appointment_Popup {
         $firstName = $params['firstName'] ?? '';
         $lastName = $params['lastName'] ?? '';
         $dob = $params['dob'] ?? '';
+        $email = $params['email'] ?? '';
 
         if (!$firstName || !$lastName || !$dob) {
             return new WP_Error('missing_params', 'Missing required fields', ['status' => 400]);
         }
 
-        return $this->search_contact($firstName, $lastName, $dob);
+        return $this->search_contact($firstName, $lastName, $dob, $email);
     }
     
     public function handle_get_appointment($request) {
@@ -1101,7 +1102,7 @@ class Sage_Appointment_Popup {
         return [];
     }
 
-    private function search_contact($firstName, $lastName, $dob) {
+    private function search_contact($firstName, $lastName, $dob, $email = '') {
         $accessToken = $this->get_access_token();
         if (!$accessToken) {
             return new WP_Error('auth_error', 'Failed to generate access token', ['status' => 500]);
@@ -1111,7 +1112,11 @@ class Sage_Appointment_Popup {
         // Important: Zoho requires correct encoding of the parenthesis and criteria.
         $criteria = "((Last_Name:equals:" . $lastName . ")and(First_Name:equals:" . $firstName . ")and(Date_of_Birth:equals:" . $dob . "))";
         
-        file_put_contents(plugin_dir_path(__FILE__) . 'debug_log.txt', date('[Y-m-d H:i:s] ') . "Search params: First=$firstName, Last=$lastName, DOB=$dob\nCriteria: $criteria\n", FILE_APPEND);
+        if (!empty($email)) {
+            $criteria = "((Last_Name:equals:" . $lastName . ")and(First_Name:equals:" . $firstName . ")and(Date_of_Birth:equals:" . $dob . ")and(Email:equals:" . $email . "))";
+        }
+        
+        file_put_contents(plugin_dir_path(__FILE__) . 'debug_log.txt', date('[Y-m-d H:i:s] ') . "Search params: First=$firstName, Last=$lastName, DOB=$dob, Email=$email\nCriteria: $criteria\n", FILE_APPEND);
         
         // Use rawurlencode but wait, Zoho sometimes accepts specific format. 
         // Best approach for Zoho CRM API v2 search criteria:

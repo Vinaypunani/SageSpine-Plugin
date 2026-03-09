@@ -2107,34 +2107,44 @@ padding: 0.5rem;
                             </div>
 
                             <!-- Personal Info -->
-                            <div class="form-grid-2">
-                                <div class="form-group">
+                            <div class="form-grid-2" id="row_name">
+                                <div class="form-group" id="group_first_name">
                                     <label for="first_name">First Name <span class="text-red-500">*</span></label>
                                     <input id="first_name" name="first_name" placeholder="John" required type="text"/>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" id="group_last_name">
                                     <label for="last_name">Last Name <span class="text-red-500">*</span></label>
                                     <input id="last_name" name="last_name" placeholder="Doe" required type="text"/>
                                 </div>
                             </div>
+                            
+                            <!-- Container for Email and DOB when Follow-Up is selected -->
+                            <div class="form-grid-2 hidden" id="row_email_dob" style="margin-top: -0.25rem;"></div>
 
-                            <div class="form-group">
+                            <!-- New Auto Fill Section (Hidden by default) -->
+                            <div id="auto_fill_section" class="hidden" style="margin-bottom: 2rem;">
+                                <button type="button" id="btn_auto_fill" style="width: 100%; justify-content: center; background-color: #2E8B57; color: #ffffff; border: none; border-radius: 0.5rem; font-weight: 600; padding: 0.75rem; display: flex; align-items: center; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#246d44'" onmouseout="this.style.backgroundColor='#2E8B57'">
+                                    <i data-lucide="search" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i> Auto Fill Details
+                                </button>
+                            </div>
+
+                            <div class="form-group" id="group_preferred_name">
                                 <label for="preferred_name">Preferred First Name/ What Name Do You Go By? (If not the name on your insurance card)</label>
                                 <input id="preferred_name" name="preferred_name" placeholder="Enter preferred name" type="text"/>
                             </div>
                             
-                            <div class="form-grid-2">
-                                <div class="form-group">
+                            <div class="form-grid-2" id="row_email_phone">
+                                <div class="form-group" id="group_email">
                                     <label for="email">Email Address <span class="text-red-500">*</span></label>
                                     <input id="email" name="email" placeholder="john.doe@example.com" required type="email"/>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" id="group_phone">
                                     <label for="phone">Phone Number <span class="text-red-500">*</span></label>
                                     <input id="phone" name="phone" placeholder="(555) 000-0000" required type="number"/>
                                 </div>
                             </div>
                             
-                            <div class="form-group">
+                            <div class="form-group" id="group_dob">
                                 <label for="dob">Date of Birth <span class="text-red-500">*</span></label>
                                 <input id="dob" name="dob" required type="text" placeholder="MM/DD/YYYY" maxlength="10"/>
                             </div>
@@ -2439,6 +2449,198 @@ padding: 0.5rem;
             setupCalendarListeners();
             setupMonthPicker(); // New Custom Picker
             
+            // --- Auto Fill Logic ---
+            const apptTypeSelect = document.getElementById('appointment_type');
+            const autoFillSection = document.getElementById('auto_fill_section');
+            const rowEmailDob = document.getElementById('row_email_dob');
+            const groupEmail = document.getElementById('group_email');
+            const groupDob = document.getElementById('group_dob');
+            const rowEmailPhone = document.getElementById('row_email_phone');
+            const groupPhone = document.getElementById('group_phone');
+            
+            const dobOriginalParent = groupDob ? groupDob.parentNode : null;
+            const dobOriginalNextSibling = groupDob ? groupDob.nextSibling : null;
+
+            if (apptTypeSelect) {
+                apptTypeSelect.addEventListener('change', (e) => {
+                    if (e.target.value === 'Follow-up Appointment') {
+                        // Move Email and DOB to row_email_dob
+                        if (rowEmailDob && groupEmail && groupDob) {
+                            rowEmailDob.appendChild(groupEmail);
+                            rowEmailDob.appendChild(groupDob);
+                            rowEmailDob.classList.remove('hidden');
+                        }
+                        // Show Auto Fill Section
+                        if (autoFillSection) autoFillSection.classList.remove('hidden');
+                        
+                        // Fix phone row since email is gone
+                        if (rowEmailPhone) {
+                            rowEmailPhone.classList.remove('form-grid-2');
+                            rowEmailPhone.classList.add('form-group');
+                        }
+                    } else {
+                        // Revert layout
+                        if (rowEmailPhone && groupEmail && groupPhone) {
+                            rowEmailPhone.insertBefore(groupEmail, groupPhone);
+                            rowEmailPhone.classList.add('form-grid-2');
+                            rowEmailPhone.classList.remove('form-group');
+                        }
+                        if (dobOriginalParent && groupDob) {
+                            dobOriginalParent.insertBefore(groupDob, dobOriginalNextSibling);
+                        }
+                        if (rowEmailDob) rowEmailDob.classList.add('hidden');
+                        if (autoFillSection) autoFillSection.classList.add('hidden');
+                    }
+                });
+            }
+
+            const showToast = (message, isError = false) => {
+                const toast = document.createElement('div');
+                toast.textContent = message;
+                toast.style.position = 'fixed';
+                toast.style.bottom = '20px';
+                toast.style.right = '20px';
+                toast.style.backgroundColor = isError ? '#ef4444' : '#10b981';
+                toast.style.color = 'white';
+                toast.style.padding = '12px 24px';
+                toast.style.borderRadius = '8px';
+                toast.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                toast.style.zIndex = '9999';
+                toast.style.fontFamily = 'inherit';
+                toast.style.transition = 'opacity 0.3s ease';
+                document.body.appendChild(toast);
+                setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+            };
+
+            const btnAutoFill = document.getElementById('btn_auto_fill');
+            if (btnAutoFill) {
+                btnAutoFill.addEventListener('click', async () => {
+                    const fname = document.getElementById('first_name')?.value || '';
+                    const lname = document.getElementById('last_name')?.value || '';
+                    const email = document.getElementById('email')?.value || '';
+                    const dob = document.getElementById('dob')?.value || '';
+                    
+                    if (!fname || !lname || !email || !dob) {
+                        showToast("Please enter First Name, Last Name, Email, and DOB.", true);
+                        return;
+                    }
+                    
+                    const originalText = btnAutoFill.innerHTML;
+                    btnAutoFill.disabled = true;
+                    btnAutoFill.innerHTML = `<svg class="animate-spin" style="width: 1rem; height: 1rem; color: #ffffff; display: inline-block; margin-right: 0.5rem;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle style="opacity: 0.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path style="opacity: 0.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Searching...`;
+
+                    try {
+                        let dobISO = dob;
+                        const parts = dob.split('/');
+                        if (parts.length === 3) {
+                            dobISO = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+                        }
+
+                        const payload = {
+                            firstName: fname,
+                            lastName: lname,
+                            email: email,
+                            dob: dobISO
+                        };
+
+                        // Call the API
+                        const res = await axios.post(`${API_BASE}/search`, payload, {
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-WP-Nonce': API_NONCE
+                            }
+                        });
+                        const result = res.data;
+                        
+                        console.log("Auto Fill Contact Search Result:", result);
+
+                        if (result && result.data && Array.isArray(result.data) && result.data.length > 0) {
+                            const contact = result.data[0];
+                            console.log("Found Contact:", contact);
+                            
+                            const populate = (id, val) => {
+                                const el = document.getElementById(id);
+                                // Ensure we don't overwrite user-entered data if they already typed and the field has value?
+                                // Usually auto-fill overrides.
+                                if (el && val) el.value = val;
+                            };
+                            
+                            populate('phone', contact.Mobile || contact.Phone);
+                            populate('address_street', contact.Street_Address || contact.Mailing_Street);
+                            populate('address_city', contact.City || contact.Mailing_City);
+                            populate('address_state', contact.State || contact.Mailing_State);
+                            populate('address_zip', contact.ZIP_Code || contact.Mailing_Zip);
+                            populate('preferred_name', contact.Preferred_First_Name_What_Name_Do_You_Go_By);
+                            populate('pharmacy_phone', contact.Pharmacy_phone);
+                            populate('referring_provider', contact.Referring_Provider);
+                            populate('primary_provider', contact.Primary_Provider);
+                            populate('more_info', contact.Anything_more_about_you);
+                            populate('reason_for_visit', contact.Reason_For_Visit);
+                            
+                            // Checkbox Logic
+                            if (contact.Anything_more_about_you && contact.Anything_more_about_you.trim().length > 0) {
+                                const moreInfoToggle = document.getElementById('more_info_toggle');
+                                const moreInfoContainer = document.getElementById('more_info_container');
+                                if (moreInfoToggle) moreInfoToggle.checked = true;
+                                if (moreInfoContainer) moreInfoContainer.classList.remove('hidden');
+                            }
+                            
+                            // Insurance Card Logic
+                            let imgUrl = typeof contact.Insurance_Card === 'string' ? contact.Insurance_Card : '';
+                            if (!imgUrl && Array.isArray(contact.Insurance_Card) && contact.Insurance_Card.length > 0) {
+                                imgUrl = contact.Insurance_Card[0].url || '';
+                            }
+                            if (!imgUrl && contact.Record_Image) {
+                                imgUrl = typeof contact.Record_Image === 'string' ? contact.Record_Image : '';
+                            }
+                            if (imgUrl && imgUrl.startsWith('http')) {
+                                populate('insurance_card_url', imgUrl);
+                                const fileNameDisplay = document.getElementById('file-name-display');
+                                if (fileNameDisplay) {
+                                    fileNameDisplay.innerHTML = `<div style="margin-top: 10px; text-align: center;"><p class="text-sm text-emerald-600 mb-2 font-medium">Existing Insurance Card:</p><a href="${imgUrl}" target="_blank"><img src="${imgUrl}" alt="Insurance Card Preview" style="max-height: 120px; border-radius: 8px; border: 1px solid #e2e8f0; display: inline-block; object-fit: contain;" /></a><br><span style="font-size: 0.75rem; color: #64748b; display: block; margin-top: 5px;">Upload a new image above to replace</span></div>`;
+                                    fileNameDisplay.classList.remove('hidden');
+                                }
+                            }
+                            
+                            const setSelect = (id, val) => {
+                                const el = document.getElementById(id);
+                                if (el && val) {
+                                    for(let i=0; i<el.options.length; i++) {
+                                        if(el.options[i].value.trim().toLowerCase() === val.trim().toLowerCase()) {
+                                            el.selectedIndex = i;
+                                            // trigger change event to clear validations
+                                            el.dispatchEvent(new Event('change'));
+                                            break;
+                                        }
+                                    }
+                                }
+                            };
+                            setSelect('sex', contact.Gender);
+                            setSelect('language', contact.Language);
+                            setSelect('ethnicity', contact.Ethnicity);
+                            setSelect('race', contact.Race);
+                            setSelect('insurance_info', contact.Insurance_Info);
+                            setSelect('medicare_advantage_plan', contact.Is_this_an_Advantage_Plan);
+                            
+                            // Clear any existing validation errors on the entire form now that it's auto-filled
+                            const bookingForm = document.getElementById('booking-form');
+                            if (bookingForm && typeof clearValidationHook === 'function') {
+                                clearValidationHook(bookingForm);
+                            }
+                            
+                            showToast("Details successfully auto-filled!");
+                        } else {
+                            showToast("Patient not found, select New Appointment and continue", true);
+                        }
+                    } catch (e) {
+                        console.error('Auto Fill Search Error:', e);
+                        showToast("Failed to fetch contact. Please check details or try again.", true);
+                    } finally {
+                        btnAutoFill.disabled = false;
+                        btnAutoFill.innerHTML = originalText;
+                    }
+                });
+            }            
             // Validation / Form Submit
             document.getElementById('booking-form').addEventListener('submit', handleBookingSubmit);
 
