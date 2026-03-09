@@ -1998,7 +1998,7 @@ padding: 0.5rem;
 
                     <div class="step-nav" style="justify-content: end;">
                         <button id="btn-step1-continue" type="button" onclick="handleStep1Continue(this)" class="btn-continue">
-                            <span id="btn-step1-text">Continue to Step 2</span>
+                            <span id="btn-step1-text">Select Date & Time</span>
                         </button>
                     </div>
                 </div>
@@ -2122,7 +2122,7 @@ padding: 0.5rem;
                             <div class="form-grid-2 hidden" id="row_email_dob" style="margin-top: -0.25rem;"></div>
 
                             <!-- New Auto Fill Section (Hidden by default) -->
-                            <div id="auto_fill_section" class="hidden" style="margin-bottom: 2rem;">
+                            <div id="auto_fill_section" class="hidden">
                                 <button type="button" id="btn_auto_fill" style="width: 100%; justify-content: center; background-color: #2E8B57; color: #ffffff; border: none; border-radius: 0.5rem; font-weight: 600; padding: 0.75rem; display: flex; align-items: center; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#246d44'" onmouseout="this.style.backgroundColor='#2E8B57'">
                                     <i data-lucide="search" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"></i> Auto Fill Details
                                 </button>
@@ -3219,7 +3219,7 @@ padding: 0.5rem;
             
             // UI Loading State
             const textSpan = document.getElementById('btn-step1-text');
-            const originalText = textSpan ? textSpan.innerHTML : 'Continue to Step 2';
+            const originalText = textSpan ? textSpan.innerHTML : 'Select Date & Time';
             
             btn.disabled = true;
             // Custom SVG Spinner
