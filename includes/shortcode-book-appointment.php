@@ -2317,7 +2317,7 @@ padding: 0.5rem;
                             <div class="form-group" style="margin-top: 1.5rem; margin-bottom: 0.5rem; display: flex; align-items: flex-start; gap: 0.75rem;">
                                 <input type="checkbox" id="sms_consent" name="sms_consent" style="width: 1.25rem; height: 1.25rem; accent-color: #10b981; cursor: pointer; margin-top: 0.125rem; flex-shrink: 0;">
                                 <label for="sms_consent" style="margin: 0; font-size: 0.75rem; color: #475569; line-height: 1.4; cursor: pointer;">
-                                    I agree to receive SMS appointment reminders and office updates from Sage Spine at the phone number provided. Message frequency varies. Msg & data rates may apply. Reply STOP to opt-out, HELP for help. View our <a href="https://sagespine.com/privacy-policy/" target="_blank" style="color: #059669; text-decoration: underline;">Privacy Policy</a> and <a href="https://sagespine.com/terms-conditions/" target="_blank" style="color: #059669; text-decoration: underline;">Terms</a>
+                                    I agree to receive SMS appointment reminders and office updates from Sage Spine at the phone number provided. Message frequency varies. Msg & data rates may apply. View our <a href="https://sagespine.com/privacy-policy/" target="_blank" style="color: #059669; text-decoration: underline;">Privacy Policy</a> and <a href="https://sagespine.com/terms-conditions/" target="_blank" style="color: #059669; text-decoration: underline;">Terms</a>
                                 </label>
                             </div>
 
