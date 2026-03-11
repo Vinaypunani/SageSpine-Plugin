@@ -2882,29 +2882,27 @@ padding: 0.5rem;
         }
 
         async function changeMonth(date) {
-            // Update state to start of that week or month? 
-            // The existing logic relies on `state.weekStartDate`. 
-            // Let's set `weekStartDate` to the 1st of that month, or today if it's current month.
-            
             const today = new Date();
-            let newStart = new Date(date.getFullYear(), date.getMonth(), 1);
-            
-            // If selecting current month, don't go back in time, start from today
-            if (newStart.getMonth() === today.getMonth() && newStart.getFullYear() === today.getFullYear()) {
+            const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+
+            let newStart;
+
+            // If selecting current month, start from today (don't go back in time)
+            if (firstOfMonth.getMonth() === today.getMonth() && firstOfMonth.getFullYear() === today.getFullYear()) {
                 newStart = new Date(today);
+            } else {
+                // Start from the Monday of the week that contains the 1st of the selected month
+                newStart = getStartOfWeek(firstOfMonth);
             }
-            
-            state.weekStartDate = newStart;
-            
-            // Updated to use loadWeekData for consistent loading state
+
             state.weekStartDate = newStart;
             await loadWeekData(false, 0, false); // No auto-select on manual month change
-            
-            // Update Label
-             const monthLabel = document.getElementById('current-month-label');
-             if(monthLabel) {
-                 monthLabel.innerText = newStart.toLocaleString('default', { month: 'long', year: 'numeric' });
-             }
+
+            // Update Label to show the selected month name (not newStart's month which may be prev month's week)
+            const monthLabel = document.getElementById('current-month-label');
+            if (monthLabel) {
+                monthLabel.innerText = firstOfMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
+            }
         }
         // ---------------------------------
 
@@ -3315,71 +3313,90 @@ padding: 0.5rem;
             lucide.createIcons();
         }
 
+        // --- Request generation counter to prevent stale async responses ---
+        let _calendarRequestGen = 0;
+
         async function changeWeek(direction) {
             const isMobile = window.innerWidth < 768;
             const daysToScroll = isMobile ? 5 : 7;
-            
+
             const newDate = new Date(state.weekStartDate);
             newDate.setDate(newDate.getDate() + (direction * daysToScroll));
-            
             state.weekStartDate = newDate;
-            // Only auto-advance if going forward (direction > 0) -> CHANGED: No auto-advance on manual, BUT auto-select first day
-            await loadWeekData(false, 0, true);
+
+            // Disable both nav buttons for the duration of this load
+            const prevBtn = document.getElementById('prev-week-btn');
+            const nextBtn = document.getElementById('next-week-btn');
+            if (prevBtn) prevBtn.disabled = true;
+            if (nextBtn) nextBtn.disabled = true;
+
+            try {
+                await loadWeekData(false, 0, true);
+            } finally {
+                if (prevBtn) prevBtn.disabled = false;
+                if (nextBtn) nextBtn.disabled = false;
+            }
         }
         
         
         
         async function loadWeekData(searchNext = false, depth = 0, autoSelect = false) {
+            // Increment generation — any previously-started call that checks this
+            // after an await will see it has been superseded and bail out.
+            const myGen = ++_calendarRequestGen;
+
             const loadingEl = document.getElementById('calendar-loading');
             const trackEl = document.getElementById('calendar-days-track');
             const slotsContainer = document.getElementById('slots-container');
             const MAX_DEPTH = 12; // Approx 3 months search limit
-            
-            // Show loading
-            if(loadingEl) loadingEl.classList.remove('hidden');
 
-            if(trackEl && depth === 0) trackEl.innerHTML = ''; // Clear only on initial call to avoid flicker during recursing? Actually maybe always clear
-            
+            // Show loading
+            if (loadingEl) loadingEl.classList.remove('hidden');
+
+            if (trackEl && depth === 0) trackEl.innerHTML = '';
+
             // Hide slots until a date is selected
             if (slotsContainer) slotsContainer.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 2.5rem;">Select a date to view availability</div>';
-            
-            // Update month selector to reflect current week's month
+
+            // Update month label
             const monthSelector = document.getElementById('month-selector');
             const monthLabel = document.getElementById('current-month-label');
-            
+
             if (state.weekStartDate) {
                 const year = state.weekStartDate.getFullYear();
                 const month = String(state.weekStartDate.getMonth() + 1).padStart(2, '0');
                 const monthName = state.weekStartDate.toLocaleString('default', { month: 'long' });
-                
-                if(monthSelector) monthSelector.value = `${year}-${month}`;
-                if(monthLabel) monthLabel.textContent = `${monthName}, ${year}`;
+                if (monthSelector) monthSelector.value = `${year}-${month}`;
+                if (monthLabel) monthLabel.textContent = `${monthName}, ${year}`;
             }
-            
-            // Start both the data fetch and minimum display timer
-            const minDisplayTime = new Promise(resolve => setTimeout(resolve, 500)); 
-            
-            // Render calendar structure first (without data)
+
+            // Render calendar structure first (without slot data)
             renderCalendarDays();
-            
-            // Fetch availability data
+
+            // Fetch availability + enforce minimum 500 ms display time
+            const minDisplayTime = new Promise(resolve => setTimeout(resolve, 500));
             const dataFetch = fetchWeekAvailability();
-            
-            // Wait for both to complete
             await Promise.all([dataFetch, minDisplayTime]);
-            
+
+            // --- Stale-response guard ---
+            // A newer call was started while we were awaiting — discard our results.
+            if (myGen !== _calendarRequestGen) {
+                return;
+            }
+
+            // Re-render calendar days now that slot data is available
+            renderCalendarDays();
+
+            // Hide loading overlay
+            if (loadingEl) loadingEl.classList.add('hidden');
+
             // Check for availability to auto-select
             const firstDayWithSlots = findFirstDayWithSlots();
-            
+
             // ONLY Auto-select if requested (initial load)
             if (firstDayWithSlots && autoSelect) {
-                // Found slots! Select the day
                 selectDate(firstDayWithSlots);
-                
-                // Hide loading state and show slots
-                if(loadingEl) loadingEl.classList.add('hidden');
-                if(slotsContainer) slotsContainer.classList.remove('hidden');
-                
+                if (slotsContainer) slotsContainer.classList.remove('hidden');
             } else {
                 // No slots in this week
                 if (searchNext && depth < MAX_DEPTH) {
@@ -3387,16 +3404,13 @@ padding: 0.5rem;
                     const nextDate = new Date(state.weekStartDate);
                     nextDate.setDate(nextDate.getDate() + 7);
                     state.weekStartDate = nextDate;
-                    
-                    // Recursive call
-                    await loadWeekData(true, depth + 1, true); // Keep autoSelect=true if we are auto-advancing
+                    await loadWeekData(true, depth + 1, true);
                 } else {
                     // Stop searching
-                    if(loadingEl) loadingEl.classList.add('hidden');
-                    if(slotsContainer) {
+                    if (slotsContainer) {
                         slotsContainer.classList.remove('hidden');
                         if (searchNext && depth >= MAX_DEPTH) {
-                             slotsContainer.innerHTML = '<div style="text-align: center; color: #ef4444; padding: 2.5rem;">No availability found for the next 3 months.</div>';
+                            slotsContainer.innerHTML = '<div style="text-align: center; color: #ef4444; padding: 2.5rem;">No availability found for the next 3 months.</div>';
                         }
                     }
                 }
