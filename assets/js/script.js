@@ -723,7 +723,7 @@
                     <div class="sage-avatar">${initials}</div>
                     <div class="sage-contact-info">
                         <h3>${fullName}</h3>
-                        <div class="sage-contact-dob">Dob ${dob}</div>
+                        <div class="sage-contact-dob">DOB ${dob}</div>
                         <div class="sage-contact-email">${email}</div>
                     </div>
                 </div>

@@ -2313,6 +2313,23 @@ padding: 0.5rem;
                                 </div>
                             </div>
 
+                            <!-- Conditions of Registration -->
+                            <div class="form-group" style="margin-top: 1.5rem; background-color: #f8fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+                                <label style="display: block; font-weight: 600; color: #334155; margin-bottom: 1rem;">Conditions of Registration <span class="text-red-500">*</span></label>
+                                
+                                <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer; margin: 0;">
+                                    <input type="checkbox" name="condition_all" required style="width: 1.25rem; height: 1.25rem; accent-color: #10b981; flex-shrink: 0; margin-top: 0.125rem;">
+                                    <div style="font-size: 0.875rem; color: #475569; line-height: 1.4;">
+                                        By checking this box, I agree to the following:
+                                        <ul style="margin: 0.5rem 0 0 1.25rem; padding: 0; list-style-type: disc;">
+                                            <li style="margin-bottom: 0.25rem;">I understand that I am ultimately responsible for all self-pay balances, co-payments, deductibles, and non-covered services.</li>
+                                            <li style="margin-bottom: 0.25rem;">I authorize release of medical information for insurance claims and payment processing.</li>
+                                            <li>I agree to receive billing statements electronically or via mail and provide updated insurance information.</li>
+                                        </ul>
+                                    </div>
+                                </label>
+                            </div>
+
                             <!-- SMS Consent -->
                             <div class="form-group" style="margin-top: 1.5rem; margin-bottom: 0.5rem; display: flex; align-items: flex-start; gap: 0.75rem;">
                                 <input type="checkbox" id="sms_consent" name="sms_consent" style="width: 1.25rem; height: 1.25rem; accent-color: #10b981; cursor: pointer; margin-top: 0.125rem; flex-shrink: 0;">
@@ -3741,7 +3758,8 @@ padding: 0.5rem;
             { key: 'language', label: 'Language' },
             { key: 'sex', label: 'Sex' },
             { key: 'ethnicity', label: 'Ethnicity' },
-            { key: 'race', label: 'Race' }
+            { key: 'race', label: 'Race' },
+            { key: 'condition_all', label: 'Conditions of Registration' }
         ];
 
         function validateBookingForm(data) {
@@ -3750,7 +3768,8 @@ padding: 0.5rem;
 
             // 1. Required Fields Check
             for (const field of requiredFields) {
-                if (!data[field.key] || data[field.key].trim() === '') {
+                const val = data[field.key];
+                if (!val || (typeof val === 'string' && val.trim() === '')) {
                     errors[field.key] = { type: 'required', message: null }; 
                 }
             }
@@ -3802,7 +3821,7 @@ padding: 0.5rem;
         // Validate a single input field (Used for Blur event)
         function validateInput(input) {
             const name = input.name;
-            const value = input.value;
+            const value = input.type === 'checkbox' ? (input.checked ? 'on' : '') : input.value;
             let error = null;
 
             // Check Required
@@ -3965,10 +3984,16 @@ padding: 0.5rem;
                 // validationErrors is object: { field: { type, message } }
                 // Iterate and mark invalid
                 let firstInvalid = null;
+                let hasConditionError = false;
                 
                 for (const [field, error] of Object.entries(validationErrors)) {
+                    if (field.startsWith('condition_')) hasConditionError = true;
                     markInvalid(form, field, error);
                     if (!firstInvalid) firstInvalid = form.querySelector(`[name="${field}"]`);
+                }
+                
+                if (hasConditionError) {
+                    showToast("Please accept all Conditions of Registration.", "error");
                 }
                 
                 if (firstInvalid) {
