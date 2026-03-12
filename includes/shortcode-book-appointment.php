@@ -2476,38 +2476,30 @@ padding: 0.5rem;
             const rowEmailPhone = document.getElementById('row_email_phone');
             const groupPhone = document.getElementById('group_phone');
             
-            const dobOriginalParent = groupDob ? groupDob.parentNode : null;
-            const dobOriginalNextSibling = groupDob ? groupDob.nextSibling : null;
+            // Capture original position of row_email_phone for restoring later
+            const rowEmailPhoneOriginalParent = rowEmailPhone ? rowEmailPhone.parentNode : null;
+            const rowEmailPhoneOriginalNextSibling = rowEmailPhone ? rowEmailPhone.nextSibling : null;
 
             if (apptTypeSelect) {
                 apptTypeSelect.addEventListener('change', (e) => {
                     if (e.target.value === 'Follow-up Appointment') {
-                        // Move Email and DOB to row_email_dob
-                        if (rowEmailDob && groupEmail && groupDob) {
-                            rowEmailDob.appendChild(groupEmail);
-                            rowEmailDob.appendChild(groupDob);
-                            rowEmailDob.classList.remove('hidden');
+                        // Move Email+DOB row to appear just before the Auto Fill button
+                        if (autoFillSection && rowEmailPhone) {
+                            autoFillSection.parentNode.insertBefore(rowEmailPhone, autoFillSection);
                         }
                         // Show Auto Fill Section
                         if (autoFillSection) autoFillSection.classList.remove('hidden');
-                        
-                        // Fix phone row since email is gone
-                        if (rowEmailPhone) {
-                            rowEmailPhone.classList.remove('form-grid-2');
-                            rowEmailPhone.classList.add('form-group');
-                        }
                     } else {
-                        // Revert layout
-                        if (rowEmailPhone && groupEmail && groupPhone) {
-                            rowEmailPhone.insertBefore(groupEmail, groupPhone);
-                            rowEmailPhone.classList.add('form-grid-2');
-                            rowEmailPhone.classList.remove('form-group');
-                        }
-                        if (dobOriginalParent && groupDob) {
-                            dobOriginalParent.insertBefore(groupDob, dobOriginalNextSibling);
-                        }
-                        if (rowEmailDob) rowEmailDob.classList.add('hidden');
+                        // Hide Auto Fill Section for New Appointment
                         if (autoFillSection) autoFillSection.classList.add('hidden');
+                        // Restore Email+DOB row to its original position
+                        if (rowEmailPhoneOriginalParent && rowEmailPhone) {
+                            if (rowEmailPhoneOriginalNextSibling) {
+                                rowEmailPhoneOriginalParent.insertBefore(rowEmailPhone, rowEmailPhoneOriginalNextSibling);
+                            } else {
+                                rowEmailPhoneOriginalParent.appendChild(rowEmailPhone);
+                            }
+                        }
                     }
                 });
             }
