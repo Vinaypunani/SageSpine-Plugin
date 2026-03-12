@@ -2138,17 +2138,16 @@ padding: 0.5rem;
                                     <label for="email">Email Address <span class="text-red-500">*</span></label>
                                     <input id="email" name="email" placeholder="john.doe@example.com" required type="email"/>
                                 </div>
-                                <div class="form-group" id="group_dob">
-                                    <label for="dob">Date of Birth <span class="text-red-500">*</span></label>
-                                    <input id="dob" name="dob" required type="text" placeholder="MM/DD/YYYY" maxlength="10"/>
+                                <div class="form-group" id="group_phone">
+                                    <label for="phone">Phone Number <span class="text-red-500">*</span></label>
+                                    <input id="phone" name="phone" placeholder="(555) 000-0000" required type="number"/>
                                 </div>
                             </div>
                             
-                            <div class="form-group" id="group_phone">
-                                <label for="phone">Phone Number <span class="text-red-500">*</span></label>
-                                <input id="phone" name="phone" placeholder="(555) 000-0000" required type="number"/>
+                            <div class="form-group" id="group_dob">
+                                <label for="dob">Date of Birth <span class="text-red-500">*</span></label>
+                                <input id="dob" name="dob" required type="text" placeholder="MM/DD/YYYY" maxlength="10"/>
                             </div>
-                            <p style="font-size: 0.75rem; color: #64748b; margin-top: -0.75rem; line-height: 1.4;">By providing your phone number, you agree to receive SMS text messages from Sage Spine. Message and data rates may apply. Message frequency varies. Reply STOP to opt out.</p>
                             
                             <div class="form-group">
                                 <label for="reason_for_visit">Reason For Visit <span class="text-red-500">*</span></label>
