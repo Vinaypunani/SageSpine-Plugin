@@ -2241,7 +2241,7 @@ padding: 0.5rem;
                                     </div>
                                 </div>
                                 <div id="add-card-wrapper" style="margin-top: -0.5rem; margin-bottom: 1rem;">
-                                    <button type="button" id="btn-add-insurance-card" style="display: flex; align-items: center; gap: 0.5rem; color: #059669; font-weight: 500; font-size: 0.875rem; cursor: pointer; background: none; border: none; padding: 0.25rem 0;">
+                                    <button type="button" id="btn-add-insurance-card" style="display: flex; align-items: center; gap: 0.5rem; color: #059669; font-weight: 500; font-size: 0.875rem; cursor: pointer; background: none; border: none; padding: 0.25rem 0; box-shadow: none !important;">
                                         <i data-lucide="plus-circle" style="width: 1rem; height: 1rem;"></i>
                                         Add More Card
                                     </button>
@@ -4264,7 +4264,7 @@ padding: 0.5rem;
                         <div class="form-group">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                                 <label class="card-label" style="margin-bottom: 0;">Insurance Card #2</label>
-                                <button type="button" class="btn-remove-card" style="color: #ef4444; font-size: 0.75rem; font-weight: 500; cursor: pointer; background: none; border: none; padding: 0.25rem 0; display: flex; align-items: center; gap: 0.25rem;">
+                                <button type="button" class="btn-remove-card" style="color: #ef4444; font-size: 0.75rem; font-weight: 500; cursor: pointer; background: none; border: none; padding: 0.25rem 0; display: flex; align-items: center; gap: 0.25rem; box-shadow: none !important;">
                                     <i data-lucide="trash-2" style="width: 0.875rem; height: 0.875rem;"></i>
                                     Remove
                                 </button>
