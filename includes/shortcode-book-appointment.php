@@ -2332,9 +2332,9 @@ padding: 0.5rem;
 
                             <!-- SMS Consent -->
                             <div class="form-group" style="margin-top: 1.5rem; margin-bottom: 0.5rem; display: flex; align-items: flex-start; gap: 0.75rem;">
-                                <input type="checkbox" id="sms_consent" name="sms_consent" style="width: 1.25rem; height: 1.25rem; accent-color: #10b981; cursor: pointer; margin-top: 0.125rem; flex-shrink: 0;">
+                                <input type="checkbox" id="sms_consent" name="sms_consent" required style="width: 1.25rem; height: 1.25rem; accent-color: #10b981; cursor: pointer; margin-top: 0.125rem; flex-shrink: 0;">
                                 <label for="sms_consent" style="margin: 0; font-size: 0.75rem; color: #475569; line-height: 1.4; cursor: pointer;">
-                                    I agree to receive SMS appointment reminders and office updates from Sage Spine at the phone number provided. Message frequency varies. Msg & data rates may apply. View our <a href="https://sagespine.com/privacy-policy/" target="_blank" style="color: #059669; text-decoration: underline;">Privacy Policy</a> and <a href="https://sagespine.com/terms-conditions/" target="_blank" style="color: #059669; text-decoration: underline;">Terms</a>
+                                    I agree to receive SMS appointment reminders and office updates from Sage Spine at the phone number provided. Message frequency varies. Msg & data rates may apply. View our <a href="https://sagespine.com/privacy-policy/" target="_blank" style="color: #059669; text-decoration: underline;">Privacy Policy</a> and <a href="https://sagespine.com/terms-conditions/" target="_blank" style="color: #059669; text-decoration: underline;">Terms</a> <span class="text-red-500">*</span>
                                 </label>
                             </div>
 
@@ -3773,7 +3773,8 @@ padding: 0.5rem;
             { key: 'sex', label: 'Sex' },
             { key: 'ethnicity', label: 'Ethnicity' },
             { key: 'race', label: 'Race' },
-            { key: 'condition_all', label: 'Conditions of Registration' }
+            { key: 'condition_all', label: 'Conditions of Registration' },
+            { key: 'sms_consent', label: 'SMS Consent' }
         ];
 
         function validateBookingForm(data) {
@@ -4001,13 +4002,13 @@ padding: 0.5rem;
                 let hasConditionError = false;
                 
                 for (const [field, error] of Object.entries(validationErrors)) {
-                    if (field.startsWith('condition_')) hasConditionError = true;
+                    if (field.startsWith('condition_') || field === 'sms_consent') hasConditionError = true;
                     markInvalid(form, field, error);
                     if (!firstInvalid) firstInvalid = form.querySelector(`[name="${field}"]`);
                 }
                 
                 if (hasConditionError) {
-                    showToast("Please accept all Conditions of Registration.", "error");
+                    showToast("Please accept all Conditions of Registration and SMS Consent.", "error");
                 }
                 
                 if (firstInvalid) {
