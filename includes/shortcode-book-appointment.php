@@ -1452,7 +1452,7 @@ padding: 0.5rem;
         }
         
         /* File Upload - Reference Match */
-        #sage-book-app #drop-zone {
+        #sage-book-app .drop-zone {
             position: relative;
             border: 1px dashed #cbd5e1;
             border-radius: 1rem;
@@ -1465,11 +1465,11 @@ padding: 0.5rem;
             justify-content: center;
             cursor: pointer;
         }
-        #sage-book-app #drop-zone:hover {
+        #sage-book-app .drop-zone:hover {
             border-color: #059669;
             background-color: rgba(16, 185, 129, 0.02);
         }
-        #sage-book-app #drop-zone input {
+        #sage-book-app .drop-zone input {
             position: absolute;
             inset: 0;
             width: 100%;
@@ -1478,7 +1478,7 @@ padding: 0.5rem;
             cursor: pointer;
             z-index: 10;
         }
-        #sage-book-app #drop-zone .upload-icon-outer {
+        #sage-book-app .drop-zone .upload-icon-outer {
             background-color: #ecfdf5;
             width: 3.5rem;
             height: 3.5rem;
@@ -1489,7 +1489,7 @@ padding: 0.5rem;
             margin-bottom: 1.25rem;
             transition: all 0.3s;
         }
-        #sage-book-app #drop-zone .upload-icon-inner {
+        #sage-book-app .drop-zone .upload-icon-inner {
             background-color: #10b981;
             width: 2.25rem;
             height: 2.25rem;
@@ -1499,33 +1499,33 @@ padding: 0.5rem;
             justify-content: center;
             box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
         }
-        #sage-book-app #drop-zone:hover .upload-icon-outer {
+        #sage-book-app .drop-zone:hover .upload-icon-outer {
             transform: scale(1.05);
         }
-        #sage-book-app #drop-zone .upload-icon-inner i {
+        #sage-book-app .drop-zone .upload-icon-inner i {
             color: white;
             width: 1.25rem;
             height: 1.25rem;
         }
-        #sage-book-app #drop-zone p {
+        #sage-book-app .drop-zone p {
             font-size: 1.125rem;
             color: #1e293b;
             font-weight: 500;
             margin: 0;
         }
-        #sage-book-app #drop-zone p .upload-link {
+        #sage-book-app .drop-zone p .upload-link {
             color: #10b981;
             font-weight: 600;
             text-decoration: none;
         }
-        #sage-book-app #drop-zone .file-info {
+        #sage-book-app .drop-zone .file-info {
             font-size: 0.875rem;
             color: #94a3b8;
             font-weight: 400;
             margin-top: 0.5rem;
             letter-spacing: 0.025em;
         }
-        #sage-book-app #upload-status {
+        #sage-book-app .upload-status {
             position: absolute;
             inset: 0;
             background-color: rgba(255, 255, 255, 0.9);
@@ -1534,7 +1534,7 @@ padding: 0.5rem;
             justify-content: center;
             border-radius: 0.75rem;
         }
-        #sage-book-app #upload-status p {
+        #sage-book-app .upload-status p {
             font-size: 0.875rem;
             font-weight: 500;
             color: #4b5563;
@@ -1542,12 +1542,12 @@ padding: 0.5rem;
             align-items: center;
             gap: 0.5rem;
         }
-        #sage-book-app #upload-status i {
+        #sage-book-app .upload-status i {
             animation: spin 1s linear infinite;
             width: 1rem;
             height: 1rem;
         }
-        #sage-book-app #file-name-display {
+        #sage-book-app .file-name-display {
             margin-top: 0.5rem;
             font-size: 0.875rem;
             text-align: center;
@@ -2210,31 +2210,41 @@ padding: 0.5rem;
                                     </select>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <label>Insurance Card Image</label>
-                                    <div id="drop-zone">
-                                        <input accept="image/*,application/pdf" id="insurance-upload" name="insurance_file" type="file"/>
-                                        <div style="display: flex;
-    flex-direction: column;
-    align-items: center;">
-                                            <div class="upload-icon-outer">
-                                                <div class="upload-icon-inner">
-                                                    <i data-lucide="upload-cloud"></i>
+                                <div id="insurance-cards-container">
+                                    <div class="insurance-card-item" data-index="1">
+                                        <div class="form-group">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                                <label class="card-label" style="margin-bottom: 0;">Insurance Card #1</label>
+                                            </div>
+                                            <div class="drop-zone">
+                                                <input accept="image/*,application/pdf" class="insurance-upload" name="insurance_file_1" type="file"/>
+                                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                                    <div class="upload-icon-outer">
+                                                        <div class="upload-icon-inner">
+                                                            <i data-lucide="upload-cloud"></i>
+                                                        </div>
+                                                    </div>
+                                                    <p>
+                                                        <span class="upload-link">Upload a file</span> or drag and drop
+                                                    </p>
+                                                    <p class="file-info">PNG, JPG, PDF up to 1MB</p>
+                                                </div>
+                                                <input type="hidden" name="insurance_card_url" class="insurance_card_url">
+                                                <div class="upload-status hidden">
+                                                     <p>
+                                                         <i data-lucide="loader"></i> Uploading...
+                                                     </p>
                                                 </div>
                                             </div>
-                                            <p>
-                                                <span class="upload-link">Upload a file</span> or drag and drop
-                                            </p>
-                                            <p class="file-info">PNG, JPG, PDF up to 1MB</p>
-                                        </div>
-                                        <input type="hidden" name="insurance_card_url" id="insurance_card_url">
-                                        <div id="upload-status" class="hidden">
-                                             <p>
-                                                 <i data-lucide="loader"></i> Uploading...
-                                             </p>
+                                            <p class="file-name-display hidden"></p>
                                         </div>
                                     </div>
-                                    <p id="file-name-display" class="hidden"></p>
+                                </div>
+                                <div id="add-card-wrapper" style="margin-top: -0.5rem; margin-bottom: 1rem;">
+                                    <button type="button" id="btn-add-insurance-card" style="display: flex; align-items: center; gap: 0.5rem; color: #059669; font-weight: 500; font-size: 0.875rem; cursor: pointer; background: none; border: none; padding: 0.25rem 0;">
+                                        <i data-lucide="plus-circle" style="width: 1rem; height: 1rem;"></i>
+                                        Add More Card
+                                    </button>
                                 </div>
                             </div>
                             
@@ -2603,21 +2613,51 @@ padding: 0.5rem;
                             }
                             
                             // Insurance Card Logic
-                            let imgUrl = typeof contact.Insurance_Card === 'string' ? contact.Insurance_Card : '';
-                            if (!imgUrl && Array.isArray(contact.Insurance_Card) && contact.Insurance_Card.length > 0) {
-                                imgUrl = contact.Insurance_Card[0].url || '';
-                            }
-                            if (!imgUrl && contact.Record_Image) {
-                                imgUrl = typeof contact.Record_Image === 'string' ? contact.Record_Image : '';
-                            }
-                            if (imgUrl && imgUrl.startsWith('http')) {
-                                populate('insurance_card_url', imgUrl);
-                                const fileNameDisplay = document.getElementById('file-name-display');
-                                if (fileNameDisplay) {
-                                    fileNameDisplay.innerHTML = `<div style="margin-top: 10px; text-align: center;"><p class="text-sm text-emerald-600 mb-2 font-medium">Existing Insurance Card:</p><a href="${imgUrl}" target="_blank"><img src="${imgUrl}" alt="Insurance Card Preview" style="max-height: 120px; border-radius: 8px; border: 1px solid #e2e8f0; display: inline-block; object-fit: contain;" /></a><br><span style="font-size: 0.75rem; color: #64748b; display: block; margin-top: 5px;">Upload a new image above to replace</span></div>`;
-                                    fileNameDisplay.classList.remove('hidden');
+                            const handleCardAutoFill = (cardKey, index) => {
+                                let imgUrl = typeof contact[cardKey] === 'string' ? contact[cardKey] : '';
+                                if (!imgUrl && Array.isArray(contact[cardKey]) && contact[cardKey].length > 0) {
+                                    imgUrl = contact[cardKey][0].url || '';
                                 }
-                            }
+                                // Fallback for Card 1 only
+                                if (index === 1 && !imgUrl && contact.Record_Image) {
+                                    imgUrl = typeof contact.Record_Image === 'string' ? contact.Record_Image : '';
+                                }
+
+                                if (imgUrl && imgUrl.startsWith('http')) {
+                                    // If Card 2 and not added yet, trigger add
+                                    if (index === 2) {
+                                        const btnAdd = document.getElementById('btn-add-insurance-card');
+                                        const card2 = document.querySelector('.insurance-card-item[data-index="2"]');
+                                        if (btnAdd && !card2) {
+                                            btnAdd.click();
+                                        }
+                                    }
+
+                                    const item = document.querySelector(`.insurance-card-item[data-index="${index}"]`);
+                                    if (item) {
+                                        const hiddenUrlInput = item.querySelector('.insurance_card_url');
+                                        const fileNameDisplay = item.querySelector('.file-name-display');
+                                        
+                                        if (hiddenUrlInput) hiddenUrlInput.value = imgUrl;
+                                        if (fileNameDisplay) {
+                                            fileNameDisplay.innerHTML = `
+                                                <div style="margin-top: 10px; text-align: center;">
+                                                    <p class="text-sm text-emerald-600 mb-2 font-medium">Existing Insurance Card #${index}:</p>
+                                                    <a href="${imgUrl}" target="_blank">
+                                                        <img src="${imgUrl}" alt="Insurance Card Preview" style="max-height: 120px; border-radius: 8px; border: 1px solid #e2e8f0; display: inline-block; object-fit: contain;" />
+                                                    </a>
+                                                    <br>
+                                                    <span style="font-size: 0.75rem; color: #64748b; display: block; margin-top: 5px;">Upload a new image above to replace</span>
+                                                </div>
+                                            `;
+                                            fileNameDisplay.classList.remove('hidden');
+                                        }
+                                    }
+                                }
+                            };
+
+                            handleCardAutoFill('Insurance_Card', 1);
+                            handleCardAutoFill('Insurance_Card_2', 2);
                             
                             const setSelect = (id, val) => {
                                 const el = document.getElementById(id);
@@ -4127,8 +4167,13 @@ padding: 0.5rem;
                     "ZIP Code": data.address_zip || "",
                     "Insurance Info": data.insurance_info || "",
                     "Is this an Advantage Plan?": data.medicare_advantage_plan || "",
-                    "Insurance Card": data.insurance_card_url || ""
+                    "Insurance Card": document.querySelector('.insurance-card-item[data-index="1"] .insurance_card_url')?.value || "",
+                    "Insurance Card 2": document.querySelector('.insurance-card-item[data-index="2"] .insurance_card_url')?.value || ""
                 };
+                
+                // Add explicit fields to top level as well if needed
+                formData.append('insurance_card_url', document.querySelector('.insurance-card-item[data-index="1"] .insurance_card_url')?.value || '');
+                formData.append('insurance_card_url2', document.querySelector('.insurance-card-item[data-index="2"] .insurance_card_url')?.value || '');
                 formData.append('additional_fields', JSON.stringify(additionalFields));
                 
                 console.log("Booking FormData:");
@@ -4194,33 +4239,100 @@ padding: 0.5rem;
 
         // --- Optional Fields Logic ---
         function initOptionalFields() {
-             // Accordion Toggle Removed
+            const container = document.getElementById('insurance-cards-container');
+            const btnAdd = document.getElementById('btn-add-insurance-card');
+            const addWrapper = document.getElementById('add-card-wrapper');
 
-            // File Upload Logic
-            const fileInput = document.getElementById('insurance-upload');
-            const fileNameDisplay = document.getElementById('file-name-display');
-            const hiddenUrlInput = document.getElementById('insurance_card_url');
-            const uploadStatus = document.getElementById('upload-status');
-            const dropZone = document.getElementById('drop-zone');
+            if (container) {
+                // Initialize existing items
+                const items = container.querySelectorAll('.insurance-card-item');
+                items.forEach(item => setupInsuranceCardItemListeners(item));
+            }
+
+            if (btnAdd && container) {
+                btnAdd.addEventListener('click', () => {
+                    const items = container.querySelectorAll('.insurance-card-item');
+                    if (items.length >= 2) return; // Limit to 2
+
+                    const nextIndex = 2;
+                    
+                    const newItem = document.createElement('div');
+                    newItem.className = 'insurance-card-item';
+                    newItem.dataset.index = nextIndex;
+                    newItem.style.marginTop = '1rem';
+                    newItem.innerHTML = `
+                        <div class="form-group">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <label class="card-label" style="margin-bottom: 0;">Insurance Card #2</label>
+                                <button type="button" class="btn-remove-card" style="color: #ef4444; font-size: 0.75rem; font-weight: 500; cursor: pointer; background: none; border: none; padding: 0.25rem 0; display: flex; align-items: center; gap: 0.25rem;">
+                                    <i data-lucide="trash-2" style="width: 0.875rem; height: 0.875rem;"></i>
+                                    Remove
+                                </button>
+                            </div>
+                            <div class="drop-zone">
+                                <input accept="image/*,application/pdf" class="insurance-upload" name="insurance_file_2" type="file"/>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div class="upload-icon-outer">
+                                        <div class="upload-icon-inner">
+                                            <i data-lucide="upload-cloud"></i>
+                                        </div>
+                                    </div>
+                                    <p>
+                                        <span class="upload-link">Upload a file</span> or drag and drop
+                                    </p>
+                                    <p class="file-info">PNG, JPG, PDF up to 1MB</p>
+                                </div>
+                                <input type="hidden" name="insurance_card_url2" class="insurance_card_url">
+                                <div class="upload-status hidden">
+                                     <p>
+                                         <i data-lucide="loader"></i> Uploading...
+                                     </p>
+                                </div>
+                            </div>
+                            <p class="file-name-display hidden"></p>
+                        </div>
+                    `;
+                    container.appendChild(newItem);
+                    lucide.createIcons();
+                    setupInsuranceCardItemListeners(newItem);
+
+                    // Hide add button if we have 2 cards
+                    if (addWrapper) addWrapper.style.display = 'none';
+
+                    // Remove listener
+                    const btnRemove = newItem.querySelector('.btn-remove-card');
+                    if (btnRemove) {
+                        btnRemove.addEventListener('click', () => {
+                            newItem.remove();
+                            if (addWrapper) addWrapper.style.display = 'block';
+                        });
+                    }
+                });
+            }
+        }
+
+        function setupInsuranceCardItemListeners(item) {
+            const fileInput = item.querySelector('.insurance-upload');
+            const fileNameDisplay = item.querySelector('.file-name-display');
+            const hiddenUrlInput = item.querySelector('.insurance_card_url');
+            const uploadStatus = item.querySelector('.upload-status');
+            const dropZone = item.querySelector('.drop-zone');
 
             if (fileInput) {
                 fileInput.addEventListener('change', async (e) => {
                     if (e.target.files.length > 0) {
-                        await handleFileUpload(e.target.files[0]);
+                        await handleFileUpload(e.target.files[0], fileInput, fileNameDisplay, hiddenUrlInput, uploadStatus);
                     }
                 });
             }
-            
-            // Drag and Drop
+
             if (dropZone) {
                 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, preventDefaults, false);
+                    dropZone.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }, false);
                 });
-
-                function preventDefaults(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
 
                 ['dragenter', 'dragover'].forEach(eventName => {
                     dropZone.addEventListener(eventName, () => dropZone.classList.add('bg-gray-50', 'border-emerald-500'));
@@ -4235,65 +4347,60 @@ padding: 0.5rem;
                     const files = dt.files;
                     if (files.length > 0) {
                         fileInput.files = files; // Update input files
-                        await handleFileUpload(files[0]);
+                        await handleFileUpload(files[0], fileInput, fileNameDisplay, hiddenUrlInput, uploadStatus);
                     }
                 });
             }
+        }
 
-            async function handleFileUpload(file) {
-                // Validation (Max 1MB)
-                const MAX_SIZE = 1 * 1024 * 1024; // 1MB
-                if (file.size > MAX_SIZE) {
-                    alert("File is too large. Max size is 1MB.");
-                    fileInput.value = ''; // Reset input
-                    return;
-                }
+        async function handleFileUpload(file, fileInput, fileNameDisplay, hiddenUrlInput, uploadStatus) {
+            // Validation (Max 1MB)
+            const MAX_SIZE = 1 * 1024 * 1024; // 1MB
+            if (file.size > MAX_SIZE) {
+                alert("File is too large. Max size is 1MB.");
+                fileInput.value = ''; // Reset input
+                return;
+            }
 
-                // Show UI
-                fileNameDisplay.textContent = "Uploading...";
-                fileNameDisplay.classList.remove('hidden');
-                if(uploadStatus) uploadStatus.classList.remove('hidden');
+            // Show UI
+            fileNameDisplay.textContent = "Uploading...";
+            fileNameDisplay.classList.remove('hidden');
+            if(uploadStatus) uploadStatus.classList.remove('hidden');
 
-                try {
-                    // Generate Random Filename
-                    const timestamp = Date.now();
-                    const randomStr = Math.random().toString(36).substring(2, 8);
-                    const extension = file.name.split('.').pop();
-                    const newFileName = `insurance_${timestamp}_${randomStr}.${extension}`;
+            try {
+                // Generate Random Filename
+                const timestamp = Date.now();
+                const randomStr = Math.random().toString(36).substring(2, 8);
+                const extension = file.name.split('.').pop();
+                const newFileName = `insurance_${timestamp}_${randomStr}.${extension}`;
 
-                    // Upload to WP Media Library
-                    const formData = new FormData();
-                    // Pass the file with the new name
-                    formData.append('file', file, newFileName);
+                // Upload to WP Media Library
+                const formData = new FormData();
+                formData.append('file', file, newFileName);
 
-                    // Note: WP REST API for Media usually requires Content-Disposition header if sending raw binary, 
-                    // but using FormData is often easier if supported or using 'file' param.
-                    // Let's try standard FormData upload which WP supports.
-                    
-                    const res = await axios.post(WP_MEDIA_ENDPOINT, formData, {
-                        headers: {
-                            'X-WP-Nonce': WP_API_NONCE,
-                            'Content-Type': 'multipart/form-data'
-                        }
-                    });
-
-                    if (res.status === 201 || res.status === 200) {
-                        const fileUrl = res.data.source_url;
-                        if(hiddenUrlInput) hiddenUrlInput.value = fileUrl;
-                         // Success UI
-                        fileNameDisplay.innerHTML = `<span class="text-emerald-600 font-medium">Uploaded: ${file.name}</span>`;
-                        fileNameDisplay.classList.remove('hidden');
-                    } else {
-                        throw new Error('Upload failed');
+                const res = await axios.post(WP_MEDIA_ENDPOINT, formData, {
+                    headers: {
+                        'X-WP-Nonce': WP_API_NONCE,
+                        'Content-Type': 'multipart/form-data'
                     }
+                });
 
-                } catch (e) {
-                    console.error("File Upload Error", e);
-                    alert("Failed to upload image. Please try again.");
-                    fileNameDisplay.textContent = "Upload failed.";
-                } finally {
-                    if(uploadStatus) uploadStatus.classList.add('hidden');
+                if (res.status === 201 || res.status === 200) {
+                    const fileUrl = res.data.source_url;
+                    if(hiddenUrlInput) hiddenUrlInput.value = fileUrl;
+                     // Success UI
+                    fileNameDisplay.innerHTML = `<span class="text-emerald-600 font-medium">Uploaded: ${file.name}</span>`;
+                    fileNameDisplay.classList.remove('hidden');
+                } else {
+                    throw new Error('Upload failed');
                 }
+
+            } catch (e) {
+                console.error("File Upload Error", e);
+                alert("Failed to upload image. Please try again.");
+                fileNameDisplay.textContent = "Upload failed.";
+            } finally {
+                if(uploadStatus) uploadStatus.classList.add('hidden');
             }
         }
 
