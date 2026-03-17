@@ -521,15 +521,46 @@
                 <div style="margin-top: 30px; font-size: 0.9em; color: #888;">
                     <p>The link will expire in 15 minutes.</p>
                 </div>
-                 <button class="sage-btn-submit" id="sageBtnBackToHome" style="margin-top: 20px; display: inline-block !important; background: #fff !important; color: #555 !important; border: 1px solid #ccc !important; width: auto !important; font-weight: normal !important; box-shadow: none !important;">Back to Home</button>
+                <p id="sageResendMessage" style="margin-top: 12px; font-size: 0.9em; color: #2E8B57; min-height: 1.4em;"></p>
+                <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                    <button class="sage-btn-submit" id="sageBtnResendEmail" style="display: inline-block !important; background: #2E8B57 !important; color: #fff !important; border: none !important; width: auto !important; font-weight: normal !important;">Resend Email</button>
+                    <button class="sage-btn-submit" id="sageBtnBackToHome" style="display: inline-block !important; background: #fff !important; color: #555 !important; border: 1px solid #ccc !important; width: auto !important; font-weight: normal !important; box-shadow: none !important;">Back to Home</button>
+                </div>
             </div>
         `;
 
-        // Attach listener for back button
         const backBtn = document.getElementById('sageBtnBackToHome');
         if (backBtn) {
-            backBtn.addEventListener('click', () => {
-                closeAndResetModal();
+            backBtn.addEventListener('click', () => closeAndResetModal());
+        }
+
+        const resendBtn = document.getElementById('sageBtnResendEmail');
+        const resendMsg = document.getElementById('sageResendMessage');
+        if (resendBtn) {
+            resendBtn.addEventListener('click', async () => {
+                resendBtn.disabled = true;
+                resendBtn.textContent = 'Sending...';
+                if (resendMsg) resendMsg.textContent = '';
+                try {
+                    const response = await fetch(sageSpineVars.token_send_url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': sageSpineVars.nonce },
+                        body: JSON.stringify({ contact_id: contact.id })
+                    });
+                    const data = await response.json();
+                    if (resendMsg) {
+                        resendMsg.textContent = data.success ? 'New link sent! Check your email.' : (data.message || 'Could not resend.');
+                        resendMsg.style.color = data.success ? '#2E8B57' : '#c00';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    if (resendMsg) {
+                        resendMsg.textContent = 'Error sending. Please try again.';
+                        resendMsg.style.color = '#c00';
+                    }
+                }
+                resendBtn.disabled = false;
+                resendBtn.textContent = 'Resend Email';
             });
         }
 
@@ -540,11 +571,7 @@
                 body: JSON.stringify({ contact_id: contact.id })
             });
             const data = await response.json();
-
             if (!data.success) {
-                // Keep the UI but maybe show error toast? 
-                // Or just let the user retry if they don't get the email.
-                // For now, if simulated locally, we are fine.
                 console.error('Failed to send link (backend)', data);
             }
         } catch (err) {
@@ -595,7 +622,7 @@
             const lastName = contact.Last_Name || '';
             const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
             const fullName = contact.Full_Name || (firstName + ' ' + lastName);
-            const dob = contact.Date_of_Birth ? new Date(contact.Date_of_Birth).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+            const dob = contact.Date_of_Birth || 'N/A';
             const email = contact.Email || '';
 
             const now = new Date();
@@ -612,6 +639,22 @@
                 }
             });
 
+            // Format API datetime as-is (no timezone conversion) - use numbers from the string only
+            const formatApiDateTime = (dateStr) => {
+                if (!dateStr) return 'TBD';
+                const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{1,2}):(\d{2})(?::(\d{2}))?/);
+                if (!match) {
+                    const d = new Date(dateStr);
+                    return isNaN(d.getTime()) ? dateStr : (d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + ' at ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }));
+                }
+                const [, y, m, d, h, min] = match;
+                const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                const monthName = months[parseInt(m, 10) - 1] || m;
+                const hour12 = parseInt(h, 10) % 12 || 12;
+                const ampm = parseInt(h, 10) < 12 ? 'AM' : 'PM';
+                return `${monthName} ${parseInt(d, 10)}, ${y} at ${hour12}:${min} ${ampm}`;
+            };
+
             const generateEventsHTML = (eventList) => {
                 if (eventList.length === 0) return '<p style="color: #7f8c8d; text-align: center; padding: 20px;">No appointments found.</p>';
 
@@ -619,14 +662,11 @@
                     console.log('Meeting Info:', event);
                     const dateStr = event.Start_DateTime || event.Created_Time;
 
-                    // 1. Comparison Date (Absolute Time) - Use original string with timezone
+                    // 1. Comparison Date (Absolute Time) - Use full string for upcoming vs past
                     const trueDateObj = dateStr ? new Date(dateStr) : null;
 
-                    // 2. Display Date (Clinic Wall Time) - Strip timezone to prevent browser conversion
-                    const rawDateStr = dateStr ? dateStr.replace(/Z|[+-]\d{2}(:?\d{2})?$/, '') : null;
-                    const displayDateObj = rawDateStr ? new Date(rawDateStr) : (dateStr ? new Date(dateStr) : null);
-
-                    const formattedDate = displayDateObj ? displayDateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + ' at ' + displayDateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : 'TBD';
+                    // 2. Display: use API date/time as-is, no timezone conversion
+                    const formattedDate = formatApiDateTime(dateStr);
 
                     let displayStatus = (trueDateObj && trueDateObj > now) ? 'Upcoming' : 'Completed';
                     const title = event.Event_Title || event.Subject || 'Untitled Event';
